@@ -23,6 +23,7 @@ export enum BillStatus {
 
 export interface PartnerOutputDto {
   id: string;
+  partnerNumber?: number; // Número incremental único autogenerado
   fullName: string;
   partnerIdentificationNumber: string;
   phoneNumber?: string;
@@ -419,5 +420,119 @@ export interface CashBalanceDetailsOutputDto {
   active: boolean;
   createdAt: string;                // OffsetDateTime en backend
   updatedAt?: string;               // OffsetDateTime? en backend
+}
+
+// ============================================
+// JOB (TRABAJO) - Administración de trabajos
+// ============================================
+
+export interface JobOutputDto {
+  id: string;
+  name: string;
+  startDate: string;  // LocalDate en backend (YYYY-MM-DD)
+  description: string;
+  active: boolean;
+  createdAt: string;  // OffsetDateTime en backend
+  updatedAt?: string;  // OffsetDateTime? en backend
+}
+
+export interface JobInputDto {
+  name: string;
+  startDate: string;  // LocalDate en backend (YYYY-MM-DD)
+  description?: string;
+}
+
+export interface JobUpdateDto {
+  name?: string;
+  startDate?: string;  // LocalDate en backend (YYYY-MM-DD)
+  description?: string;
+}
+
+// ============================================
+// JOB-PARTNER (ASIGNACIÓN DE SOCIOS A TRABAJOS)
+// ============================================
+
+export interface JobPartnerOutputDto {
+  id: string;
+  jobId: string;
+  jobName: string;
+  partnerId: string;
+  partnerName: string;
+  partnerIdentificationNumber: string;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface AssignPartnersToJobDto {
+  partnerIds: string[];
+}
+
+export interface JobPartnerAssignmentDto {
+  jobId: string;
+  jobName: string;
+  assignedPartners: PartnerAssignmentInfoDto[];
+}
+
+export interface PartnerAssignmentInfoDto {
+  partnerId: string;
+  partnerNumber?: number; // Número incremental único del socio
+  partnerName: string;
+  partnerIdentificationNumber: string;
+  isAssigned: boolean;
+  assignmentId?: string;
+}
+
+// ============================================
+// ATTENDANCE (ASISTENCIA DE SOCIOS A TRABAJOS)
+// ============================================
+
+export interface AttendanceOutputDto {
+  id: string;
+  jobId: string;
+  jobName: string;
+  partnerId: string;
+  partnerName: string;
+  partnerNumber?: number;
+  partnerIdentificationNumber: string;
+  attendanceDate: string; // YYYY-MM-DD
+  present: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AttendanceInputDto {
+  jobId: string;
+  partnerId: string;
+  attendanceDate: string; // YYYY-MM-DD
+  present: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
+}
+
+export interface AttendanceUpdateDto {
+  present?: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
+}
+
+export interface AttendanceByDateDto {
+  attendanceDate: string; // YYYY-MM-DD
+  attendances: AttendanceOutputDto[];
+}
+
+export interface BulkAttendanceInputDto {
+  jobId: string;
+  attendanceDate: string; // YYYY-MM-DD
+  attendances: PartnerAttendanceDto[];
+}
+
+export interface PartnerAttendanceDto {
+  partnerId: string;
+  present: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
 }
 

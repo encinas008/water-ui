@@ -20,6 +20,8 @@ import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
 import { CalenderComponent } from './pages/calender/calender.component';
 import { AddPartnerComponent } from './pages/partners/add-partner.component';
 import { PartnersListComponent } from './pages/partners/partners-list.component';
+import { JobsListComponent } from './pages/jobs/jobs-list.component';
+import { AddJobComponent } from './pages/jobs/add-job.component';
 
 // Water System Components
 import { WaterDashboardComponent } from './pages/water/water-dashboard.component';
@@ -127,6 +129,26 @@ export const routes: Routes = [
         path:'partners',
         component:PartnersListComponent,
         title:'Lista de Partners | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path:'jobs',
+        component:JobsListComponent,
+        title:'Administración de Trabajos | Sistema'
+      },
+      {
+        path:'jobs/add',
+        component:AddJobComponent,
+        title:'Nuevo Trabajo | Sistema'
+      },
+      {
+        path:'jobs/edit/:id',
+        component:AddJobComponent,
+        title:'Editar Trabajo | Sistema'
+      },
+      {
+        path:'jobs/:id/attendance',
+        loadComponent: () => import('./pages/jobs/job-attendance.component').then(m => m.JobAttendanceComponent),
+        title:'Asistencia de Socios | Sistema'
       },
       // Water System Routes
       {

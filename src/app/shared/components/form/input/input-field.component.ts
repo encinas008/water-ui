@@ -105,7 +105,8 @@ export class InputFieldComponent implements ControlValueAccessor {
     this.valueChange.emit(newValue);
   }
 
-  onKeydownEnter(event: KeyboardEvent) {
-    this.keydownEnter.emit(event);
+  onKeydownEnter(event: Event) {
+    const keyboardEvent = event as KeyboardEvent;
+    this.keydownEnter.emit(keyboardEvent);
   }
 }
