@@ -27,6 +27,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         [ngClass]="inputClasses"
         (input)="onInput($event)"
         (blur)="onTouched()"
+        (keydown.enter)="onKeydownEnter($event)"
       />
 
       @if (hint) {
@@ -59,6 +60,7 @@ export class InputFieldComponent implements ControlValueAccessor {
   @Input() className: string = '';
 
   @Output() valueChange = new EventEmitter<string | number>();
+  @Output() keydownEnter = new EventEmitter<KeyboardEvent>();
 
   // ControlValueAccessor implementation
   private onChange: (value: any) => void = () => {};
@@ -101,5 +103,9 @@ export class InputFieldComponent implements ControlValueAccessor {
     this.value = newValue;
     this.onChange(newValue);
     this.valueChange.emit(newValue);
+  }
+
+  onKeydownEnter(event: KeyboardEvent) {
+    this.keydownEnter.emit(event);
   }
 }

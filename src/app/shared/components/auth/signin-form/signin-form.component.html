@@ -93,6 +93,7 @@
             name="username"
             class="form-input"
             required
+            (keydownEnter)="onSignIn()"
           />
         </div>
 
@@ -106,6 +107,7 @@
               name="password"
               class="form-input"
               required
+              (keydownEnter)="onSignIn()"
             />
             <span
               (click)="togglePasswordVisibility()"
