@@ -22,6 +22,8 @@ import { AddPartnerComponent } from './pages/partners/add-partner.component';
 import { PartnersListComponent } from './pages/partners/partners-list.component';
 import { JobsListComponent } from './pages/jobs/jobs-list.component';
 import { AddJobComponent } from './pages/jobs/add-job.component';
+import { MeetingsListComponent } from './pages/meetings/meetings-list.component';
+import { AddMeetingComponent } from './pages/meetings/add-meeting.component';
 
 // Water System Components
 import { WaterDashboardComponent } from './pages/water/water-dashboard.component';
@@ -149,6 +151,26 @@ export const routes: Routes = [
         path:'jobs/:id/attendance',
         loadComponent: () => import('./pages/jobs/job-attendance.component').then(m => m.JobAttendanceComponent),
         title:'Asistencia de Socios | Sistema'
+      },
+      {
+        path:'meetings',
+        component:MeetingsListComponent,
+        title:'Administración de Reuniones | Sistema'
+      },
+      {
+        path:'meetings/add',
+        component:AddMeetingComponent,
+        title:'Nueva Reunión | Sistema'
+      },
+      {
+        path:'meetings/edit/:id',
+        component:AddMeetingComponent,
+        title:'Editar Reunión | Sistema'
+      },
+      {
+        path:'meetings/:id/attendance',
+        loadComponent: () => import('./pages/meetings/meeting-attendance.component').then(m => m.MeetingAttendanceComponent),
+        title:'Asistencia de Reunión | Sistema'
       },
       // Water System Routes
       {

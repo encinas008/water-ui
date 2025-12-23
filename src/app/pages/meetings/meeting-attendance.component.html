@@ -1,0 +1,279 @@
+<div>
+  <app-page-breadcrumb [pageTitle]="'Asistencia de Socios - ' + (meeting?.name || 'Reunión')" />
+
+  <!-- Alert -->
+  <div *ngIf="showAlert" class="mb-6 rounded-lg border p-4"
+       [ngClass]="{
+         'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20': alertType === 'success',
+         'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20': alertType === 'error',
+         'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20': alertType === 'warning',
+         'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20': alertType === 'info'
+       }">
+    <div class="flex items-center justify-between">
+      <p class="text-sm font-medium"
+         [ngClass]="{
+           'text-green-800 dark:text-green-400': alertType === 'success',
+           'text-red-800 dark:text-red-400': alertType === 'error',
+           'text-yellow-800 dark:text-yellow-400': alertType === 'warning',
+           'text-blue-800 dark:text-blue-400': alertType === 'info'
+         }">
+        {{ alertMessage }}
+      </p>
+      <button (click)="closeAlert()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-10">
+    <div class="flex flex-col items-center justify-center">
+      <svg class="animate-spin h-10 w-10 text-brand-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <p class="text-gray-600 dark:text-gray-400">Cargando datos...</p>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading" class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <!-- Header -->
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            Registro de Asistencia
+          </h2>
+          <div class="mt-2 space-y-1">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              <span class="font-medium text-gray-700 dark:text-gray-300">Reunión:</span>
+              <span class="ml-1 font-medium text-gray-900 dark:text-white">{{ meeting?.name }}</span>
+            </p>
+            <p *ngIf="meeting?.meetingDate" class="text-sm text-gray-600 dark:text-gray-400">
+              <span class="font-medium text-gray-700 dark:text-gray-300">Fecha:</span>
+              <span class="ml-1">{{ formatDate(meeting!.meetingDate) }}</span>
+            </p>
+            <p *ngIf="meeting" class="text-sm text-gray-600 dark:text-gray-400">
+              <span class="font-medium text-gray-700 dark:text-gray-300">Hora:</span>
+              <span class="ml-1">{{ formatTimeForMeeting(meeting!.hour, meeting!.minute, meeting!.amPm) }}</span>
+            </p>
+            <p *ngIf="meeting?.description" class="text-sm text-gray-600 dark:text-gray-400">
+              <span class="font-medium text-gray-700 dark:text-gray-300">Descripción:</span>
+              <span class="ml-1">{{ meeting!.description }}</span>
+            </p>
+          </div>
+        </div>
+        <app-button
+          variant="outline"
+          size="sm"
+          (btnClick)="goBack()"
+          class="ml-4"
+        >
+          Volver
+        </app-button>
+      </div>
+    </div>
+
+    <!-- Date Selector and Stats -->
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div class="flex-1 max-w-xs">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Fecha de Asistencia
+            </label>
+            <input
+              type="text"
+              [value]="formatDateForDisplay(selectedDateStr)"
+              readonly
+              class="h-11 w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm text-gray-700 shadow-theme-xs cursor-not-allowed dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400"
+            />
+          </div>
+          <div class="flex-1 max-w-xs">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Buscar por número de socio
+            </label>
+            <div class="relative">
+              <input
+                type="text"
+                [(ngModel)]="searchQuery"
+                (input)="onSearchChange()"
+                placeholder="Ej: 1, 25, 100..."
+                class="h-11 w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              />
+              <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="text-center">
+              <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ presentCount }}</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Presentes</p>
+            </div>
+            <div class="text-center">
+              <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ absentCount }}</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Ausentes</p>
+            </div>
+            <div class="text-center">
+              <p class="text-2xl font-bold text-gray-600 dark:text-gray-400">{{ assignedPartners.length }}</p>
+              <p class="text-xs text-gray-600 dark:text-gray-400">Total</p>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="searchQuery && searchQuery.trim() !== ''" class="text-sm text-gray-600 dark:text-gray-400">
+          Mostrando {{ filteredPartners.length }} de {{ assignedPartners.length }} socios
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance List -->
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="border-b border-gray-200 dark:border-gray-800">
+          <tr>
+            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+              #
+            </th>
+            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+              Socio
+            </th>
+            <th class="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
+              Asistencia
+            </th>
+            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+              Hora Entrada
+            </th>
+            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+              Hora Salida
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+          <tr *ngFor="let partner of filteredPartners; let i = index"
+              class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+            <!-- Número -->
+            <td class="px-4 py-4">
+              <span class="text-sm text-gray-700 dark:text-gray-300">
+                {{ i + 1 }}
+              </span>
+            </td>
+            
+            <!-- Socio -->
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-2">
+                <span *ngIf="partner.partnerNumber" class="inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800 dark:bg-brand-900/30 dark:text-brand-400">
+                  #{{ partner.partnerNumber }}
+                </span>
+                <div>
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">
+                    {{ partner.partnerName }}
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ partner.partnerIdentificationNumber }}
+                  </p>
+                </div>
+              </div>
+            </td>
+            
+            <!-- Asistencia -->
+            <td class="px-4 py-4">
+              <div class="flex items-center justify-center">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    [checked]="isPresent(partner.partnerId)"
+                    (change)="toggleAttendance(partner.partnerId)"
+                    class="h-5 w-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900"
+                  />
+                  <span class="text-sm"
+                        [ngClass]="{
+                          'text-green-600 dark:text-green-400 font-medium': isPresent(partner.partnerId),
+                          'text-red-600 dark:text-red-400': !isPresent(partner.partnerId)
+                        }">
+                    {{ isPresent(partner.partnerId) ? 'Presente' : 'Ausente' }}
+                  </span>
+                </label>
+              </div>
+            </td>
+            
+            <!-- Hora Entrada -->
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-2">
+                <input
+                  type="text"
+                  [value]="getAttendance(partner.partnerId).checkInTime || '--:--'"
+                  readonly
+                  class="h-9 w-24 rounded-lg border border-gray-300 bg-gray-50 px-3 text-sm text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 cursor-not-allowed"
+                />
+                <button
+                  *ngIf="canMarkCheckIn(partner.partnerId)"
+                  (click)="markCheckIn(partner.partnerId)"
+                  class="h-9 px-3 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors dark:bg-green-700 dark:hover:bg-green-600"
+                  title="Marcar entrada"
+                >
+                  Entrada
+                </button>
+                <span *ngIf="!canMarkCheckIn(partner.partnerId) && getAttendance(partner.partnerId).checkInTime" class="text-xs text-green-600 dark:text-green-400">
+                  ✓
+                </span>
+              </div>
+            </td>
+            
+            <!-- Hora Salida -->
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-2">
+                <input
+                  type="text"
+                  [value]="getAttendance(partner.partnerId).checkOutTime || '--:--'"
+                  readonly
+                  class="h-9 w-24 rounded-lg border border-gray-300 bg-gray-50 px-3 text-sm text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 cursor-not-allowed"
+                />
+                <button
+                  *ngIf="canMarkCheckOut(partner.partnerId)"
+                  (click)="markCheckOut(partner.partnerId)"
+                  class="h-9 px-3 rounded-lg bg-red-600 text-white text-xs font-medium hover:bg-red-700 transition-colors dark:bg-red-700 dark:hover:bg-red-600"
+                  title="Marcar salida"
+                >
+                  Salida
+                </button>
+                <span *ngIf="!canMarkCheckOut(partner.partnerId) && getAttendance(partner.partnerId).checkOutTime" class="text-xs text-green-600 dark:text-green-400">
+                  ✓
+                </span>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Empty State - No hay socios asignados -->
+          <tr *ngIf="assignedPartners.length === 0">
+            <td colspan="5" class="px-4 py-8 text-center">
+              <p class="text-gray-600 dark:text-gray-400">No hay socios asignados a esta reunión</p>
+            </td>
+          </tr>
+          
+          <!-- Empty State - No hay resultados de búsqueda -->
+          <tr *ngIf="assignedPartners.length > 0 && filteredPartners.length === 0">
+            <td colspan="5" class="px-4 py-8 text-center">
+              <p class="text-gray-600 dark:text-gray-400">No se encontraron socios con el número "{{ searchQuery }}"</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="border-t border-gray-200 px-6 py-4 dark:border-gray-800 flex items-center justify-end">
+      <app-button
+        variant="outline"
+        size="sm"
+        (btnClick)="goBack()"
+      >
+        Volver
+      </app-button>
+    </div>
+  </div>
+</div>
+

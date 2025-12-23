@@ -36,6 +36,7 @@ export class AddJobComponent implements OnInit {
   startDateBackend: string = ''; // Formato YYYY-MM-DD para backend
   startDateObject: Date = new Date(); // Date object para el date picker
   description: string = '';
+  fine: string | number = '';
 
   // UI State
   isLoading: boolean = false;
@@ -144,6 +145,7 @@ export class AddJobComponent implements OnInit {
         this.startDateObject = dateObj;
         this.startDateDisplay = this.formatDateToMMMDYYYY(dateObj);
         this.description = job.description || '';
+        this.fine = job.fine?.toString() || '';
         this.isLoading = false;
       },
       error: (error) => {
@@ -184,11 +186,12 @@ export class AddJobComponent implements OnInit {
 
     if (this.isEditMode && this.jobId) {
       // Actualizar trabajo existente
-      const jobUpdate: JobUpdateDto = {
-        name: this.name,
-        startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
-        description: this.description || undefined
-      };
+            const jobUpdate: JobUpdateDto = {
+              name: this.name,
+              startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
+              description: this.description || undefined,
+              fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
+            };
 
       const id = this.jobId; // Guardar en variable local para TypeScript
       this.jobService.updateJob(id, jobUpdate).subscribe({
@@ -209,11 +212,12 @@ export class AddJobComponent implements OnInit {
       });
     } else {
       // Crear nuevo trabajo
-      const jobInput: JobInputDto = {
-        name: this.name,
-        startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
-        description: this.description || undefined
-      };
+            const jobInput: JobInputDto = {
+              name: this.name,
+              startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
+              description: this.description || undefined,
+              fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
+            };
 
       this.jobService.createJob(jobInput).subscribe({
         next: (response) => {
@@ -270,6 +274,7 @@ export class AddJobComponent implements OnInit {
     this.startDateDisplay = this.formatDateToMMMDYYYY(today);
     this.startDateBackend = this.formatDateToYYYYMMDDFromDate(today);
     this.description = '';
+    this.fine = '';
     this.showAlert = false;
   }
 

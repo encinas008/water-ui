@@ -1,0 +1,189 @@
+<app-modal [isOpen]="isOpen" (close)="closeModal()" className="max-w-3xl max-h-[90vh] flex flex-col">
+  <div class="flex flex-col max-h-[90vh]">
+    <!-- Header -->
+    <div class="flex-shrink-0 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Asignación de Socios a la Reunión
+      </h2>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        Reunión: <span class="font-medium text-gray-900 dark:text-white">{{ meetingName }}</span>
+      </p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex-1 flex items-center justify-center p-8 min-h-0">
+      <div class="flex flex-col items-center">
+        <svg class="animate-spin h-10 w-10 text-brand-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-gray-600 dark:text-gray-400">Cargando socios...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="flex-shrink-0 mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 p-4">
+      <p class="text-sm text-red-800 dark:text-red-400">{{ errorMessage }}</p>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!isLoading" class="flex-1 overflow-y-auto px-6 py-4 min-h-0">
+      <!-- Filtro por rango de número de socio -->
+      <div class="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div class="flex items-center justify-between mb-3">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+            Filtrar por rango de número de socio
+          </label>
+          <button
+            *ngIf="hasActiveRangeFilter()"
+            (click)="clearRangeFilter()"
+            class="text-xs text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+          >
+            Limpiar filtro
+          </button>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex-1">
+            <label class="block text-xs text-gray-600 dark:text-gray-400 mb-1">Desde</label>
+            <input
+              type="number"
+              [(ngModel)]="minPartnerNumber"
+              [placeholder]="minAvailableNumber?.toString() || 'Mínimo'"
+              [min]="minAvailableNumber || 1"
+              [max]="maxAvailableNumber"
+              class="h-9 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+            />
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs text-gray-600 dark:text-gray-400 mb-1">Hasta</label>
+            <input
+              type="number"
+              [(ngModel)]="maxPartnerNumber"
+              [placeholder]="maxAvailableNumber?.toString() || 'Máximo'"
+              [min]="minAvailableNumber || 1"
+              [max]="maxAvailableNumber"
+              class="h-9 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-300 dark:bg-gray-800 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+            />
+          </div>
+        </div>
+        <div *ngIf="minAvailableNumber !== null && maxAvailableNumber !== null" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          Rango disponible: #{{ minAvailableNumber }} - #{{ maxAvailableNumber }}
+        </div>
+      </div>
+
+      <div class="mb-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            [checked]="allFilteredPartnersSelected"
+            [indeterminate]="someFilteredPartnersSelected"
+            (change)="toggleSelectAll()"
+            id="selectAllPartners"
+            class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900"
+          />
+          <label for="selectAllPartners" class="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+            Seleccionar todos
+            <span *ngIf="hasActiveRangeFilter()">({{ filteredPartners.length }} socios visibles)</span>
+          </label>
+        </div>
+        <div class="flex items-center gap-3">
+          <span *ngIf="hasActiveRangeFilter()" class="text-xs text-gray-500 dark:text-gray-400">
+            Mostrando {{ filteredPartners.length }} de {{ partners.length }}
+          </span>
+          <span class="text-sm font-medium text-brand-600 dark:text-brand-400">
+            {{ selectedCount }} seleccionado{{ selectedCount !== 1 ? 's' : '' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Partners List -->
+      <div class="space-y-2">
+        <div
+          *ngFor="let partner of filteredPartners"
+          class="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800/50"
+          [ngClass]="{
+            'border-brand-300 bg-brand-50 dark:border-brand-800 dark:bg-brand-900/20': isPartnerSelected(partner.partnerId)
+          }"
+        >
+          <input
+            type="checkbox"
+            [checked]="isPartnerSelected(partner.partnerId)"
+            (change)="togglePartner(partner.partnerId)"
+            class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900"
+            [id]="'partner-' + partner.partnerId"
+          />
+          <label
+            [for]="'partner-' + partner.partnerId"
+            class="flex-1 cursor-pointer"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-2">
+                  <p class="font-medium text-gray-900 dark:text-white">
+                    {{ partner.partnerName }}
+                  </p>
+                  <span *ngIf="partner.partnerNumber" class="inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800 dark:bg-brand-900/30 dark:text-brand-400">
+                    #{{ partner.partnerNumber }}
+                  </span>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  ID: {{ partner.partnerIdentificationNumber }}
+                </p>
+              </div>
+              <span
+                *ngIf="partner.isAssigned"
+                class="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400"
+              >
+                Ya asignado
+              </span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="partners.length === 0" class="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-800 dark:bg-gray-900">
+          <p class="text-gray-600 dark:text-gray-400">No hay socios disponibles</p>
+        </div>
+        
+        <!-- Empty State cuando hay filtro activo pero no hay resultados -->
+        <div *ngIf="partners.length > 0 && filteredPartners.length === 0" class="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-800 dark:bg-gray-900">
+          <p class="text-gray-600 dark:text-gray-400 mb-2">No hay socios en el rango seleccionado</p>
+          <button
+            (click)="clearRangeFilter()"
+            class="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300"
+          >
+            Limpiar filtro
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div *ngIf="!isLoading" class="flex-shrink-0 border-t border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-end gap-3">
+      <app-button
+        variant="outline"
+        size="sm"
+        (btnClick)="closeModal()"
+        [disabled]="isSaving"
+      >
+        Cancelar
+      </app-button>
+      <app-button
+        variant="primary"
+        size="sm"
+        (btnClick)="onSave()"
+        [disabled]="isSaving"
+      >
+        <span *ngIf="!isSaving">Guardar Asignaciones</span>
+        <span *ngIf="isSaving" class="flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Guardando...
+        </span>
+      </app-button>
+    </div>
+  </div>
+</app-modal>
+

@@ -431,6 +431,7 @@ export interface JobOutputDto {
   name: string;
   startDate: string;  // LocalDate en backend (YYYY-MM-DD)
   description: string;
+  fine?: number;
   active: boolean;
   createdAt: string;  // OffsetDateTime en backend
   updatedAt?: string;  // OffsetDateTime? en backend
@@ -440,12 +441,14 @@ export interface JobInputDto {
   name: string;
   startDate: string;  // LocalDate en backend (YYYY-MM-DD)
   description?: string;
+  fine?: number;
 }
 
 export interface JobUpdateDto {
   name?: string;
   startDate?: string;  // LocalDate en backend (YYYY-MM-DD)
   description?: string;
+  fine?: number;
 }
 
 // ============================================
@@ -534,5 +537,126 @@ export interface PartnerAttendanceDto {
   present: boolean;
   checkInTime?: string;
   checkOutTime?: string;
+}
+
+// ============================================
+// MEETING (REUNIÓN) - Administración de reuniones
+// ============================================
+
+export interface MeetingOutputDto {
+  id: string;
+  name: string;
+  meetingDate: string; // YYYY-MM-DD
+  hour: number; // 1-12
+  minute: number; // 0-59
+  amPm: string; // "AM" o "PM"
+  meetingTypeCode?: string;
+  meetingTypeName?: string;
+  description: string;
+  fine?: number;
+  active: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface MeetingInputDto {
+  name: string;
+  meetingDate: string; // YYYY-MM-DD
+  hour: number; // 1-12
+  minute: number; // 0-59
+  amPm: string; // "AM" o "PM"
+  meetingTypeCode?: string;
+  description?: string;
+  fine?: number;
+}
+
+export interface MeetingUpdateDto {
+  name?: string;
+  meetingDate?: string; // YYYY-MM-DD
+  hour?: number; // 1-12
+  minute?: number; // 0-59
+  amPm?: string; // "AM" o "PM"
+  meetingTypeCode?: string;
+  description?: string;
+  fine?: number;
+}
+
+// ============================================
+// MEETING TYPE (TIPO DE REUNIÓN)
+// ============================================
+
+export interface MeetingTypeOutputDto {
+  id: string;
+  code: string;
+  name: string;
+  active: boolean;
+}
+
+// ============================================
+// MEETING-PARTNER (ASIGNACIÓN DE SOCIOS A REUNIONES)
+// ============================================
+
+export interface MeetingPartnerOutputDto {
+  id: string;
+  meetingId: string;
+  meetingName: string;
+  partnerId: string;
+  partnerName: string;
+  partnerNumber?: number;
+  partnerIdentificationNumber: string;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface AssignPartnersToMeetingDto {
+  partnerIds: string[];
+}
+
+export interface MeetingPartnerAssignmentDto {
+  meetingId: string;
+  meetingName: string;
+  assignedPartners: PartnerAssignmentInfoDto[];
+}
+
+// ============================================
+// MEETING-ATTENDANCE (ASISTENCIA DE SOCIOS A REUNIONES)
+// ============================================
+
+export interface MeetingAttendanceOutputDto {
+  id: string;
+  meetingId: string;
+  meetingName: string;
+  partnerId: string;
+  partnerName: string;
+  partnerNumber?: number;
+  partnerIdentificationNumber: string;
+  attendanceDate: string; // YYYY-MM-DD
+  present: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface MeetingAttendanceInputDto {
+  meetingId: string;
+  partnerId: string;
+  attendanceDate: string; // YYYY-MM-DD
+  present: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
+}
+
+export interface MeetingAttendanceUpdateDto {
+  present?: boolean;
+  checkInTime?: string;
+  checkOutTime?: string;
+}
+
+export interface BulkMeetingAttendanceInputDto {
+  meetingId: string;
+  attendanceDate: string; // YYYY-MM-DD
+  attendances: PartnerAttendanceDto[];
 }
 

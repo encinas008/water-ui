@@ -6,11 +6,11 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { AssignPartnersModalComponent } from './assign-partners-modal.component';
-import { JobService } from '../../shared/services/job.service';
-import { JobOutputDto } from '../../shared/models/water-system.models';
+import { MeetingService } from '../../shared/services/meeting.service';
+import { MeetingOutputDto } from '../../shared/models/water-system.models';
 
 @Component({
-  selector: 'app-jobs-list',
+  selector: 'app-meetings-list',
   standalone: true,
   imports: [
     CommonModule,
@@ -20,13 +20,13 @@ import { JobOutputDto } from '../../shared/models/water-system.models';
     BadgeComponent,
     AssignPartnersModalComponent,
   ],
-  templateUrl: './jobs-list.component.html',
+  templateUrl: './meetings-list.component.html',
   styles: ``
 })
-export class JobsListComponent implements OnInit {
-  jobs: JobOutputDto[] = [];
-  filteredJobs: JobOutputDto[] = [];
-  paginatedJobs: JobOutputDto[] = [];
+export class MeetingsListComponent implements OnInit {
+  meetings: MeetingOutputDto[] = [];
+  filteredMeetings: MeetingOutputDto[] = [];
+  paginatedMeetings: MeetingOutputDto[] = [];
   
   // Búsqueda
   searchQuery: string = '';
@@ -42,7 +42,7 @@ export class JobsListComponent implements OnInit {
   
   // Selección
   selectAll: boolean = false;
-  selectedJobs: Set<string> = new Set();
+  selectedMeetings: Set<string> = new Set();
   
   // Estado
   isLoading: boolean = true;
@@ -50,41 +50,41 @@ export class JobsListComponent implements OnInit {
 
   // Modal de asignación de socios
   showAssignPartnersModal: boolean = false;
-  selectedJobId: string = '';
-  selectedJobName: string = '';
+  selectedMeetingId: string = '';
+  selectedMeetingName: string = '';
 
   constructor(
-    private jobService: JobService,
+    private meetingService: MeetingService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadJobs();
+    this.loadMeetings();
   }
 
-  loadJobs(): void {
+  loadMeetings(): void {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.jobService.getJobs().subscribe({
+    this.meetingService.getMeetings().subscribe({
       next: (data) => {
-        this.jobs = data;
-        this.filteredJobs = [...this.jobs];
+        this.meetings = data;
+        this.filteredMeetings = [...this.meetings];
         this.calculatePagination();
         this.isLoading = false;
       },
       error: (error) => {
         this.isLoading = false;
-        console.error('Error al cargar trabajos:', error);
+        console.error('Error al cargar reuniones:', error);
         
         if (error.status === 0) {
           this.errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté corriendo.';
         } else if (error.status === 401) {
           this.errorMessage = 'No tienes autorización. Por favor inicia sesión.';
         } else if (error.status === 404) {
-          this.errorMessage = 'El endpoint /api/jobs no fue encontrado en el servidor.';
+          this.errorMessage = 'El endpoint /api/meetings no fue encontrado en el servidor.';
         } else {
-          this.errorMessage = `Error al cargar los trabajos: ${error.message || 'Error desconocido'}`;
+          this.errorMessage = `Error al cargar las reuniones: ${error.message || 'Error desconocido'}`;
         }
       }
     });
@@ -94,11 +94,11 @@ export class JobsListComponent implements OnInit {
     const query = this.searchQuery.toLowerCase().trim();
 
     if (!query) {
-      this.filteredJobs = [...this.jobs];
+      this.filteredMeetings = [...this.meetings];
     } else {
-      this.filteredJobs = this.jobs.filter(job => {
-        const name = job.name?.toLowerCase() || '';
-        const description = job.description?.toLowerCase() || '';
+      this.filteredMeetings = this.meetings.filter(meeting => {
+        const name = meeting.name?.toLowerCase() || '';
+        const description = meeting.description?.toLowerCase() || '';
 
         return name.includes(query) || description.includes(query);
       });
@@ -108,14 +108,14 @@ export class JobsListComponent implements OnInit {
   }
 
   calculatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredJobs.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.filteredMeetings.length / this.itemsPerPage);
     
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedJobs = this.filteredJobs.slice(startIndex, endIndex);
+    this.paginatedMeetings = this.filteredMeetings.slice(startIndex, endIndex);
     
-    this.startEntry = this.filteredJobs.length > 0 ? startIndex + 1 : 0;
-    this.endEntry = Math.min(endIndex, this.filteredJobs.length);
+    this.startEntry = this.filteredMeetings.length > 0 ? startIndex + 1 : 0;
+    this.endEntry = Math.min(endIndex, this.filteredMeetings.length);
     
     this.updatePageNumbers();
   }
@@ -166,61 +166,77 @@ export class JobsListComponent implements OnInit {
     this.selectAll = !this.selectAll;
 
     if (this.selectAll) {
-      this.paginatedJobs.forEach(job => {
-        if (job.id) {
-          this.selectedJobs.add(job.id);
+      this.paginatedMeetings.forEach(meeting => {
+        if (meeting.id) {
+          this.selectedMeetings.add(meeting.id);
         }
       });
     } else {
-      this.selectedJobs.clear();
+      this.selectedMeetings.clear();
     }
   }
 
-  toggleSelectJob(id: string | undefined): void {
+  toggleSelectMeeting(id: string | undefined): void {
     if (!id) return;
 
-    if (this.selectedJobs.has(id)) {
-      this.selectedJobs.delete(id);
+    if (this.selectedMeetings.has(id)) {
+      this.selectedMeetings.delete(id);
     } else {
-      this.selectedJobs.add(id);
+      this.selectedMeetings.add(id);
     }
 
-    this.selectAll = this.paginatedJobs.every(j => j.id && this.selectedJobs.has(j.id));
+    this.selectAll = this.paginatedMeetings.every(m => m.id && this.selectedMeetings.has(m.id));
   }
 
   isSelected(id: string | undefined): boolean {
-    return id ? this.selectedJobs.has(id) : false;
+    return id ? this.selectedMeetings.has(id) : false;
   }
 
-  navigateToAddJob(): void {
-    this.router.navigate(['/jobs/add']);
+  navigateToAddMeeting(): void {
+    this.router.navigate(['/meetings/add']);
   }
 
-  onView(job: JobOutputDto): void {
-    this.router.navigate(['/jobs', job.id, 'attendance']);
+  onView(meeting: MeetingOutputDto): void {
+    this.router.navigate(['/meetings', meeting.id, 'attendance']);
   }
 
-  onEdit(job: JobOutputDto): void {
-    this.router.navigate(['/jobs/edit', job.id]);
+  onAssignPartners(meeting: MeetingOutputDto): void {
+    this.selectedMeetingId = meeting.id;
+    this.selectedMeetingName = meeting.name;
+    this.showAssignPartnersModal = true;
   }
 
-  onDelete(job: JobOutputDto): void {
-    if (confirm(`¿Estás seguro de que deseas eliminar el trabajo "${job.name}"?`)) {
-      this.jobService.deleteJob(job.id).subscribe({
+  closeAssignPartnersModal(): void {
+    this.showAssignPartnersModal = false;
+    this.selectedMeetingId = '';
+    this.selectedMeetingName = '';
+  }
+
+  onPartnersAssigned(): void {
+    console.log('Socios asignados exitosamente.');
+  }
+
+  onEdit(meeting: MeetingOutputDto): void {
+    this.router.navigate(['/meetings/edit', meeting.id]);
+  }
+
+  onDelete(meeting: MeetingOutputDto): void {
+    if (confirm(`¿Estás seguro de que deseas eliminar la reunión "${meeting.name}"?`)) {
+      this.meetingService.deleteMeeting(meeting.id).subscribe({
         next: () => {
-          console.log('Trabajo eliminado:', job);
-          this.loadJobs(); // Recargar la lista
+          console.log('Reunión eliminada:', meeting);
+          this.loadMeetings(); // Recargar la lista
         },
         error: (error) => {
-          console.error('Error al eliminar trabajo:', error);
-          alert('Error al eliminar el trabajo. Por favor intenta de nuevo.');
+          console.error('Error al eliminar reunión:', error);
+          alert('Error al eliminar la reunión. Por favor intenta de nuevo.');
         }
       });
     }
   }
 
   onDownload(): void {
-    console.log('Descargando lista de trabajos...');
+    console.log('Descargando lista de reuniones...');
     // TODO: Implementar descarga a Excel/PDF
     alert('Función de descarga en desarrollo');
   }
@@ -236,22 +252,10 @@ export class JobsListComponent implements OnInit {
     return `${month} ${day}, ${year}`;
   }
 
-  // Métodos para asignación de socios
-  onAssignPartners(job: JobOutputDto): void {
-    this.selectedJobId = job.id;
-    this.selectedJobName = job.name;
-    this.showAssignPartnersModal = true;
-  }
-
-  closeAssignPartnersModal(): void {
-    this.showAssignPartnersModal = false;
-    this.selectedJobId = '';
-    this.selectedJobName = '';
-  }
-
-  onPartnersAssigned(): void {
-    // Opcional: recargar la lista o mostrar mensaje de éxito
-    console.log('Socios asignados exitosamente');
+  // Formatear hora en formato 12 horas con AM/PM
+  formatTime(hour: number, minute: number, amPm: string): string {
+    const minuteStr = String(minute).padStart(2, '0');
+    return `${hour}:${minuteStr} ${amPm}`;
   }
 
   // Formatear moneda
