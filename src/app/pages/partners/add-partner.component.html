@@ -1,0 +1,229 @@
+<div>
+  <app-page-breadcrumb pageTitle="Crear Socio" />
+
+  <!-- Alert -->
+  <div class="mb-6" *ngIf="showAlert">
+    <div [ngClass]="{
+      'border-l-4 p-4 rounded-lg': true,
+      'bg-green-50 border-green-500 text-green-800 dark:bg-green-900/20 dark:text-green-400': alertType === 'success',
+      'bg-red-50 border-red-500 text-red-800 dark:bg-red-900/20 dark:text-red-400': alertType === 'error',
+      'bg-yellow-50 border-yellow-500 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400': alertType === 'warning',
+      'bg-blue-50 border-blue-500 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400': alertType === 'info'
+    }" role="alert">
+      <div class="flex items-center justify-between">
+        <p class="font-medium">{{ alertMessage }}</p>
+        <button (click)="closeAlert()" class="ml-4 hover:opacity-70">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <!-- Información Personal -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+        <h2 class="text-lg font-medium text-gray-800 dark:text-white">
+          Información del Socio
+        </h2>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Datos personales y de contacto
+        </p>
+      </div>
+      <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <!-- Nombre Completo -->
+          <div>
+            <app-label>
+              Nombre Completo <span class="text-red-500">*</span>
+            </app-label>
+            <app-input-field
+              type="text"
+              name="fullName"
+              [(ngModel)]="fullName"
+              placeholder="Ingrese el nombre completo"
+            ></app-input-field>
+          </div>
+
+          <!-- Documento de Identificación -->
+          <div>
+            <app-label>
+              Documento de Identificación <span class="text-red-500">*</span>
+            </app-label>
+            <app-input-field
+              type="text"
+              name="partnerIdentificationNumber"
+              [(ngModel)]="partnerIdentificationNumber"
+              placeholder="DNI / CI / Pasaporte"
+            ></app-input-field>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <app-label>
+              Email <span class="text-red-500">*</span>
+            </app-label>
+            <app-input-field
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              placeholder="ejemplo@email.com"
+            ></app-input-field>
+          </div>
+
+          <!-- Teléfono -->
+          <div>
+            <app-label>
+              Teléfono
+            </app-label>
+            <app-input-field
+              type="tel"
+              name="phoneNumber"
+              [(ngModel)]="phoneNumber"
+              placeholder="+591 70000000"
+            ></app-input-field>
+          </div>
+
+          <!-- Dirección -->
+          <div class="col-span-full">
+            <app-label>
+              Dirección
+            </app-label>
+            <app-input-field
+              type="text"
+              name="address"
+              [(ngModel)]="address"
+              placeholder="Ingrese la dirección completa"
+            ></app-input-field>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información de Conexión de Agua -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+        <h2 class="text-lg font-medium text-gray-800 dark:text-white">
+          Conexión de Agua
+        </h2>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Información de la conexión y medidor de agua
+        </p>
+      </div>
+      <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <!-- Número de Conexión -->
+          <div>
+            <app-label>
+              Número de Conexión
+            </app-label>
+            <app-input-field
+              type="text"
+              name="waterConnectionNumber"
+              [(ngModel)]="waterConnectionNumber"
+              placeholder="Ej: WC-001"
+            ></app-input-field>
+          </div>
+
+          <!-- Número de Medidor -->
+          <div>
+            <app-label>
+              Número de Medidor
+            </app-label>
+            <app-input-field
+              type="text"
+              name="waterMeterNumber"
+              [(ngModel)]="waterMeterNumber"
+              placeholder="Ej: M-12345"
+            ></app-input-field>
+          </div>
+
+          <!-- Estado de Conexión -->
+          <div>
+            <app-label>
+              Estado de Conexión
+            </app-label>
+            <app-select
+              [options]="connectionStatusOptions"
+              placeholder="Seleccione un estado"
+              [(value)]="connectionStatusCode"
+              (valueChange)="onConnectionStatusChange($event)"
+            ></app-select>
+          </div>
+
+          <!-- Fecha de Conexión -->
+          <div>
+            <app-label>
+              Fecha de Instalación
+            </app-label>
+            <app-input-field
+              type="date"
+              name="connectionDate"
+              [(ngModel)]="connectionDate"
+            ></app-input-field>
+          </div>
+
+          <!-- Dirección de Conexión -->
+          <div class="col-span-full">
+            <app-label>
+              Dirección de Conexión de Agua
+            </app-label>
+            <app-input-field
+              type="text"
+              name="waterConnectionAddress"
+              [(ngModel)]="waterConnectionAddress"
+              placeholder="Dirección donde está instalado el medidor (si es diferente)"
+            ></app-input-field>
+          </div>
+
+          <!-- Notas -->
+          <div class="col-span-full">
+            <app-label>
+              Notas / Observaciones
+            </app-label>
+            <textarea
+              name="notes"
+              [(ngModel)]="notes"
+              rows="3"
+              placeholder="Observaciones adicionales sobre el socio o la conexión..."
+              class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-3 outline-none focus:border-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="p-4 sm:p-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <app-button
+            variant="outline"
+            size="md"
+            (btnClick)="resetForm()"
+            [disabled]="isLoading"
+          >
+            Limpiar Formulario
+          </app-button>
+          <app-button
+            variant="primary"
+            size="md"
+            (btnClick)="onSubmit()"
+            [disabled]="isLoading"
+          >
+            <span *ngIf="!isLoading">Crear Socio</span>
+            <span *ngIf="isLoading">
+              <svg class="animate-spin h-5 w-5 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Creando...
+            </span>
+          </app-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

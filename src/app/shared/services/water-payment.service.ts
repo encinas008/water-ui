@@ -1,0 +1,153 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable, catchError, map } from 'rxjs';
+import { 
+  WaterPaymentOutputDto, 
+  WaterPaymentInputDto,
+  PaymentReceiptDto,
+  PaymentReceiptFullDto,
+  PaymentType
+} from '../models/water-system.models';
+import { environment } from '../../../environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class WaterPaymentService {
+  private apiUrl = 'http://localhost:8085/api/water-payments';
+
+  constructor(private http: HttpClient) { }
+
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth_token');
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    return headers;
+  }
+
+  /**
+   * Registrar un nuevo pago
+   * POST /water-payments
+   */
+  createPayment(payment: WaterPaymentInputDto): Observable<WaterPaymentOutputDto> {
+    const headers = this.getHeaders();
+    return this.http.post<WaterPaymentOutputDto>(this.apiUrl, payment, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al registrar pago:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener historial de pagos por socio
+   * GET /water-payments/partner/{partnerId}
+   */
+  getPaymentsByPartner(partnerId: string): Observable<WaterPaymentOutputDto[]> {
+    const headers = this.getHeaders();
+    return this.http.get<WaterPaymentOutputDto[]>(
+      `${this.apiUrl}/partner/${partnerId}`, 
+      { headers }
+    ).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener pagos del socio:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener detalle de un pago
+   * GET /water-payments/{id}
+   */
+  getPaymentById(id: string): Observable<WaterPaymentOutputDto> {
+    const headers = this.getHeaders();
+    return this.http.get<WaterPaymentOutputDto>(`${this.apiUrl}/${id}`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener pago:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Generar recibo de pago
+   * GET /water-payments/receipt/{id}
+   */
+  getPaymentReceipt(id: string): Observable<PaymentReceiptDto> {
+    const headers = this.getHeaders();
+    return this.http.get<PaymentReceiptDto>(`${this.apiUrl}/receipt/${id}`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener recibo:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Generar recibo completo de pago (con conceptos desglosados)
+   * GET /water-payments/receipt-full/{id}?receiptType=NOTA DE PAGO
+   */
+  getFullPaymentReceipt(id: string, receiptType: string = 'NOTA DE PAGO'): Observable<PaymentReceiptFullDto> {
+    const headers = this.getHeaders();
+    const params = new HttpParams().set('receiptType', receiptType);
+    return this.http.get<PaymentReceiptFullDto>(
+      `${this.apiUrl}/receipt-full/${id}`, 
+      { headers, params }
+    ).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener recibo completo:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener todos los pagos
+   * GET /water-payments
+   */
+  getAllPayments(): Observable<WaterPaymentOutputDto[]> {
+    const headers = this.getHeaders();
+    return this.http.get<WaterPaymentOutputDto[]>(this.apiUrl, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener todos los pagos:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener tipos de pago disponibles
+   * GET /commons
+   */
+  getPaymentTypes(): Observable<PaymentType[]> {
+    const headers = this.getHeaders();
+    const commonsUrl = `${environment.apiUrl}/commons`;
+    
+    return this.http.get<any>(commonsUrl, { headers }).pipe(
+      map(response => {
+        // Extraer paymentTypes del payload de respuesta
+        const paymentTypes = response.paymentTypes || [];
+        
+        // Mapear PaymentTypeOutputDto a PaymentType
+        return paymentTypes.map((pt: any) => ({
+          id: pt.id,
+          name: pt.name,
+          description: pt.description || '',
+          active: true // El backend no retorna active, asumimos que todos están activos
+        } as PaymentType));
+      }),
+      catchError(error => {
+        console.error('❌ Error al obtener tipos de pago:', error);
+        throw error;
+      })
+    );
+  }
+}
+

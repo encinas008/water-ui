@@ -1,0 +1,213 @@
+<div class="rounded-2xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+  <!-- Header with Title and Controls -->
+  <div class="flex flex-col gap-4 px-5 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <div>
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+        Data Table 3
+      </h3>
+    </div>
+  </div>
+
+  <!-- Controls Row: Show entries, Search, Download -->
+  <div class="flex flex-col gap-3 px-5 mb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    <!-- Show entries selector -->
+    <div class="flex items-center gap-2">
+      <span class="text-sm text-gray-600 dark:text-gray-400">Show</span>
+      <select
+        [(ngModel)]="itemsPerPage"
+        (ngModelChange)="onItemsPerPageChange()"
+        class="h-[42px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+      >
+        @for (option of itemsPerPageOptions; track option) {
+          <option [value]="option">{{ option }}</option>
+        }
+      </select>
+      <span class="text-sm text-gray-600 dark:text-gray-400">entries</span>
+    </div>
+
+    <!-- Search and Download -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <!-- Search Input -->
+      <form class="relative">
+        <button class="absolute -translate-y-1/2 left-4 top-1/2" type="button">
+          <svg class="fill-gray-500 dark:fill-gray-400" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M3.04199 9.37381C3.04199 5.87712 5.87735 3.04218 9.37533 3.04218C12.8733 3.04218 15.7087 5.87712 15.7087 9.37381C15.7087 12.8705 12.8733 15.7055 9.37533 15.7055C5.87735 15.7055 3.04199 12.8705 3.04199 9.37381ZM9.37533 1.54218C5.04926 1.54218 1.54199 5.04835 1.54199 9.37381C1.54199 13.6993 5.04926 17.2055 9.37533 17.2055C11.2676 17.2055 13.0032 16.5346 14.3572 15.4178L17.1773 18.2381C17.4702 18.531 17.945 18.5311 18.2379 18.2382C18.5308 17.9453 18.5309 17.4704 18.238 17.1775L15.4182 14.3575C16.5367 13.0035 17.2087 11.2671 17.2087 9.37381C17.2087 5.04835 13.7014 1.54218 9.37533 1.54218Z" fill=""></path>
+          </svg>
+        </button>
+        <input
+          type="text"
+          placeholder="Search..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange()"
+          class="h-[42px] w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pl-[42px] pr-4 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[250px]"
+        />
+      </form>
+
+      <!-- Download Button -->
+      <button
+        (click)="downloadData()"
+        class="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 h-[42px] text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:hover:bg-gray-800"
+      >
+        <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M10 2.5C10.4142 2.5 10.75 2.83579 10.75 3.25V11.3401L13.4546 8.63547C13.7475 8.34258 14.2224 8.34258 14.5153 8.63547C14.8082 8.92836 14.8082 9.40324 14.5153 9.69613L10.5303 13.6811C10.3897 13.8218 10.1989 13.9008 10 13.9008C9.80109 13.9008 9.61032 13.8218 9.46967 13.6811L5.48471 9.69613C5.19182 9.40324 5.19182 8.92836 5.48471 8.63547C5.7776 8.34258 6.25248 8.34258 6.54537 8.63547L9.25 11.3401V3.25C9.25 2.83579 9.58579 2.5 10 2.5ZM3.25 12.5C3.66421 12.5 4 12.8358 4 13.25V15.25C4 15.4489 4.07902 15.6397 4.21967 15.7803C4.36032 15.921 4.55109 16 4.75 16H15.25C15.4489 16 15.6397 15.921 15.7803 15.7803C15.921 15.6397 16 15.4489 16 15.25V13.25C16 12.8358 16.3358 12.5 16.75 12.5C17.1642 12.5 17.5 12.8358 17.5 13.25V15.25C17.5 15.8467 17.2629 16.419 16.841 16.841C16.419 17.2629 15.8467 17.5 15.25 17.5H4.75C4.15326 17.5 3.58097 17.2629 3.15901 16.841C2.73705 16.419 2.5 15.8467 2.5 15.25V13.25C2.5 12.8358 2.83579 12.5 3.25 12.5Z" fill=""></path>
+        </svg>
+        <span>Download</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="overflow-hidden">
+    <div class="max-w-full px-5 overflow-x-auto sm:px-6">
+      <table class="min-w-full">
+        <thead class="border-gray-100 border-y dark:border-white/[0.05]">
+          <tr>
+            <th class="py-3 pl-0 w-[50px]">
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="selectAll"
+                  (change)="toggleSelectAll()"
+                  class="w-5 h-5 text-brand-500 bg-white border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-brand-500 dark:bg-gray-900 dark:border-gray-700"
+                />
+              </div>
+            </th>
+            <th class="py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">User</th>
+            <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Position</th>
+            <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Salary</th>
+            <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Office</th>
+            <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Status</th>
+            <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">
+              <span class="sr-only">Action</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+          @if (currentItems.length === 0) {
+            <tr>
+              <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                No data found
+              </td>
+            </tr>
+          }
+          @for (item of currentItems; track item.id) {
+          <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+            <td class="py-4 pl-0">
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(item.id)"
+                  (change)="toggleSelectItem(item.id)"
+                  class="w-5 h-5 text-brand-500 bg-white border-gray-300 rounded cursor-pointer focus:ring-2 focus:ring-brand-500 dark:bg-gray-900 dark:border-gray-700"
+                />
+              </div>
+            </td>
+            <td class="py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                  <img [src]="item.avatar" class="w-full h-full object-cover" [alt]="item.name" />
+                </div>
+                <div>
+                  <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                    {{ item.name }}
+                  </p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ item.email }}
+                  </p>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-4 text-gray-700 text-theme-sm dark:text-gray-400">
+              {{ item.position }}
+            </td>
+            <td class="px-4 py-4 text-gray-700 text-theme-sm dark:text-gray-400">
+              {{ item.salary }}
+            </td>
+            <td class="px-4 py-4 text-gray-700 text-theme-sm dark:text-gray-400">
+              {{ item.office }}
+            </td>
+            <td class="px-4 py-4">
+              <app-badge
+                size="sm"
+                [color]="getBadgeColor(item.status)"
+              >
+                {{ item.status }}
+              </app-badge>
+            </td>
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="handleDelete(item)"
+                  class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
+                  title="Delete"
+                >
+                  <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.7535 2.47502H11.5879V1.9969C11.5879 1.15315 10.9129 0.478149 10.0691 0.478149H7.90352C7.05977 0.478149 6.38477 1.15315 6.38477 1.9969V2.47502H4.21914C3.40352 2.47502 2.72852 3.15002 2.72852 3.96565V4.8094C2.72852 5.42815 3.09414 5.9344 3.62852 6.1594L4.07852 15.4688C4.13477 16.6219 5.09102 17.5219 6.24414 17.5219H11.7004C12.8535 17.5219 13.8098 16.6219 13.866 15.4688L14.3441 6.13127C14.8785 5.90627 15.2441 5.3719 15.2441 4.78127V3.93752C15.2441 3.15002 14.5691 2.47502 13.7535 2.47502ZM7.67852 1.9969C7.67852 1.85627 7.79102 1.74377 7.93164 1.74377H10.0973C10.2379 1.74377 10.3504 1.85627 10.3504 1.9969V2.47502H7.70664V1.9969H7.67852ZM4.02227 3.96565C4.02227 3.85315 4.10664 3.74065 4.24727 3.74065H13.7535C13.866 3.74065 13.9785 3.82502 13.9785 3.96565V4.8094C13.9785 4.9219 13.8941 5.0344 13.7535 5.0344H4.24727C4.13477 5.0344 4.02227 4.95002 4.02227 4.8094V3.96565ZM11.7285 16.2563H6.27227C5.79414 16.2563 5.40039 15.8906 5.37227 15.3844L4.95039 6.2719H13.0785L12.6566 15.3844C12.6004 15.8625 12.2066 16.2563 11.7285 16.2563Z" fill=""></path>
+                    <path d="M9.00039 9.11255C8.66289 9.11255 8.35352 9.3938 8.35352 9.75942V13.3313C8.35352 13.6688 8.63477 13.9782 9.00039 13.9782C9.33789 13.9782 9.64727 13.6969 9.64727 13.3313V9.75942C9.64727 9.3938 9.33789 9.11255 9.00039 9.11255Z" fill=""></path>
+                    <path d="M11.2502 9.67504C10.8846 9.64692 10.6033 9.90004 10.5752 10.2657L10.4064 12.7407C10.3783 13.0782 10.6314 13.3875 10.9971 13.4157C11.0252 13.4157 11.0252 13.4157 11.0533 13.4157C11.3908 13.4157 11.6721 13.1625 11.6721 12.825L11.8408 10.35C11.8408 9.98442 11.5877 9.70317 11.2502 9.67504Z" fill=""></path>
+                    <path d="M6.72245 9.67504C6.38495 9.70317 6.1037 10.0125 6.13182 10.35L6.3287 12.825C6.35683 13.1625 6.63808 13.4157 6.94745 13.4157C6.97558 13.4157 6.97558 13.4157 7.0037 13.4157C7.3412 13.3875 7.62245 13.0782 7.59433 12.7407L7.39745 10.2657C7.39745 9.90004 7.08808 9.64692 6.72245 9.67504Z" fill=""></path>
+                  </svg>
+                </button>
+                <button
+                  (click)="handleEdit(item)"
+                  class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
+                  title="Edit"
+                >
+                  <svg class="fill-current" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13.7535 2.47502L15.525 4.24652C15.8438 4.56527 15.8438 5.08402 15.525 5.40277L14.1938 6.73402L11.2688 3.80902L12.6 2.47777C12.9188 2.15902 13.4375 2.15902 13.7563 2.47777L13.7535 2.47502ZM10.1813 4.89652L13.1063 7.82152L5.90625 15.0215H2.98125V12.0965L10.1813 4.89652Z" fill=""></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer: Showing info and Pagination -->
+  <div class="flex flex-col gap-4 px-5 py-4 border-t border-gray-200 sm:flex-row sm:items-center sm:justify-between sm:px-6 dark:border-white/[0.05]">
+    <!-- Showing X to Y of Z entries -->
+    <div class="text-sm text-gray-600 dark:text-gray-400">
+      Showing {{ startEntry }} to {{ endEntry }} of {{ filteredData.length }} entries
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex items-center justify-center gap-2">
+      <!-- Previous Button -->
+      <button
+        (click)="goToPage(currentPage - 1)"
+        [disabled]="currentPage === 1"
+        class="inline-flex items-center justify-center h-10 px-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-900 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"
+      >
+        Previous
+      </button>
+
+      <!-- Page Numbers -->
+      <div class="flex items-center gap-1">
+        @for (page of getPageNumbers(); track page) {
+          <button
+            (click)="goToPage(page)"
+            class="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors"
+            [ngClass]="{
+              'bg-brand-500 text-white': currentPage === page,
+              'text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5': currentPage !== page
+            }"
+          >
+            {{ page }}
+          </button>
+        }
+      </div>
+
+      <!-- Next Button -->
+      <button
+        (click)="goToPage(currentPage + 1)"
+        [disabled]="currentPage === totalPages"
+        class="inline-flex items-center justify-center h-10 px-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-900 dark:border-gray-700 dark:text-white/90 dark:hover:bg-gray-800"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</div>

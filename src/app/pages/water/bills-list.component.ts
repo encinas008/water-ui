@@ -1,0 +1,511 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
+import { ButtonComponent } from '../../shared/components/ui/button/button.component';
+import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
+import { WaterBillService } from '../../shared/services/water-bill.service';
+import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system.models';
+
+@Component({
+  selector: 'app-bills-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    PageBreadcrumbComponent,
+    ButtonComponent,
+    BadgeComponent
+  ],
+  template: `
+    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+      <app-page-breadcrumb [pageTitle]="'Facturas de Agua'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+
+      <!-- Alertas -->
+      <div *ngIf="showAlert" [ngClass]="{
+        'mb-4 rounded-lg p-4': true,
+        'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200': alertType === 'success',
+        'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200': alertType === 'error',
+        'bg-blue-50 text-blue-800 dark:bg-blue-900 dark:text-blue-200': alertType === 'info'
+      }">
+        <div class="flex items-center justify-between">
+          <span>{{ alertMessage }}</span>
+          <button (click)="showAlert = false" class="text-2xl">&times;</button>
+        </div>
+      </div>
+
+      <!-- Métricas rápidas -->
+      <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+        <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div class="flex items-end justify-between">
+            <div>
+              <h4 class="text-title-md font-bold text-black dark:text-white">
+                {{ bills.length }}
+              </h4>
+              <span class="text-sm font-medium">Total Facturas</span>
+            </div>
+            <span class="flex items-center justify-center rounded-full bg-meta-2 w-11 h-11">
+              <svg class="h-5 w-5 fill-primary" viewBox="0 0 22 22">
+                <path d="M3 3h16v16H3z"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div class="flex items-end justify-between">
+            <div>
+              <h4 class="text-title-md font-bold text-black dark:text-white">
+                {{ getPendingBillsCount() }}
+              </h4>
+              <span class="text-sm font-medium">Pendientes</span>
+            </div>
+            <span class="flex items-center justify-center rounded-full bg-meta-2 w-11 h-11">
+              <svg class="h-5 w-5 fill-warning" viewBox="0 0 22 22">
+                <path d="M11 0l3 8h8l-6.5 5 2.5 8-7-5-7 5 2.5-8L0 8h8z"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div class="flex items-end justify-between">
+            <div>
+              <h4 class="text-title-md font-bold text-black dark:text-white">
+                {{ getOverdueBillsCount() }}
+              </h4>
+              <span class="text-sm font-medium">Vencidas</span>
+            </div>
+            <span class="flex items-center justify-center rounded-full bg-meta-2 w-11 h-11">
+              <svg class="h-5 w-5 fill-danger" viewBox="0 0 22 22">
+                <path d="M11 0l3 8h8l-6.5 5 2.5 8-7-5-7 5 2.5-8L0 8h8z"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
+          <div class="flex items-end justify-between">
+            <div>
+              <h4 class="text-title-md font-bold text-black dark:text-white">
+                {{ formatCurrency(getTotalPending()) }}
+              </h4>
+              <span class="text-sm font-medium">Total Pendiente</span>
+            </div>
+            <span class="flex items-center justify-center rounded-full bg-meta-2 w-11 h-11">
+              <svg class="h-5 w-5 fill-success" viewBox="0 0 22 22">
+                <path d="M11 0C4.9 0 0 4.9 0 11s4.9 11 11 11 11-4.9 11-11S17.1 0 11 0z"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros y acciones -->
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex gap-3">
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+            placeholder="Buscar por socio, número de factura..."
+            class="w-full rounded-lg border border-stroke bg-transparent py-3 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary sm:w-80"
+          />
+          
+          <select
+            [(ngModel)]="filterStatus"
+            (change)="onFilterChange()"
+            class="rounded-lg border border-stroke bg-transparent py-3 px-5 outline-none focus:border-primary dark:border-form-strokedark dark:bg-form-input"
+          >
+            <option value="">Todos los estados</option>
+            <option value="PENDING">Pendientes</option>
+            <option value="OVERDUE">Vencidas</option>
+            <option value="PARTIAL_PAID">Parcialmente Pagadas</option>
+            <option value="PAID">Pagadas</option>
+          </select>
+        </div>
+
+        <div class="flex gap-3">
+          <app-button (click)="navigateToGenerateBills()" [variant]="'primary'">
+            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Generar Facturas
+          </app-button>
+          <app-button (click)="loadBills()" [variant]="'secondary'">
+            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Actualizar
+          </app-button>
+        </div>
+      </div>
+
+      <!-- Tabla de facturas -->
+      <div class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
+        <div class="max-w-full overflow-x-auto">
+          <div *ngIf="isLoading" class="flex justify-center py-10">
+            <div class="h-16 w-16 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+          </div>
+
+          <div *ngIf="!isLoading && errorMessage" class="py-10 text-center text-red-500">
+            {{ errorMessage }}
+          </div>
+
+          <table *ngIf="!isLoading && !errorMessage" class="w-full table-auto">
+            <thead>
+              <tr class="bg-gray-2 text-left dark:bg-meta-4">
+                <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
+                  N° Factura
+                </th>
+                <th class="min-w-[180px] py-4 px-4 font-medium text-black dark:text-white">
+                  Socio
+                </th>
+                <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
+                  Período
+                </th>
+                <th class="py-4 px-4 font-medium text-black dark:text-white text-right">
+                  Consumo (m³)
+                </th>
+                <th class="py-4 px-4 font-medium text-black dark:text-white text-right">
+                  Total
+                </th>
+                <th class="py-4 px-4 font-medium text-black dark:text-white text-right">
+                  Pagado
+                </th>
+                <th class="py-4 px-4 font-medium text-black dark:text-white text-right">
+                  Saldo
+                </th>
+                <th class="py-4 px-4 font-medium text-black dark:text-white">
+                  Estado
+                </th>
+                <th class="py-4 px-4 font-medium text-black dark:text-white">
+                  Vencimiento
+                </th>
+                <th class="py-4 px-4 font-medium text-black dark:text-white">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let bill of paginatedBills" class="border-b border-[#eee] dark:border-strokedark">
+                <td class="py-5 px-4">
+                  <p class="text-black dark:text-white font-medium">{{ bill.billNumber }}</p>
+                </td>
+                <td class="py-5 px-4">
+                  <p class="text-black dark:text-white">{{ bill.partnerName }}</p>
+                  <p class="text-sm text-bodydark">{{ bill.waterConnectionNumber }}</p>
+                </td>
+                <td class="py-5 px-4">
+                  <p class="text-sm">
+                    {{ formatBillingPeriod(bill) }}
+                  </p>
+                </td>
+                <td class="py-5 px-4 text-right">
+                  <p class="text-meta-3 font-medium">{{ bill.consumptionM3 | number:'1.2-2' }}</p>
+                </td>
+                <td class="py-5 px-4 text-right">
+                  <p class="text-black dark:text-white font-medium">{{ bill.totalAmount | currency:'USD':'symbol':'1.2-2' }}</p>
+                </td>
+                <td class="py-5 px-4 text-right">
+                  <p class="text-success">{{ bill.paidAmount | currency:'USD':'symbol':'1.2-2' }}</p>
+                </td>
+                <td class="py-5 px-4 text-right">
+                  <p [class.text-danger]="bill.remainingBalance > 0" class="font-medium">
+                    {{ bill.remainingBalance | currency:'USD':'symbol':'1.2-2' }}
+                  </p>
+                </td>
+                <td class="py-5 px-4">
+                  <span [ngClass]="getBillStatusClass(bill.statusCode)">
+                    {{ bill.statusName }}
+                  </span>
+                </td>
+                <td class="py-5 px-4">
+                  <p [class.text-danger]="isOverdue(bill.dueDate)" class="text-sm">
+                    {{ bill.dueDate | date:'dd/MM/yyyy' }}
+                  </p>
+                </td>
+                <td class="py-5 px-4">
+                  <div class="flex items-center space-x-3.5">
+                    <button (click)="viewBill(bill)" class="hover:text-primary" title="Ver detalle">
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                    </button>
+                    <button *ngIf="bill.remainingBalance > 0" (click)="registerPayment(bill)" class="hover:text-success" title="Registrar pago">
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="filteredBills.length === 0">
+                <td colspan="10" class="py-10 text-center text-bodydark">
+                  No se encontraron facturas
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div *ngIf="filteredBills.length > 0" class="flex justify-between border-t border-stroke py-4 dark:border-strokedark">
+          <div class="flex items-center">
+            <span class="text-sm text-bodydark">
+              Mostrando {{ startEntry }} - {{ endEntry }} de {{ filteredBills.length }} facturas
+            </span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button 
+              (click)="previousPage()" 
+              [disabled]="currentPage === 1"
+              class="rounded bg-gray px-3 py-1 text-sm font-medium text-black hover:bg-gray-2 disabled:opacity-50 dark:bg-meta-4 dark:text-white"
+            >
+              Anterior
+            </button>
+            <button 
+              *ngFor="let page of pageNumbers"
+              (click)="goToPage(page)"
+              [class.bg-primary]="page === currentPage"
+              [class.text-white]="page === currentPage"
+              class="rounded px-3 py-1 text-sm font-medium hover:bg-gray-2 dark:hover:bg-meta-4"
+            >
+              {{ page }}
+            </button>
+            <button 
+              (click)="nextPage()" 
+              [disabled]="currentPage === totalPages"
+              class="rounded bg-gray px-3 py-1 text-sm font-medium text-black hover:bg-gray-2 disabled:opacity-50 dark:bg-meta-4 dark:text-white"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+})
+export class BillsListComponent implements OnInit {
+  breadcrumbItems = [
+    { label: 'Dashboard', link: '/' },
+    { label: 'Facturas de Agua', link: '/water-bills' }
+  ];
+
+  bills: WaterBillOutputDto[] = [];
+  filteredBills: WaterBillOutputDto[] = [];
+
+  // Filtros
+  searchQuery = '';
+  filterStatus = '';
+
+  // Paginación
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalPages = 1;
+
+  // Estados
+  isLoading = true;
+  errorMessage = '';
+  showAlert = false;
+  alertType: 'success' | 'error' | 'info' = 'success';
+  alertMessage = '';
+
+  constructor(
+    private waterBillService: WaterBillService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.loadBills();
+  }
+
+  loadBills(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.waterBillService.getAllBills().subscribe({
+      next: (data) => {
+        console.log('data bills START');
+        console.log(data);
+        console.log('data bills END');
+        this.bills = data.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        this.filteredBills = [...this.bills];
+        this.calculatePagination();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar facturas:', error);
+        this.isLoading = false;
+        this.errorMessage = this.getErrorMessage(error);
+      }
+    });
+  }
+
+  onSearch(): void {
+    this.applyFilters();
+  }
+
+  onFilterChange(): void {
+    this.applyFilters();
+  }
+
+  applyFilters(): void {
+    let filtered = [...this.bills];
+
+    // Filtro por búsqueda
+    if (this.searchQuery.trim()) {
+      const query = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(bill => 
+        bill.partnerName.toLowerCase().includes(query) ||
+        bill.billNumber.toLowerCase().includes(query) ||
+        bill.waterConnectionNumber?.toLowerCase().includes(query)
+      );
+    }
+
+    // Filtro por estado
+    if (this.filterStatus) {
+      filtered = filtered.filter(bill => bill.statusCode === this.filterStatus);
+    }
+
+    this.filteredBills = filtered;
+    this.currentPage = 1;
+    this.calculatePagination();
+  }
+
+  calculatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredBills.length / this.itemsPerPage);
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages || 1;
+    }
+  }
+
+  get paginatedBills(): WaterBillOutputDto[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.filteredBills.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  get startEntry(): number {
+    return (this.currentPage - 1) * this.itemsPerPage + 1;
+  }
+
+  get endEntry(): number {
+    const end = this.currentPage * this.itemsPerPage;
+    return end > this.filteredBills.length ? this.filteredBills.length : end;
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) this.currentPage--;
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  get pageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    
+    if (this.totalPages <= maxPagesToShow) {
+      for (let i = 1; i <= this.totalPages; i++) pages.push(i);
+    } else {
+      if (this.currentPage <= 3) {
+        for (let i = 1; i <= 5; i++) pages.push(i);
+      } else if (this.currentPage >= this.totalPages - 2) {
+        for (let i = this.totalPages - 4; i <= this.totalPages; i++) pages.push(i);
+      } else {
+        for (let i = this.currentPage - 2; i <= this.currentPage + 2; i++) pages.push(i);
+      }
+    }
+    
+    return pages;
+  }
+
+  getPendingBillsCount(): number {
+    return this.bills.filter(b => b.statusCode === 'PENDING' || b.statusCode === 'PARTIAL_PAID').length;
+  }
+
+  getOverdueBillsCount(): number {
+    return this.bills.filter(b => b.statusCode === 'OVERDUE').length;
+  }
+
+  getTotalPending(): number {
+    return this.bills.reduce((sum, bill) => sum + bill.remainingBalance, 0);
+  }
+
+  getBillStatusClass(status: string): string {
+    const baseClass = 'inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium';
+    switch (status) {
+      case 'PAID':
+        return `${baseClass} bg-success text-success`;
+      case 'PENDING':
+        return `${baseClass} bg-warning text-warning`;
+      case 'OVERDUE':
+        return `${baseClass} bg-danger text-danger`;
+      case 'PARTIAL_PAID':
+        return `${baseClass} bg-primary text-primary`;
+      default:
+        return `${baseClass} bg-gray text-gray`;
+    }
+  }
+
+  isOverdue(dueDate: string): boolean {
+    return new Date(dueDate) < new Date();
+  }
+
+  formatBillingPeriod(bill: WaterBillOutputDto): string {
+    if (!bill.billingPeriodStart || !bill.billingPeriodEnd) {
+      return '-';
+    }
+    
+    try {
+      const startDate = new Date(bill.billingPeriodStart);
+      const endDate = new Date(bill.billingPeriodEnd);
+      
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        return '-';
+      }
+      
+      const startFormatted = startDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const endFormatted = endDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      
+      return `${startFormatted} - ${endFormatted}`;
+    } catch (error) {
+      console.error('Error formateando período de facturación:', error, bill);
+      return '-';
+    }
+  }
+
+  navigateToGenerateBills(): void {
+    this.router.navigate(['/water-bills/generate']);
+  }
+
+  viewBill(bill: WaterBillOutputDto): void {
+    this.router.navigate(['/water-bills', bill.id]);
+  }
+
+  registerPayment(bill: WaterBillOutputDto): void {
+    this.router.navigate(['/water-payments/add'], { queryParams: { billId: bill.id } });
+  }
+
+  formatCurrency(amount: number): string {
+    return `$${amount.toFixed(2)}`;
+  }
+
+  getErrorMessage(error: any): string {
+    if (error.status === 401) return 'Se requiere autenticación. Por favor inicia sesión.';
+    if (error.status === 0) return 'No se puede conectar al servidor.';
+    return 'Error al cargar las facturas.';
+  }
+}
+
