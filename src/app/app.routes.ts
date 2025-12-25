@@ -38,6 +38,8 @@ import { PartnerPaymentsComponent } from './pages/water/partner-payments.compone
 import { CashBalancesListComponent } from './pages/cash-balance/cash-balances-list.component';
 import { OpenCashBalanceComponent } from './pages/cash-balance/open-cash-balance.component';
 import { CashBalanceDetailsComponent } from './pages/cash-balance/cash-balance-details.component';
+import { AddWithdrawalComponent } from './pages/cash-balance/add-withdrawal.component';
+import { WithdrawalsListComponent } from './pages/cash-balance/withdrawals-list.component';
 
 export const routes: Routes = [
   {
@@ -218,6 +220,16 @@ export const routes: Routes = [
         path:'cash-balances/open',
         component:OpenCashBalanceComponent,
         title:'Abrir Balance de Caja | Sistema'
+      },
+      {
+        path:'cash-balances/withdrawal',
+        component:AddWithdrawalComponent,
+        title:'Registrar Retiro | Sistema'
+      },
+      {
+        path:'cash-balances/withdrawals',
+        component:WithdrawalsListComponent,
+        title:'Lista de Retiros | Sistema'
       },
       {
         path:'cash-balances/:id',

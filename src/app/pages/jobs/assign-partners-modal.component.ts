@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalComponent } from '../../shared/components/ui/modal/modal.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
-import { JobPartnerService } from '../../shared/services/job-partner.service';
+import { AttendanceService } from '../../shared/services/attendance.service';
 import { PartnerAssignmentInfoDto } from '../../shared/models/water-system.models';
 
 @Component({
@@ -37,7 +37,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges, AfterVie
   isSaving: boolean = false;
   errorMessage: string = '';
 
-  constructor(private jobPartnerService: JobPartnerService) {}
+  constructor(private attendanceService: AttendanceService) {}
 
   ngOnInit(): void {
     if (this.isOpen && this.jobId) {
@@ -57,7 +57,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges, AfterVie
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.jobPartnerService.getJobWithPartnerAssignments(this.jobId).subscribe({
+    this.attendanceService.getJobWithPartnerAssignments(this.jobId).subscribe({
       next: (data) => {
         this.partners = data.assignedPartners;
         // Marcar los socios que ya están asignados
@@ -74,7 +74,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges, AfterVie
         console.error('Error al cargar socios:', error);
         
         if (error.status === 0) {
-          this.errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté corriendo.';
+          this.errorMessage = 'No se puede conectar al servidor.';
         } else if (error.status === 401) {
           this.errorMessage = 'No tienes autorización. Por favor inicia sesión.';
         } else if (error.status === 404) {
@@ -106,7 +106,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges, AfterVie
 
     const partnerIds = Array.from(this.selectedPartnerIds);
 
-    this.jobPartnerService.assignPartnersToJob(this.jobId, partnerIds).subscribe({
+    this.attendanceService.assignPartnersToJob(this.jobId, partnerIds).subscribe({
       next: () => {
         this.isSaving = false;
         this.assigned.emit();
@@ -117,7 +117,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges, AfterVie
         console.error('Error al asignar socios:', error);
         
         if (error.status === 0) {
-          this.errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté corriendo.';
+          this.errorMessage = 'No se puede conectar al servidor.';
         } else if (error.status === 401) {
           this.errorMessage = 'No tienes autorización. Por favor inicia sesión.';
         } else if (error.status === 400) {

@@ -7,14 +7,17 @@ import {
   AttendanceInputDto,
   AttendanceUpdateDto,
   AttendanceByDateDto,
-  BulkAttendanceInputDto
+  BulkAttendanceInputDto,
+  JobPartnerAssignmentDto,
+  AssignPartnersToJobDto
 } from '../models/water-system.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AttendanceService {
-  private apiUrl = `${environment.apiUrl}/attendance`;
+  private apiUrl = `${environment.apiUrl}/jobs`;
+  private attendanceGeneralUrl = `${environment.apiUrl}/attendance`;
 
   constructor(private http: HttpClient) { }
 
@@ -32,7 +35,7 @@ export class AttendanceService {
 
   getAttendanceByJob(jobId: string): Observable<AttendanceOutputDto[]> {
     const headers = this.getHeaders();
-    return this.http.get<AttendanceOutputDto[]>(`${this.apiUrl}/job/${jobId}`, { headers }).pipe(
+    return this.http.get<AttendanceOutputDto[]>(`${this.apiUrl}/${jobId}/attendance`, { headers }).pipe(
       catchError(error => {
         console.error(`❌ Error al cargar asistencia del trabajo ${jobId}:`, error);
         throw error;
@@ -42,7 +45,7 @@ export class AttendanceService {
 
   getAttendanceByJobAndDate(jobId: string, date: string): Observable<AttendanceOutputDto[]> {
     const headers = this.getHeaders();
-    return this.http.get<AttendanceOutputDto[]>(`${this.apiUrl}/job/${jobId}/date/${date}`, { headers }).pipe(
+    return this.http.get<AttendanceOutputDto[]>(`${this.apiUrl}/${jobId}/attendance/date/${date}`, { headers }).pipe(
       catchError(error => {
         console.error(`❌ Error al cargar asistencia del trabajo ${jobId} para la fecha ${date}:`, error);
         throw error;
@@ -55,7 +58,7 @@ export class AttendanceService {
     const params = new HttpParams()
       .set('startDate', startDate)
       .set('endDate', endDate);
-    return this.http.get<AttendanceOutputDto[]>(`${this.apiUrl}/job/${jobId}/date-range`, { headers, params }).pipe(
+    return this.http.get<AttendanceOutputDto[]>(`${this.apiUrl}/${jobId}/attendance/date-range`, { headers, params }).pipe(
       catchError(error => {
         console.error(`❌ Error al cargar asistencia del trabajo ${jobId} en el rango ${startDate} - ${endDate}:`, error);
         throw error;
@@ -68,7 +71,7 @@ export class AttendanceService {
     const params = new HttpParams()
       .set('startDate', startDate)
       .set('endDate', endDate);
-    return this.http.get<AttendanceByDateDto[]>(`${this.apiUrl}/job/${jobId}/grouped`, { headers, params }).pipe(
+    return this.http.get<AttendanceByDateDto[]>(`${this.apiUrl}/${jobId}/attendance/grouped`, { headers, params }).pipe(
       catchError(error => {
         console.error(`❌ Error al cargar asistencia agrupada del trabajo ${jobId}:`, error);
         throw error;
@@ -78,7 +81,7 @@ export class AttendanceService {
 
   getAttendanceByPartner(partnerId: string): Observable<AttendanceOutputDto[]> {
     const headers = this.getHeaders();
-    return this.http.get<AttendanceOutputDto[]>(`${this.apiUrl}/partner/${partnerId}`, { headers }).pipe(
+    return this.http.get<AttendanceOutputDto[]>(`${this.attendanceGeneralUrl}/partner/${partnerId}`, { headers }).pipe(
       catchError(error => {
         console.error(`❌ Error al cargar asistencia del socio ${partnerId}:`, error);
         throw error;
@@ -86,19 +89,9 @@ export class AttendanceService {
     );
   }
 
-  createAttendance(attendance: AttendanceInputDto): Observable<AttendanceOutputDto> {
-    const headers = this.getHeaders();
-    return this.http.post<AttendanceOutputDto>(this.apiUrl, attendance, { headers }).pipe(
-      catchError(error => {
-        console.error('❌ Error al crear registro de asistencia:', error);
-        throw error;
-      })
-    );
-  }
-
   bulkCreateAttendance(bulkAttendance: BulkAttendanceInputDto): Observable<AttendanceOutputDto[]> {
     const headers = this.getHeaders();
-    return this.http.post<AttendanceOutputDto[]>(`${this.apiUrl}/bulk`, bulkAttendance, { headers }).pipe(
+    return this.http.post<AttendanceOutputDto[]>(`${this.apiUrl}/${bulkAttendance.jobId}/attendance/bulk`, bulkAttendance, { headers }).pipe(
       catchError(error => {
         console.error('❌ Error al crear registros de asistencia en bloque:', error);
         throw error;
@@ -106,21 +99,53 @@ export class AttendanceService {
     );
   }
 
-  updateAttendance(id: string, attendance: AttendanceUpdateDto): Observable<AttendanceOutputDto> {
+  updateAttendance(jobId: string, attendanceId: string, attendance: AttendanceUpdateDto): Observable<AttendanceOutputDto> {
     const headers = this.getHeaders();
-    return this.http.put<AttendanceOutputDto>(`${this.apiUrl}/${id}`, attendance, { headers }).pipe(
+    return this.http.put<AttendanceOutputDto>(`${this.apiUrl}/${jobId}/attendance/${attendanceId}`, attendance, { headers }).pipe(
       catchError(error => {
-        console.error(`❌ Error al actualizar asistencia ${id}:`, error);
+        console.error(`❌ Error al actualizar asistencia ${attendanceId}:`, error);
         throw error;
       })
     );
   }
 
-  deleteAttendance(id: string): Observable<void> {
+  deleteAttendance(jobId: string, attendanceId: string): Observable<void> {
     const headers = this.getHeaders();
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers }).pipe(
+    return this.http.delete<void>(`${this.apiUrl}/${jobId}/attendance/${attendanceId}`, { headers }).pipe(
       catchError(error => {
-        console.error(`❌ Error al eliminar asistencia ${id}:`, error);
+        console.error(`❌ Error al eliminar asistencia ${attendanceId}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  // Métodos para reemplazar funcionalidad de JobPartnerService
+  getJobWithPartnerAssignments(jobId: string): Observable<JobPartnerAssignmentDto> {
+    const headers = this.getHeaders();
+    return this.http.get<JobPartnerAssignmentDto>(`${this.apiUrl}/${jobId}/attendance/assignments`, { headers }).pipe(
+      catchError(error => {
+        console.error(`❌ Error al cargar asignaciones del trabajo ${jobId}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  assignPartnersToJob(jobId: string, partnerIds: string[]): Observable<AttendanceOutputDto[]> {
+    const headers = this.getHeaders();
+    const body: AssignPartnersToJobDto = { partnerIds };
+    return this.http.post<AttendanceOutputDto[]>(`${this.apiUrl}/${jobId}/attendance/assign-partners`, body, { headers }).pipe(
+      catchError(error => {
+        console.error(`❌ Error al asignar socios al trabajo ${jobId}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  removePartnerFromJob(jobId: string, partnerId: string): Observable<void> {
+    const headers = this.getHeaders();
+    return this.http.delete<void>(`${this.apiUrl}/${jobId}/attendance/partner/${partnerId}`, { headers }).pipe(
+      catchError(error => {
+        console.error(`❌ Error al remover socio ${partnerId} del trabajo ${jobId}:`, error);
         throw error;
       })
     );

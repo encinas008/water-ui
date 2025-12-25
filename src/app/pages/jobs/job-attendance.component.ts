@@ -9,7 +9,6 @@ import { DatePickerComponent } from '../../shared/components/form/date-picker/da
 import { InputFieldComponent } from '../../shared/components/form/input/input-field.component';
 import { TextAreaComponent } from '../../shared/components/form/input/text-area.component';
 import { JobService } from '../../shared/services/job.service';
-import { JobPartnerService } from '../../shared/services/job-partner.service';
 import { AttendanceService } from '../../shared/services/attendance.service';
 import { JobOutputDto, PartnerAssignmentInfoDto, AttendanceOutputDto, BulkAttendanceInputDto, PartnerAttendanceDto } from '../../shared/models/water-system.models';
 
@@ -60,7 +59,6 @@ export class JobAttendanceComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private jobService: JobService,
-    private jobPartnerService: JobPartnerService,
     private attendanceService: AttendanceService,
     private datePipe: DatePipe
   ) {}
@@ -91,7 +89,7 @@ export class JobAttendanceComponent implements OnInit {
 
   loadAssignedPartners(): void {
     this.isLoading = true;
-    this.jobPartnerService.getJobWithPartnerAssignments(this.jobId).subscribe({
+    this.attendanceService.getJobWithPartnerAssignments(this.jobId).subscribe({
       next: (data) => {
         this.assignedPartners = data.assignedPartners.filter(p => p.isAssigned);
         this.applySearchFilter();
@@ -311,7 +309,7 @@ export class JobAttendanceComponent implements OnInit {
   handleError(error: any): void {
     let userMessage = '';
     if (error.status === 0) {
-      userMessage = 'No se puede conectar al servidor. Verifica que el backend esté corriendo.';
+      userMessage = 'No se puede conectar al servidor.';
     } else if (error.status === 401) {
       userMessage = 'No tienes autorización. Por favor inicia sesión.';
     } else if (error.status === 400) {

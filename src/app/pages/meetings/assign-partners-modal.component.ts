@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalComponent } from '../../shared/components/ui/modal/modal.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
-import { MeetingPartnerService } from '../../shared/services/meeting-partner.service';
+import { MeetingAttendanceService } from '../../shared/services/meeting-attendance.service';
 import { PartnerAssignmentInfoDto } from '../../shared/models/water-system.models';
 
 @Component({
@@ -36,7 +36,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges {
   isSaving: boolean = false;
   errorMessage: string = '';
 
-  constructor(private meetingPartnerService: MeetingPartnerService) {}
+  constructor(private meetingAttendanceService: MeetingAttendanceService) {}
 
   ngOnInit(): void {
     if (this.isOpen && this.meetingId) {
@@ -56,7 +56,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.meetingPartnerService.getMeetingWithPartnerAssignments(this.meetingId).subscribe({
+    this.meetingAttendanceService.getMeetingWithPartnerAssignments(this.meetingId).subscribe({
       next: (data) => {
         this.partners = data.assignedPartners;
         // Marcar los socios que ya están asignados
@@ -73,7 +73,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges {
         console.error('Error al cargar socios:', error);
         
         if (error.status === 0) {
-          this.errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté corriendo.';
+          this.errorMessage = 'No se puede conectar al servidor.';
         } else if (error.status === 401) {
           this.errorMessage = 'No tienes autorización. Por favor inicia sesión.';
         } else if (error.status === 404) {
@@ -105,7 +105,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges {
 
     const partnerIds = Array.from(this.selectedPartnerIds);
 
-    this.meetingPartnerService.assignPartnersToMeeting(this.meetingId, partnerIds).subscribe({
+    this.meetingAttendanceService.assignPartnersToMeeting(this.meetingId, partnerIds).subscribe({
       next: () => {
         this.isSaving = false;
         this.assigned.emit();
@@ -116,7 +116,7 @@ export class AssignPartnersModalComponent implements OnInit, OnChanges {
         console.error('Error al asignar socios:', error);
         
         if (error.status === 0) {
-          this.errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté corriendo.';
+          this.errorMessage = 'No se puede conectar al servidor.';
         } else if (error.status === 401) {
           this.errorMessage = 'No tienes autorización. Por favor inicia sesión.';
         } else if (error.status === 400) {

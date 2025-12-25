@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, catchError } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 import { 
   WaterMeterReadingOutputDto, 
   WaterMeterReadingInputDto 
@@ -104,6 +104,31 @@ export class WaterReadingService {
       catchError(error => {
         console.error('❌ Error al obtener lecturas por período:', error);
         throw error;
+      })
+    );
+  }
+
+  /**
+   * Verificar si existe una lectura para un socio en un mes específico
+   * Obtiene todas las lecturas del socio y verifica si hay alguna en el mismo mes
+   */
+  checkReadingExistsForMonth(partnerId: string, readingDate: string): Observable<boolean> {
+    return this.getReadingsByPartner(partnerId).pipe(
+      map((readings) => {
+        const date = new Date(readingDate);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1; // getMonth() retorna 0-11
+        
+        return readings.some(reading => {
+          const readingDateObj = new Date(reading.readingDate);
+          return readingDateObj.getFullYear() === year && 
+                 readingDateObj.getMonth() + 1 === month;
+        });
+      }),
+      catchError(error => {
+        console.error('❌ Error al verificar lecturas:', error);
+        // En caso de error, retornar false para permitir que el backend valide
+        return of(false);
       })
     );
   }

@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { 
-  WaterBillOutputDto, 
+  WaterBillOutputDto,
+  WaterBillDetailDto,
   WaterBillSummaryDto,
   GenerateMonthlyBillsRequestDto,
   GenerateMonthlyBillsResponseDto
@@ -70,6 +71,20 @@ export class WaterBillService {
     return this.http.get<WaterBillOutputDto>(`${this.apiUrl}/${id}`, { headers }).pipe(
       catchError(error => {
         console.error('❌ Error al obtener factura:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener detalle completo de una factura con pagos
+   * GET /water-bills/{id}/detail
+   */
+  getBillDetailWithPayments(id: string): Observable<WaterBillDetailDto> {
+    const headers = this.getHeaders();
+    return this.http.get<WaterBillDetailDto>(`${this.apiUrl}/${id}/detail`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener detalle de factura:', error);
         throw error;
       })
     );

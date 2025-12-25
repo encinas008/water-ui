@@ -118,5 +118,19 @@ export class CashBalanceService {
       })
     );
   }
+
+  /**
+   * Obtener todos los balances de caja activos
+   * GET /cash-balances
+   */
+  getAllCashBalances(): Observable<CashBalanceOutputDto[]> {
+    const headers = this.getHeaders();
+    return this.http.get<CashBalanceOutputDto[]>(this.apiUrl, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener todos los balances de caja:', error);
+        throw error;
+      })
+    );
+  }
 }
 

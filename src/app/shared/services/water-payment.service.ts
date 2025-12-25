@@ -6,7 +6,8 @@ import {
   WaterPaymentInputDto,
   PaymentReceiptDto,
   PaymentReceiptFullDto,
-  PaymentType
+  PaymentType,
+  MonthlyPendingFinesDto
 } from '../models/water-system.models';
 import { environment } from '../../../environments/environment';
 
@@ -145,6 +146,34 @@ export class WaterPaymentService {
       }),
       catchError(error => {
         console.error('❌ Error al obtener tipos de pago:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener multas pendientes del mes actual por socio
+   * GET /water-payments/pending-fines/partner/{partnerId}
+   */
+  getCurrentMonthPendingFines(partnerId: string): Observable<MonthlyPendingFinesDto> {
+    const headers = this.getHeaders();
+    return this.http.get<MonthlyPendingFinesDto>(`${this.apiUrl}/pending-fines/partner/${partnerId}`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener multas pendientes:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener multas pendientes de un mes específico por socio
+   * GET /water-payments/pending-fines/partner/{partnerId}/month/{month}/year/{year}
+   */
+  getMonthlyPendingFines(partnerId: string, month: number, year: number): Observable<MonthlyPendingFinesDto> {
+    const headers = this.getHeaders();
+    return this.http.get<MonthlyPendingFinesDto>(`${this.apiUrl}/pending-fines/partner/${partnerId}/month/${month}/year/${year}`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener multas pendientes:', error);
         throw error;
       })
     );

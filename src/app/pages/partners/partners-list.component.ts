@@ -71,11 +71,11 @@ export class PartnersListComponent implements OnInit {
         console.error('Error al cargar socios:', error);
         
         if (error.status === 0) {
-          this.errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté corriendo en http://localhost:8085';
+          this.errorMessage = 'No se puede conectar al servidor.';
         } else if (error.status === 401) {
           this.errorMessage = 'No tienes autorización. Por favor inicia sesión.';
         } else if (error.status === 404) {
-          this.errorMessage = 'El endpoint /api/partners no fue encontrado en el servidor.';
+          this.errorMessage = 'Recurso no encontrado.';
         } else {
           this.errorMessage = `Error al cargar los socios: ${error.message || 'Error desconocido'}`;
         }

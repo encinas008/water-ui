@@ -123,7 +123,21 @@ export class OpenCashBalanceComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al abrir balance de caja:', error);
-        this.showAlertMessage(error.error?.message || 'Error al abrir el balance de caja', 'error');
+        
+        // El backend devuelve el mensaje directamente en error.error para BadRequestException
+        let errorMessage = 'Error al abrir el balance de caja';
+        if (error.error) {
+          // Si error.error es un string, usarlo directamente
+          if (typeof error.error === 'string') {
+            errorMessage = error.error;
+          } 
+          // Si error.error es un objeto con message, usar message
+          else if (error.error.message) {
+            errorMessage = error.error.message;
+          }
+        }
+        
+        this.showAlertMessage(errorMessage, 'error');
       }
     });
   }

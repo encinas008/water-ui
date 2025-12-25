@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { BulkMeetingAttendanceInputDto, MeetingAttendanceOutputDto, MeetingAttendanceUpdateDto } from '../models/water-system.models';
+import { BulkMeetingAttendanceInputDto, MeetingAttendanceOutputDto, MeetingAttendanceUpdateDto, MeetingPartnerAssignmentDto, AssignPartnersToMeetingDto } from '../models/water-system.models';
 
 @Injectable({
   providedIn: 'root'
@@ -69,6 +69,38 @@ export class MeetingAttendanceService {
     return this.http.delete<void>(`${this.apiUrl}/${meetingId}/attendance/${attendanceId}`, { headers }).pipe(
       catchError(error => {
         console.error(`❌ Error al eliminar asistencia ${attendanceId}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  // Métodos para reemplazar funcionalidad de MeetingPartnerService
+  getMeetingWithPartnerAssignments(meetingId: string): Observable<MeetingPartnerAssignmentDto> {
+    const headers = this.getHeaders();
+    return this.http.get<MeetingPartnerAssignmentDto>(`${this.apiUrl}/${meetingId}/attendance/assignments`, { headers }).pipe(
+      catchError(error => {
+        console.error(`❌ Error al cargar asignaciones de socios para la reunión ${meetingId}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  assignPartnersToMeeting(meetingId: string, partnerIds: string[]): Observable<MeetingAttendanceOutputDto[]> {
+    const headers = this.getHeaders();
+    const body: AssignPartnersToMeetingDto = { partnerIds };
+    return this.http.post<MeetingAttendanceOutputDto[]>(`${this.apiUrl}/${meetingId}/attendance/assign-partners`, body, { headers }).pipe(
+      catchError(error => {
+        console.error(`❌ Error al asignar socios a la reunión ${meetingId}:`, error);
+        throw error;
+      })
+    );
+  }
+
+  removePartnerFromMeeting(meetingId: string, partnerId: string): Observable<void> {
+    const headers = this.getHeaders();
+    return this.http.delete<void>(`${this.apiUrl}/${meetingId}/attendance/partner/${partnerId}`, { headers }).pipe(
+      catchError(error => {
+        console.error(`❌ Error al remover socio ${partnerId} de la reunión ${meetingId}:`, error);
         throw error;
       })
     );

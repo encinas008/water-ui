@@ -6,6 +6,7 @@ import { Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, tap, filter } from 'rxjs/operators';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
+import { DatePickerComponent } from '../../shared/components/form/date-picker/date-picker.component';
 import { WaterReadingService } from '../../shared/services/water-reading.service';
 import { PartnerService } from '../../shared/services/partner.service';
 import { WaterBillService } from '../../shared/services/water-bill.service';
@@ -19,7 +20,8 @@ import { AuthService } from '../../shared/services/auth.service';
     CommonModule,
     FormsModule,
     PageBreadcrumbComponent,
-    ButtonComponent
+    ButtonComponent,
+    DatePickerComponent
   ],
   template: `
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
@@ -201,15 +203,16 @@ import { AuthService } from '../../shared/services/auth.service';
 
           <!-- Fecha de Lectura -->
           <div class="mb-4.5">
-            <label class="mb-2.5 block text-black dark:text-white">
-              Fecha de Lectura <span class="text-meta-1">*</span>
-            </label>
-            <input
-              type="date"
-              [(ngModel)]="readingDate"
-              name="readingDate"
-              class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-            />
+            <app-date-picker
+              id="readingDate"
+              label="Fecha de Lectura *"
+              placeholder="Seleccione una fecha"
+              [dateFormat]="'Y-m-d'"
+              [defaultDate]="readingDateObject"
+              [locale]="'es'"
+              [firstDayOfWeek]="1"
+              (dateChange)="onReadingDateChange($event)"
+            ></app-date-picker>
           </div>
 
           <!-- Lectura Actual -->
@@ -284,6 +287,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
 
   // Campos del formulario
   readingDate = '';
+  readingDateObject: Date = new Date(); // Date object para el date picker
   currentReading: number | null = null;
   observation = '';
 
@@ -305,6 +309,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
   ) {
     // Establecer fecha actual por defecto
     const today = new Date();
+    this.readingDateObject = today;
     this.readingDate = today.toISOString().split('T')[0];
   }
 
@@ -432,6 +437,11 @@ export class AddReadingComponent implements OnInit, OnDestroy {
     // Finalmente actualizar el campo de búsqueda (esto puede disparar input, pero la bandera lo previene)
     this.partnerSearch = partner.fullName;
     
+    // Verificar si ya existe una lectura para este mes
+    if (this.readingDate) {
+      this.checkExistingReadingForMonth();
+    }
+    
     // Desactivar bandera después de un delay para permitir que el input se actualice sin disparar búsqueda
     setTimeout(() => {
       this.isSelectingPartner = false;
@@ -463,6 +473,53 @@ export class AddReadingComponent implements OnInit, OnDestroy {
     return isValid;
   }
 
+  onReadingDateChange(event: any): void {
+    // El evento viene de flatpickr con dateStr en formato YYYY-MM-DD
+    if (event && event.selectedDates && event.selectedDates.length > 0) {
+      const selectedDate = event.selectedDates[0];
+      this.readingDateObject = selectedDate;
+      // Convertir a formato YYYY-MM-DD para el backend
+      this.readingDate = selectedDate.toISOString().split('T')[0];
+    } else if (event && event.dateStr) {
+      // Fallback: si solo tenemos dateStr
+      this.readingDate = event.dateStr;
+      const dateObj = new Date(event.dateStr);
+      if (!isNaN(dateObj.getTime())) {
+        this.readingDateObject = dateObj;
+      }
+    }
+    
+    // Verificar si ya existe una lectura para este mes
+    if (this.selectedPartner && this.readingDate) {
+      this.checkExistingReadingForMonth();
+    }
+  }
+
+  checkExistingReadingForMonth(): void {
+    if (!this.selectedPartner || !this.readingDate) {
+      return;
+    }
+
+    this.waterReadingService.checkReadingExistsForMonth(this.selectedPartner.id, this.readingDate).subscribe({
+      next: (exists) => {
+        if (exists) {
+          const date = new Date(this.readingDate);
+          const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+          const monthName = monthNames[date.getMonth()];
+          const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+          this.showAlertMessage(
+            `Ya existe una lectura registrada para este socio en el mes de ${capitalizedMonth} ${date.getFullYear()}. Solo se permite una lectura por mes.`,
+            'warning'
+          );
+        }
+      },
+      error: (error) => {
+        console.error('Error al verificar lectura existente:', error);
+      }
+    });
+  }
+
   onSubmit(): void {
     console.log('📤 onSubmit llamado');
     console.log('📊 Estado del formulario:', {
@@ -478,22 +535,50 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       this.showAlertMessage('Por favor complete todos los campos obligatorios', 'warning');
       return;
     }
-    
+
+    // Verificar si ya existe una lectura para este mes antes de enviar
+    this.waterReadingService.checkReadingExistsForMonth(this.selectedPartner!.id, this.readingDate).subscribe({
+      next: (exists) => {
+        if (exists) {
+          const date = new Date(this.readingDate);
+          const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+          const monthName = monthNames[date.getMonth()];
+          const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+          this.showAlertMessage(
+            `Ya existe una lectura registrada para este socio en el mes de ${capitalizedMonth} ${date.getFullYear()}. Solo se permite una lectura por mes.`,
+            'error'
+          );
+          return;
+        }
+        
+        // Si no existe, proceder con el envío
+        this.proceedWithSubmission();
+      },
+      error: (error) => {
+        console.error('Error al verificar lectura existente:', error);
+        // En caso de error, proceder con el envío (el backend también validará)
+        this.proceedWithSubmission();
+      }
+    });
+  }
+
+  private proceedWithSubmission(): void {
     console.log('✅ Formulario válido, enviando...');
 
     this.isLoading = true;
 
-    const readingInput: WaterMeterReadingInputDto = {
-      partnerId: this.selectedPartner!.id,
-      userId: this.authService.getUserInfo().userId,
-      readingDate: this.readingDate,
-      currentReading: this.currentReading!,
-      observation: this.observation || undefined
-    };
-    
-    console.log('📦 DTO a enviar:', readingInput);
+      const readingInput: WaterMeterReadingInputDto = {
+        partnerId: this.selectedPartner!.id,
+        userId: this.authService.getUserInfo().userId,
+        readingDate: this.readingDate,
+        currentReading: this.currentReading!,
+        observation: this.observation || undefined
+      };
+      
+      console.log('📦 DTO a enviar:', readingInput);
 
-    this.waterReadingService.createReading(readingInput).subscribe({
+      this.waterReadingService.createReading(readingInput).subscribe({
       next: (response) => {
         // Obtener la factura generada automáticamente
         this.waterBillService.getBillsByPartner(this.selectedPartner!.id).subscribe({

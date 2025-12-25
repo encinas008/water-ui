@@ -98,7 +98,9 @@ export class AppSidebarComponent {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-5-6H9v2h6v-2z" fill="currentColor"/></svg>`,
       subItems: [
         { name: "Lista de Balances", path: "/cash-balances", pro: false },
-        { name: "Abrir Balance", path: "/cash-balances/open", pro: false }
+        { name: "Abrir Balance", path: "/cash-balances/open", pro: false },
+        { name: "Registrar Retiro", path: "/cash-balances/withdrawal", pro: false },
+        { name: "Lista de Retiros", path: "/cash-balances/withdrawals", pro: false }
       ],
     },
     {

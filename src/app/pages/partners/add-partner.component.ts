@@ -131,13 +131,13 @@ export class AddPartnerComponent implements OnInit {
         let userMessage = '';
         
         if (error.status === 0) {
-          userMessage = 'No se puede conectar al servidor. Verifica que el backend esté corriendo.';
+          userMessage = 'No se puede conectar al servidor.';
         } else if (error.status === 401) {
           userMessage = 'Se requiere autenticación. Por favor inicia sesión primero.';
         } else if (error.status === 403) {
           userMessage = 'No tienes permisos para crear partners.';
         } else if (error.status === 404) {
-          userMessage = 'Endpoint no encontrado. Verifica la configuración del servidor.';
+          userMessage = 'Recurso no encontrado.';
         } else if (error.status === 400) {
           userMessage = `Datos inválidos: ${error.error?.message || 'Verifica los datos ingresados'}`;
         } else if (error.status === 422) {

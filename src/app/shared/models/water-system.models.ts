@@ -149,6 +149,8 @@ export interface WaterBillOutputDto {
   
   concepts?: BillConceptItemDto[];  // Conceptos de cobro desglosados
   
+  totalFinesPaid?: number;  // Total de multas pagadas en esta factura
+  
   notes?: string;
   
   createdAt: string;
@@ -189,6 +191,22 @@ export interface GenerateMonthlyBillsResponseDto {
 // PAGOS DE AGUA
 // ============================================
 
+export interface PaymentFineDetailDto {
+  id: string;
+  type: string; // "JOB" o "MEETING"
+  name: string;
+  date: string; // YYYY-MM-DD
+  fineAmount: number;
+}
+
+export interface PaymentDetailDto {
+  billAmount: number;
+  finesAmount: number;
+  totalAmount: number;
+  jobFines: PaymentFineDetailDto[];
+  meetingFines: PaymentFineDetailDto[];
+}
+
 export interface WaterPaymentOutputDto {
   id: string;
   receiptNumber: string;
@@ -200,16 +218,24 @@ export interface WaterPaymentOutputDto {
   paymentDate: string;
   amount: number;
   
-  paymentTypeId: string;
+  paymentTypeId?: string;
   paymentTypeName: string;
   
   reference?: string;
   notes?: string;
+  observation?: string;
   
   processedBy?: string;
+  cashierName?: string;
+  paymentDetail?: PaymentDetailDto; // Detalle del pago incluyendo multas
   
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+}
+
+export interface WaterBillDetailDto {
+  bill: WaterBillOutputDto;
+  payments: WaterPaymentOutputDto[];
 }
 
 export interface WaterPaymentInputDto {
@@ -221,6 +247,25 @@ export interface WaterPaymentInputDto {
   userId?: string;         // UUID del usuario autenticado que registra el pago
   cashBalanceId?: string;  // UUID opcional del balance de caja
   observation?: string;    // Observaciones del pago (default: "")
+  includePendingFines?: boolean; // Si incluir multas pendientes del mes
+}
+
+// Pending Fines DTOs
+export interface PendingFineDto {
+  id: string;
+  type: string; // "JOB" o "MEETING"
+  name: string;
+  date: string; // LocalDate
+  fine: number;
+}
+
+export interface MonthlyPendingFinesDto {
+  partnerId: string;
+  month: number;
+  year: number;
+  jobAbsences: PendingFineDto[];
+  meetingAbsences: PendingFineDto[];
+  totalFines: number;
 }
 
 export interface PaymentReceiptDto {
@@ -404,6 +449,34 @@ export interface CashBalanceDetails {
   totalCash: number;               // BigDecimal en backend
   totalOthers: number;              // BigDecimal en backend
   totalCashInBox: number;          // BigDecimal en backend
+}
+
+export interface CashFlowType {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+}
+
+export interface CashFlowInputDto {
+  paymentTypeId: string;      // UUID en backend
+  cashFlowTypeId: string;     // UUID en backend (EGRESO para retiros)
+  amount: number;             // BigDecimal en backend
+  description: string;
+  userId: string;             // UUID en backend
+}
+
+export interface CashFlowOutputDto {
+  id: string;
+  box: string;
+  boxId: string;
+  assignee: string;
+  type: string;               // "EGRESO" o "INGRESO"
+  description: string;
+  amount: number;             // BigDecimal en backend
+  active: boolean;
+  createdAt: string;          // OffsetDateTime en backend
+  updatedAt?: string;         // OffsetDateTime? en backend
 }
 
 export interface CashBalanceDetailsOutputDto {

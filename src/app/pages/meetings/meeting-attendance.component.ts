@@ -8,7 +8,6 @@ import { BadgeComponent } from '../../shared/components/ui/badge/badge.component
 import { DatePickerComponent } from '../../shared/components/form/date-picker/date-picker.component';
 import { InputFieldComponent } from '../../shared/components/form/input/input-field.component';
 import { MeetingService } from '../../shared/services/meeting.service';
-import { MeetingPartnerService } from '../../shared/services/meeting-partner.service';
 import { MeetingAttendanceService } from '../../shared/services/meeting-attendance.service';
 import { MeetingOutputDto, PartnerAssignmentInfoDto, MeetingAttendanceOutputDto, BulkMeetingAttendanceInputDto, PartnerAttendanceDto } from '../../shared/models/water-system.models';
 
@@ -57,7 +56,6 @@ export class MeetingAttendanceComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private meetingService: MeetingService,
-    private meetingPartnerService: MeetingPartnerService,
     private meetingAttendanceService: MeetingAttendanceService,
     private datePipe: DatePipe
   ) {}
@@ -88,7 +86,7 @@ export class MeetingAttendanceComponent implements OnInit {
 
   loadAssignedPartners(): void {
     this.isLoading = true;
-    this.meetingPartnerService.getMeetingWithPartnerAssignments(this.meetingId).subscribe({
+    this.meetingAttendanceService.getMeetingWithPartnerAssignments(this.meetingId).subscribe({
       next: (data) => {
         this.assignedPartners = data.assignedPartners.filter(p => p.isAssigned);
         this.applySearchFilter();

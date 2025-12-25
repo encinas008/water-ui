@@ -25,52 +25,14 @@ import { CashBalanceOutputDto } from '../../shared/models/water-system.models';
         <span>{{ alertMessage }}</span>
       </div>
 
-      <!-- Filtros y acciones -->
-      <div class="mb-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-          <div class="flex items-center justify-between">
-            <h3 class="font-medium text-black dark:text-white">Filtros</h3>
-            <app-button (click)="navigateTo('/cash-balances/open')" [variant]="'primary'">
-              <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-              </svg>
-              Abrir Balance de Caja
-            </app-button>
-          </div>
-        </div>
-        <div class="p-6.5">
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <div>
-              <label class="mb-2.5 block text-black dark:text-white">Fecha Desde</label>
-              <input 
-                type="date" 
-                [(ngModel)]="fromDate" 
-                class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input" 
-              />
-            </div>
-            <div>
-              <label class="mb-2.5 block text-black dark:text-white">Fecha Hasta</label>
-              <input 
-                type="date" 
-                [(ngModel)]="toDate" 
-                class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input" 
-              />
-            </div>
-            <div class="flex items-end">
-              <app-button (click)="applyFilters()" [variant]="'primary'" class="w-full">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                Buscar
-              </app-button>
-            </div>
-            <div class="flex items-end">
-              <app-button (click)="clearFilters()" [variant]="'secondary'" class="w-full">
-                Limpiar Filtros
-              </app-button>
-            </div>
-          </div>
-        </div>
+      <!-- Acciones -->
+      <div class="mb-6 flex justify-end">
+        <app-button (click)="navigateTo('/cash-balances/open')" [variant]="'primary'">
+          <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Abrir Balance de Caja
+        </app-button>
       </div>
 
       <!-- Tabla de balances -->
@@ -118,7 +80,7 @@ import { CashBalanceOutputDto } from '../../shared/models/water-system.models';
                   </td>
                   <td class="py-5 px-4 text-right">
                     <p class="text-black dark:text-white font-medium">
-                      {{ balance.initialMoney | currency:'USD':'symbol':'1.2-2' }}
+                      BOB {{ balance.initialMoney | number:'1.2-2' }}
                     </p>
                   </td>
                   <td class="py-5 px-4 text-center">
@@ -127,17 +89,21 @@ import { CashBalanceOutputDto } from '../../shared/models/water-system.models';
                       'bg-success/10 text-success': balance.active && !balance.closeTime,
                       'bg-meta-3/10 text-meta-3': !balance.active || balance.closeTime
                     }">
-                      {{ balance.active && !balance.closeTime ? 'Abierto' : 'Cerrado' }}
+                      {{ getBalanceStatus(balance) }}
                     </span>
                   </td>
                   <td class="py-5 px-4 text-center">
                     <div class="flex items-center justify-center gap-2">
                       <button
                         (click)="viewDetails(balance.id)"
-                        class="text-primary hover:text-primary/80 font-medium"
+                        class="text-primary hover:text-primary/80 font-medium flex items-center gap-1"
                         title="Ver detalles"
                       >
-                        Ver
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Ver Detalle
                       </button>
                       <button
                         *ngIf="balance.active && !balance.closeTime"
@@ -170,9 +136,6 @@ export class CashBalancesListComponent implements OnInit {
   alertType: 'success' | 'error' = 'success';
   alertMessage = '';
 
-  fromDate: string = '';
-  toDate: string = '';
-
   constructor(
     private cashBalanceService: CashBalanceService,
     private authService: AuthService,
@@ -184,25 +147,17 @@ export class CashBalancesListComponent implements OnInit {
   }
 
   loadCashBalances(): void {
-    const userInfo = this.authService.getUserInfo();
-    if (!userInfo || !userInfo.userId) {
-      this.showAlertMessage('No se pudo obtener la información del usuario', 'error');
-      return;
-    }
-
     this.isLoading = true;
 
-    // Convertir fechas a timestamps (milisegundos desde epoch)
-    const fromTimestamp = this.fromDate ? new Date(this.fromDate).getTime() : undefined;
-    const toTimestamp = this.toDate ? new Date(this.toDate).getTime() : undefined;
-
-    this.cashBalanceService.getCashBalancesByUser(
-      userInfo.userId,
-      fromTimestamp,
-      toTimestamp
-    ).subscribe({
+    // Cargar todos los balances activos sin filtrar por usuario
+    this.cashBalanceService.getAllCashBalances().subscribe({
       next: (data) => {
-        this.cashBalances = data;
+        // Ordenar por fecha de apertura descendente (más recientes primero)
+        this.cashBalances = data.sort((a, b) => {
+          const dateA = new Date(a.openTime).getTime();
+          const dateB = new Date(b.openTime).getTime();
+          return dateB - dateA;
+        });
         this.isLoading = false;
       },
       error: (error) => {
@@ -213,14 +168,11 @@ export class CashBalancesListComponent implements OnInit {
     });
   }
 
-  applyFilters(): void {
-    this.loadCashBalances();
-  }
-
-  clearFilters(): void {
-    this.fromDate = '';
-    this.toDate = '';
-    this.loadCashBalances();
+  getBalanceStatus(balance: CashBalanceOutputDto): string {
+    if (balance.active && !balance.closeTime) {
+      return 'ABIERTO';
+    }
+    return 'CERRADO';
   }
 
   viewDetails(id: string): void {

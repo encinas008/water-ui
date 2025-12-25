@@ -6,7 +6,8 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { WaterBillService } from '../../shared/services/water-bill.service';
-import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system.models';
+import { WaterBillOutputDto, WaterBillDetailDto, BillStatus } from '../../shared/models/water-system.models';
+import { ModalComponent } from '../../shared/components/ui/modal/modal.component';
 
 @Component({
   selector: 'app-bills-list',
@@ -16,7 +17,8 @@ import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system
     FormsModule,
     PageBreadcrumbComponent,
     ButtonComponent,
-    BadgeComponent
+    BadgeComponent,
+    ModalComponent
   ],
   template: `
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
@@ -36,7 +38,7 @@ import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system
       </div>
 
       <!-- Métricas rápidas -->
-      <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+      <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3 2xl:gap-7.5">
         <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
           <div class="flex items-end justify-between">
             <div>
@@ -63,22 +65,6 @@ import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system
             </div>
             <span class="flex items-center justify-center rounded-full bg-meta-2 w-11 h-11">
               <svg class="h-5 w-5 fill-warning" viewBox="0 0 22 22">
-                <path d="M11 0l3 8h8l-6.5 5 2.5 8-7-5-7 5 2.5-8L0 8h8z"/>
-              </svg>
-            </span>
-          </div>
-        </div>
-
-        <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div class="flex items-end justify-between">
-            <div>
-              <h4 class="text-title-md font-bold text-black dark:text-white">
-                {{ getOverdueBillsCount() }}
-              </h4>
-              <span class="text-sm font-medium">Vencidas</span>
-            </div>
-            <span class="flex items-center justify-center rounded-full bg-meta-2 w-11 h-11">
-              <svg class="h-5 w-5 fill-danger" viewBox="0 0 22 22">
                 <path d="M11 0l3 8h8l-6.5 5 2.5 8-7-5-7 5 2.5-8L0 8h8z"/>
               </svg>
             </span>
@@ -163,7 +149,7 @@ import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system
                   Socio
                 </th>
                 <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
-                  Período
+                  Mes
                 </th>
                 <th class="py-4 px-4 font-medium text-black dark:text-white text-right">
                   Consumo (m³)
@@ -181,9 +167,6 @@ import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system
                   Estado
                 </th>
                 <th class="py-4 px-4 font-medium text-black dark:text-white">
-                  Vencimiento
-                </th>
-                <th class="py-4 px-4 font-medium text-black dark:text-white">
                   Acciones
                 </th>
               </tr>
@@ -199,7 +182,7 @@ import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system
                 </td>
                 <td class="py-5 px-4">
                   <p class="text-sm">
-                    {{ formatBillingPeriod(bill) }}
+                    {{ formatBillingMonth(bill) }}
                   </p>
                 </td>
                 <td class="py-5 px-4 text-right">
@@ -222,11 +205,6 @@ import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system
                   </span>
                 </td>
                 <td class="py-5 px-4">
-                  <p [class.text-danger]="isOverdue(bill.dueDate)" class="text-sm">
-                    {{ bill.dueDate | date:'dd/MM/yyyy' }}
-                  </p>
-                </td>
-                <td class="py-5 px-4">
                   <div class="flex items-center space-x-3.5">
                     <button (click)="viewBill(bill)" class="hover:text-primary" title="Ver detalle">
                       <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -243,7 +221,7 @@ import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system
                 </td>
               </tr>
               <tr *ngIf="filteredBills.length === 0">
-                <td colspan="10" class="py-10 text-center text-bodydark">
+                <td colspan="9" class="py-10 text-center text-bodydark">
                   No se encontraron facturas
                 </td>
               </tr>
@@ -286,6 +264,223 @@ import { WaterBillOutputDto, BillStatus } from '../../shared/models/water-system
         </div>
       </div>
     </div>
+
+    <!-- Modal de Detalle de Factura -->
+    <app-modal [isOpen]="showBillDetailModal" (close)="closeBillDetailModal()" [className]="'max-w-5xl max-h-[90vh] overflow-y-auto'">
+      <div class="p-6">
+        <h2 class="mb-6 text-2xl font-bold text-black dark:text-white">Detalle de Factura</h2>
+        
+        <div *ngIf="isLoadingBillDetail" class="flex justify-center py-10">
+          <div class="h-16 w-16 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+        </div>
+
+        <div *ngIf="!isLoadingBillDetail && billDetail">
+          <!-- Información de la Factura -->
+          <div class="mb-6 rounded-lg border border-stroke bg-white p-6 dark:border-strokedark dark:bg-boxdark">
+            <h3 class="mb-4 text-xl font-semibold text-black dark:text-white">Información de la Factura</h3>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <p class="text-sm text-bodydark">Número de Factura</p>
+                <p class="font-medium text-black dark:text-white">{{ billDetail.bill.billNumber }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-bodydark">Socio</p>
+                <p class="font-medium text-black dark:text-white">{{ billDetail.bill.partnerName }}</p>
+                <p class="text-xs text-bodydark" *ngIf="billDetail.bill.waterConnectionNumber">{{ billDetail.bill.waterConnectionNumber }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-bodydark">Período</p>
+                <p class="font-medium text-black dark:text-white">{{ formatBillingMonth(billDetail.bill) }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-bodydark">Estado</p>
+                <span [ngClass]="getBillStatusClass(billDetail.bill.statusCode)">
+                  {{ billDetail.bill.statusName }}
+                </span>
+              </div>
+              <div>
+                <p class="text-sm text-bodydark">Consumo (m³)</p>
+                <p class="font-medium text-black dark:text-white">{{ billDetail.bill.consumptionM3 | number:'1.2-2' }} m³</p>
+              </div>
+              <div>
+                <p class="text-sm text-bodydark">Tarifa por m³</p>
+                <p class="font-medium text-black dark:text-white">BOB {{ billDetail.bill.ratePerM3 | number:'1.2-2' }}</p>
+              </div>
+            </div>
+
+            <!-- Conceptos de la Factura -->
+            <div *ngIf="billDetail.bill.concepts && billDetail.bill.concepts.length > 0" class="mb-6">
+              <h4 class="mb-3 text-lg font-semibold text-black dark:text-white">Conceptos de Cobro</h4>
+              <div class="rounded-lg border border-stroke bg-gray-50 dark:bg-meta-4 p-4">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-stroke dark:border-strokedark">
+                      <th class="text-left py-2 font-medium text-black dark:text-white">Concepto</th>
+                      <th class="text-left py-2 font-medium text-black dark:text-white">Fecha</th>
+                      <th class="text-right py-2 font-medium text-black dark:text-white">Importe</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let concept of billDetail.bill.concepts" class="border-b border-stroke dark:border-strokedark">
+                      <td class="py-2 text-bodydark">{{ concept.conceptName }}</td>
+                      <td class="py-2 text-bodydark">{{ concept.assignedDate | date:'dd/MM/yyyy' }}</td>
+                      <td class="py-2 text-right font-medium text-black dark:text-white">BOB {{ concept.amount | number:'1.2-2' }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr class="border-t-2 border-stroke dark:border-strokedark">
+                      <td colspan="2" class="py-2 font-bold text-black dark:text-white">Total Factura</td>
+                      <td class="py-2 text-right font-bold text-lg text-black dark:text-white">BOB {{ billDetail.bill.totalAmount | number:'1.2-2' }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Resumen de Pagos -->
+            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-stroke dark:border-strokedark">
+              <div>
+                <p class="text-sm text-bodydark">Total Factura</p>
+                <p class="text-lg font-bold text-black dark:text-white">BOB {{ billDetail.bill.totalAmount | number:'1.2-2' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-bodydark">Pagado (Factura)</p>
+                <p class="text-lg font-bold text-success">BOB {{ billDetail.bill.paidAmount | number:'1.2-2' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-bodydark">Saldo Pendiente</p>
+                <p class="text-lg font-bold" [class.text-danger]="billDetail.bill.remainingBalance > 0" [class.text-success]="billDetail.bill.remainingBalance === 0">
+                  BOB {{ billDetail.bill.remainingBalance | number:'1.2-2' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Total de Multas Pagadas -->
+            <div *ngIf="getTotalFinesPaid() > 0" class="mt-4 pt-4 border-t border-stroke dark:border-strokedark">
+              <div class="flex justify-between items-center">
+                <p class="text-sm font-medium text-bodydark">Total Multas Pagadas en esta Factura:</p>
+                <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400">BOB {{ getTotalFinesPaid() | number:'1.2-2' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Historial de Pagos -->
+          <div class="mb-6">
+            <h3 class="mb-4 text-xl font-semibold text-black dark:text-white">Historial de Pagos ({{ billDetail.payments.length }})</h3>
+            <div *ngIf="billDetail.payments.length === 0" class="rounded-lg border border-stroke bg-white p-8 text-center dark:border-strokedark dark:bg-boxdark">
+              <svg class="mx-auto h-12 w-12 text-bodydark mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <p class="text-bodydark font-medium">No hay pagos registrados para esta factura</p>
+            </div>
+            <div *ngIf="billDetail.payments.length > 0" class="space-y-4">
+              <div *ngFor="let payment of billDetail.payments" class="rounded-lg border-2 border-stroke bg-white p-5 dark:border-strokedark dark:bg-boxdark shadow-sm">
+                <!-- Encabezado del Pago -->
+                <div class="mb-4 flex items-center justify-between border-b border-stroke dark:border-strokedark pb-3">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-1">
+                      <p class="text-lg font-bold text-black dark:text-white">Recibo #{{ payment.receiptNumber }}</p>
+                      <span class="px-2 py-1 text-xs font-medium rounded bg-success/10 text-success">
+                        {{ payment.paymentTypeName }}
+                      </span>
+                    </div>
+                    <p class="text-sm text-bodydark">
+                      <svg class="inline h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                      {{ payment.paymentDate | date:'dd/MM/yyyy HH:mm' }}
+                    </p>
+                    <p class="text-sm text-bodydark" *ngIf="payment.cashierName">
+                      <svg class="inline h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                      Cajero: {{ payment.cashierName }}
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-xs text-bodydark mb-1">Total Pagado</p>
+                    <p class="text-2xl font-bold text-success">BOB {{ payment.amount | number:'1.2-2' }}</p>
+                  </div>
+                </div>
+
+                <!-- Desglose del Pago -->
+                <div class="space-y-3">
+                  <!-- Monto de Factura -->
+                  <div class="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-meta-4">
+                    <div>
+                      <p class="font-medium text-black dark:text-white">Pago por Factura</p>
+                      <p class="text-xs text-bodydark">Monto aplicado a esta factura</p>
+                    </div>
+                    <p class="text-lg font-bold text-black dark:text-white">
+                      BOB {{ payment.paymentDetail?.billAmount || payment.amount | number:'1.2-2' }}
+                    </p>
+                  </div>
+
+                  <!-- Multas -->
+                  <div *ngIf="payment.paymentDetail && payment.paymentDetail.finesAmount > 0" class="rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 p-4">
+                    <div class="flex justify-between items-center mb-3">
+                      <p class="font-semibold text-black dark:text-white">Multas Pagadas</p>
+                      <p class="text-lg font-bold text-yellow-600 dark:text-yellow-400">
+                        BOB {{ payment.paymentDetail.finesAmount | number:'1.2-2' }}
+                      </p>
+                    </div>
+
+                    <!-- Multas de Trabajos -->
+                    <div *ngIf="payment.paymentDetail.jobFines.length > 0" class="mb-3">
+                      <p class="text-sm font-medium text-black dark:text-white mb-2 flex items-center">
+                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Multas de Trabajos ({{ payment.paymentDetail.jobFines.length }})
+                      </p>
+                      <div class="ml-5 space-y-1">
+                        <div *ngFor="let fine of payment.paymentDetail.jobFines" class="flex justify-between items-center text-sm bg-white dark:bg-boxdark rounded px-2 py-1">
+                          <div class="flex-1">
+                            <p class="font-medium text-black dark:text-white">{{ fine.name }}</p>
+                            <p class="text-xs text-bodydark">{{ fine.date | date:'dd/MM/yyyy' }}</p>
+                          </div>
+                          <p class="font-semibold text-black dark:text-white">BOB {{ fine.fineAmount | number:'1.2-2' }}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Multas de Reuniones -->
+                    <div *ngIf="payment.paymentDetail.meetingFines.length > 0">
+                      <p class="text-sm font-medium text-black dark:text-white mb-2 flex items-center">
+                        <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        Multas de Reuniones ({{ payment.paymentDetail.meetingFines.length }})
+                      </p>
+                      <div class="ml-5 space-y-1">
+                        <div *ngFor="let fine of payment.paymentDetail.meetingFines" class="flex justify-between items-center text-sm bg-white dark:bg-boxdark rounded px-2 py-1">
+                          <div class="flex-1">
+                            <p class="font-medium text-black dark:text-white">{{ fine.name }}</p>
+                            <p class="text-xs text-bodydark">{{ fine.date | date:'dd/MM/yyyy' }}</p>
+                          </div>
+                          <p class="font-semibold text-black dark:text-white">BOB {{ fine.fineAmount | number:'1.2-2' }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Observación -->
+                <div *ngIf="payment.observation" class="mt-3 pt-3 border-t border-stroke dark:border-strokedark">
+                  <p class="text-xs text-bodydark">
+                    <span class="font-medium">Observación:</span> {{ payment.observation }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <app-button (click)="closeBillDetailModal()" [variant]="'secondary'">Cerrar</app-button>
+          </div>
+        </div>
+      </div>
+    </app-modal>
   `
 })
 export class BillsListComponent implements OnInit {
@@ -312,6 +507,11 @@ export class BillsListComponent implements OnInit {
   showAlert = false;
   alertType: 'success' | 'error' | 'info' = 'success';
   alertMessage = '';
+
+  // Modal de detalle
+  showBillDetailModal = false;
+  billDetail: WaterBillDetailDto | null = null;
+  isLoadingBillDetail = false;
 
   constructor(
     private waterBillService: WaterBillService,
@@ -435,10 +635,6 @@ export class BillsListComponent implements OnInit {
     return this.bills.filter(b => b.statusCode === 'PENDING' || b.statusCode === 'PARTIAL_PAID').length;
   }
 
-  getOverdueBillsCount(): number {
-    return this.bills.filter(b => b.statusCode === 'OVERDUE').length;
-  }
-
   getTotalPending(): number {
     return this.bills.reduce((sum, bill) => sum + bill.remainingBalance, 0);
   }
@@ -459,29 +655,37 @@ export class BillsListComponent implements OnInit {
     }
   }
 
-  isOverdue(dueDate: string): boolean {
-    return new Date(dueDate) < new Date();
-  }
-
-  formatBillingPeriod(bill: WaterBillOutputDto): string {
-    if (!bill.billingPeriodStart || !bill.billingPeriodEnd) {
+  formatBillingMonth(bill: WaterBillOutputDto): string {
+    if (!bill.billingPeriodStart) {
       return '-';
     }
     
     try {
-      const startDate = new Date(bill.billingPeriodStart);
-      const endDate = new Date(bill.billingPeriodEnd);
-      
-      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      // Parsear la fecha manualmente para evitar problemas de zona horaria
+      // billingPeriodStart viene en formato YYYY-MM-DD
+      const dateParts = bill.billingPeriodStart.split('-');
+      if (dateParts.length !== 3) {
         return '-';
       }
       
-      const startFormatted = startDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const endFormatted = endDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const year = parseInt(dateParts[0], 10);
+      const monthIndex = parseInt(dateParts[1], 10) - 1; // El mes viene en 1-12, convertimos a 0-11 para el array
+      const day = parseInt(dateParts[2], 10);
       
-      return `${startFormatted} - ${endFormatted}`;
+      // Validar que los valores sean válidos
+      if (isNaN(year) || isNaN(monthIndex) || isNaN(day) || monthIndex < 0 || monthIndex > 11) {
+        return '-';
+      }
+      
+      // Formato: "Diciembre 2025"
+      const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      const monthName = monthNames[monthIndex];
+      const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+      
+      return `${capitalizedMonth} ${year}`;
     } catch (error) {
-      console.error('Error formateando período de facturación:', error, bill);
+      console.error('Error formateando mes de facturación:', error, bill);
       return '-';
     }
   }
@@ -491,7 +695,52 @@ export class BillsListComponent implements OnInit {
   }
 
   viewBill(bill: WaterBillOutputDto): void {
-    this.router.navigate(['/water-bills', bill.id]);
+    this.isLoadingBillDetail = true;
+    this.showBillDetailModal = true;
+    this.waterBillService.getBillDetailWithPayments(bill.id).subscribe({
+      next: (detail) => {
+        this.billDetail = detail;
+        this.isLoadingBillDetail = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar detalle de factura:', error);
+        this.isLoadingBillDetail = false;
+        this.showAlert = true;
+        this.alertType = 'error';
+        this.alertMessage = 'Error al cargar el detalle de la factura';
+        this.showBillDetailModal = false;
+      }
+    });
+  }
+
+  closeBillDetailModal(): void {
+    this.showBillDetailModal = false;
+    this.billDetail = null;
+  }
+
+  formatBillingMonthFromDate(dateStr: string): string {
+    if (!dateStr) return '-';
+    try {
+      const dateParts = dateStr.split('-');
+      if (dateParts.length !== 3) return '-';
+      const year = parseInt(dateParts[0], 10);
+      const monthIndex = parseInt(dateParts[1], 10) - 1;
+      if (isNaN(year) || isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) return '-';
+      const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      const monthName = monthNames[monthIndex];
+      const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+      return `${capitalizedMonth} ${year}`;
+    } catch (error) {
+      return '-';
+    }
+  }
+
+  getTotalFinesPaid(): number {
+    if (!this.billDetail) return 0;
+    return this.billDetail.payments.reduce((total: number, payment) => {
+      return total + (payment.paymentDetail?.finesAmount || 0);
+    }, 0);
   }
 
   registerPayment(bill: WaterBillOutputDto): void {
