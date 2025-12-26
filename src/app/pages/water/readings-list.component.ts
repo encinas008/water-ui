@@ -100,21 +100,18 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
                   Socio
                 </th>
                 <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Conexión
-                </th>
-                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Medidor
                 </th>
-                <th class="px-4 py-4 text-right text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Lectura Anterior
                 </th>
-                <th class="px-4 py-4 text-right text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Lectura Actual
                 </th>
-                <th class="px-4 py-4 text-right text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Consumo (m³)
                 </th>
-                <th class="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Estado
                 </th>
                 <th class="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -145,13 +142,6 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
                   </p>
                 </td>
 
-                <!-- Conexión -->
-                <td class="px-4 py-4">
-                  <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
-                    {{ reading.waterConnectionNumber || '-' }}
-                  </span>
-                </td>
-
                 <!-- Medidor -->
                 <td class="px-4 py-4">
                   <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">
@@ -160,21 +150,21 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
                 </td>
 
                 <!-- Lectura Anterior -->
-                <td class="px-4 py-4 text-right">
+                <td class="px-4 py-4 text-left">
                   <p class="text-sm text-gray-700 dark:text-gray-300">
                     {{ reading.previousReading || 0 | number:'1.2-2' }}
                   </p>
                 </td>
 
                 <!-- Lectura Actual -->
-                <td class="px-4 py-4 text-right">
+                <td class="px-4 py-4 text-left">
                   <p class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ reading.currentReading | number:'1.2-2' }}
                   </p>
                 </td>
 
                 <!-- Consumo -->
-                <td class="px-4 py-4 text-right">
+                <td class="px-4 py-4 text-left">
                   <app-badge 
                     [variant]="'light'" 
                     [color]="getConsumptionColor(reading.consumption)">
@@ -183,7 +173,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
                 </td>
 
                 <!-- Estado -->
-                <td class="px-4 py-4 text-center">
+                <td class="px-4 py-4 text-left">
                   <app-badge 
                     [variant]="'light'" 
                     [color]="getStatusColor(reading)">
@@ -217,7 +207,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
 
               <!-- Empty State -->
               <tr *ngIf="paginatedReadings.length === 0">
-                <td colspan="9" class="px-4 py-12 text-center">
+                <td colspan="8" class="px-4 py-12 text-center">
                   <div class="flex flex-col items-center justify-center">
                     <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -367,7 +357,6 @@ export class ReadingsListComponent implements OnInit {
       this.filteredReadings = this.readings.filter(reading => {
         return (
           reading.partnerName.toLowerCase().includes(query) ||
-          reading.waterConnectionNumber?.toLowerCase().includes(query) ||
           reading.waterMeterNumber?.toLowerCase().includes(query)
         );
       });

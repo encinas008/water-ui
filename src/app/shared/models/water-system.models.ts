@@ -84,7 +84,6 @@ export interface WaterMeterReadingOutputDto {
   id: string;
   partnerId: string;
   partnerName: string;
-  waterConnectionNumber?: string;
   waterMeterNumber?: string;
   
   readingDate: string;

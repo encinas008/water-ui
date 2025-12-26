@@ -72,12 +72,20 @@ export class PartnerService {
    */
   getPartners(): Observable<PartnerOutputDto[]> {
     const headers = this.getHeaders();
-    return this.http.get<PartnerOutputDto[]>(this.apiUrl, { headers }).pipe(
+    return this.http.get<any[]>(this.apiUrl, { headers }).pipe(
+      tap(partners => {
+        // Mapear 'cel' del backend a 'phoneNumber' del frontend
+        partners.forEach(partner => {
+          if (partner.cel !== undefined && !partner.phoneNumber) {
+            partner.phoneNumber = partner.cel;
+          }
+        });
+      }),
       catchError(error => {
         console.error('❌ Error al cargar partners:', error);
         throw error;
       })
-    );
+    ) as Observable<PartnerOutputDto[]>;
   }
 
   /**
@@ -86,12 +94,18 @@ export class PartnerService {
    */
   getPartnerById(id: string): Observable<PartnerOutputDto> {
     const headers = this.getHeaders();
-    return this.http.get<PartnerOutputDto>(`${this.apiUrl}/${id}`, { headers }).pipe(
+    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers }).pipe(
+      tap(partner => {
+        // Mapear 'cel' del backend a 'phoneNumber' del frontend
+        if (partner.cel !== undefined && !partner.phoneNumber) {
+          partner.phoneNumber = partner.cel;
+        }
+      }),
       catchError(error => {
         console.error('❌ Error al obtener partner:', error);
         throw error;
       })
-    );
+    ) as Observable<PartnerOutputDto>;
   }
 
   /**

@@ -141,6 +141,11 @@ export const routes: Routes = [
         title:'Detalles del Socio | Sistema'
       },
       {
+        path:'partners/edit/:id',
+        component:AddPartnerComponent,
+        title:'Editar Socio | Sistema'
+      },
+      {
         path:'jobs',
         component:JobsListComponent,
         title:'Administración de Trabajos | Sistema'

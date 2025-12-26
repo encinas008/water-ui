@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { LabelComponent } from '../../shared/components/form/label/label.component';
 import { InputFieldComponent } from '../../shared/components/form/input/input-field.component';
@@ -61,6 +61,10 @@ export class AddPartnerComponent implements OnInit {
   meterNumberExists: boolean = false;
   meterNumberCheckTimeout: any = null;
 
+  // Modo edición
+  partnerId: string | null = null;
+  isEditMode: boolean = false;
+
   // Getter para verificar si el formulario es válido
   get isFormValid(): boolean {
     // Validar nombre completo (obligatorio, 2-200 caracteres, solo letras y espacios)
@@ -86,21 +90,18 @@ export class AddPartnerComponent implements OnInit {
       return false;
     }
 
-    // Validar número de medidor (obligatorio, solo números, mínimo 6 dígitos, máximo 50 caracteres, único)
-    if (!this.waterMeterNumber || this.waterMeterNumber.trim().length === 0) {
-      return false;
-    }
-    if (this.waterMeterNumber.trim().length < 6) {
-      return false;
-    }
-    if (this.waterMeterNumber.trim().length > 50) {
-      return false;
-    }
-    if (!/^[0-9]+$/.test(this.waterMeterNumber.trim())) {
-      return false;
-    }
-    if (this.meterNumberExists) {
-      return false;
+    // Validar número de medidor (opcional, letras y números, máximo 50 caracteres, único)
+    if (this.waterMeterNumber && this.waterMeterNumber.trim().length > 0) {
+      if (this.waterMeterNumber.trim().length > 50) {
+        return false;
+      }
+      // Permitir letras y números
+      if (!/^[A-Z0-9]+$/.test(this.waterMeterNumber.trim())) {
+        return false;
+      }
+      if (this.meterNumberExists) {
+        return false;
+      }
     }
 
     // Validar dirección de conexión (opcional, pero si se ingresa debe tener máximo 500 caracteres)
@@ -118,7 +119,8 @@ export class AddPartnerComponent implements OnInit {
 
   constructor(
     private partnerService: PartnerService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     // Establecer fecha actual por defecto (usando zona horaria local)
     const today = new Date();
@@ -161,7 +163,42 @@ export class AddPartnerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // No necesitamos cargar datos comunes
+    // Verificar si estamos en modo edición
+    this.partnerId = this.route.snapshot.paramMap.get('id');
+    this.isEditMode = !!this.partnerId;
+    
+    if (this.isEditMode && this.partnerId) {
+      this.loadPartner(this.partnerId);
+    }
+  }
+
+  loadPartner(id: string): void {
+    this.isLoading = true;
+    this.partnerService.getPartnerById(id).subscribe({
+      next: (partner) => {
+        this.fullName = partner.fullName || '';
+        this.partnerIdentificationNumber = partner.partnerIdentificationNumber || '';
+        this.phoneNumber = partner.phoneNumber || '';
+        this.address = partner.address || '';
+        this.waterMeterNumber = partner.waterMeterNumber || '';
+        this.connectionStatusCode = partner.connectionStatusCode || 'ACTIVE';
+        if (partner.connectionDate) {
+          this.connectionDate = partner.connectionDate;
+        }
+        this.waterConnectionAddress = partner.waterConnectionAddress || '';
+        this.isElderly = partner.isElderly || false;
+        this.notes = partner.notes || '';
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Error al cargar socio:', error);
+        this.showAlertMessage('Error al cargar el socio. Por favor intenta de nuevo.', 'error');
+        setTimeout(() => {
+          this.router.navigate(['/partners']);
+        }, 2000);
+      }
+    });
   }
 
   onConnectionStatusChange(value: string): void {
@@ -206,28 +243,22 @@ export class AddPartnerComponent implements OnInit {
       return false;
     }
 
-    // Validar número de medidor (obligatorio, solo números, mínimo 6 dígitos, máximo 50 caracteres, único)
-    if (!this.waterMeterNumber || this.waterMeterNumber.trim().length === 0) {
-      this.showAlertMessage('El número de medidor es obligatorio', 'error');
-      return false;
-    }
-    if (this.waterMeterNumber.trim().length < 6) {
-      this.showAlertMessage('El número de medidor debe tener al menos 6 dígitos', 'error');
-      return false;
-    }
-    if (this.waterMeterNumber.trim().length > 50) {
-      this.showAlertMessage('El número de medidor no puede exceder 50 caracteres', 'error');
-      return false;
-    }
-    // Validar que solo contenga números
-    if (!/^[0-9]+$/.test(this.waterMeterNumber.trim())) {
-      this.showAlertMessage('El número de medidor solo puede contener números', 'error');
-      return false;
-    }
-    // Validar unicidad
-    if (this.meterNumberExists) {
-      this.showAlertMessage('El número de medidor ya está registrado para otro socio', 'error');
-      return false;
+    // Validar identificador de medidor (opcional, letras y números, máximo 50 caracteres, único)
+    if (this.waterMeterNumber && this.waterMeterNumber.trim().length > 0) {
+      if (this.waterMeterNumber.trim().length > 50) {
+        this.showAlertMessage('El identificador de medidor no puede exceder 50 caracteres', 'error');
+        return false;
+      }
+      // Validar que solo contenga letras y números (ya está en mayúsculas)
+      if (!/^[A-Z0-9]+$/.test(this.waterMeterNumber.trim())) {
+        this.showAlertMessage('El identificador de medidor solo puede contener letras y números', 'error');
+        return false;
+      }
+      // Validar unicidad
+      if (this.meterNumberExists) {
+        this.showAlertMessage('El identificador de medidor ya está registrado para otro socio', 'error');
+        return false;
+      }
     }
 
     // Validar dirección de conexión (opcional, pero si se ingresa debe tener máximo 500 caracteres)
@@ -258,53 +289,95 @@ export class AddPartnerComponent implements OnInit {
     const partnerInput: any = {
       fullName: this.fullName.trim().toUpperCase(),
       partnerIdentificationNumber: this.partnerIdentificationNumber?.trim() || undefined,
-      cellphone: this.phoneNumber?.trim() || "",
-      address: this.address?.trim() || "",
-      waterMeterNumber: this.waterMeterNumber?.trim() || undefined,
+      cellphone: this.phoneNumber?.trim() || undefined,
+      address: this.address?.trim() || undefined,
+      waterMeterNumber: this.waterMeterNumber?.trim().toUpperCase() || undefined,
       connectionStatusCode: this.connectionStatusCode || undefined,
       connectionDate: this.connectionDate || undefined,
       waterConnectionAddress: this.waterConnectionAddress?.trim() || undefined,
       isElderly: this.isElderly,
-      notes: this.notes?.trim() || ""
+      notes: this.notes?.trim() || undefined
     };
 
-    this.partnerService.createPartner(partnerInput).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        this.showAlertMessage('Partner creado exitosamente', 'success');
-        
-        // Resetear formulario después de 2 segundos
-        setTimeout(() => {
-          this.resetForm();
-        }, 2000);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('Error al crear partner:', error);
-        
-        let userMessage = '';
-        
-        if (error.status === 0) {
-          userMessage = 'No se puede conectar al servidor.';
-        } else if (error.status === 401) {
-          userMessage = 'Se requiere autenticación. Por favor inicia sesión primero.';
-        } else if (error.status === 403) {
-          userMessage = 'No tienes permisos para crear partners.';
-        } else if (error.status === 404) {
-          userMessage = 'Recurso no encontrado.';
-        } else if (error.status === 400) {
-          userMessage = `Datos inválidos: ${error.error?.message || 'Verifica los datos ingresados'}`;
-        } else if (error.status === 422) {
-          userMessage = `Error de validación: ${error.error?.message || 'Revisa los campos del formulario'}`;
-        } else if (error.status === 500) {
-          userMessage = 'Error interno del servidor. Contacta al administrador.';
-        } else {
-          userMessage = `Error ${error.status}: ${error.error?.message || error.statusText || 'Error desconocido'}`;
+    if (this.isEditMode && this.partnerId) {
+      // Actualizar socio existente
+      this.partnerService.updatePartner(this.partnerId, partnerInput).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.showAlertMessage('Socio actualizado exitosamente', 'success');
+          
+          // Redirigir a la lista después de 2 segundos
+          setTimeout(() => {
+            this.router.navigate(['/partners']);
+          }, 2000);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Error al actualizar socio:', error);
+          
+          let userMessage = '';
+          
+          if (error.status === 0) {
+            userMessage = 'No se puede conectar al servidor.';
+          } else if (error.status === 401) {
+            userMessage = 'Se requiere autenticación. Por favor inicia sesión primero.';
+          } else if (error.status === 403) {
+            userMessage = 'No tienes permisos para actualizar socios.';
+          } else if (error.status === 404) {
+            userMessage = 'Socio no encontrado.';
+          } else if (error.status === 400) {
+            userMessage = `Datos inválidos: ${error.error?.message || 'Verifica los datos ingresados'}`;
+          } else if (error.status === 422) {
+            userMessage = `Error de validación: ${error.error?.message || 'Revisa los campos del formulario'}`;
+          } else if (error.status === 500) {
+            userMessage = 'Error interno del servidor. Contacta al administrador.';
+          } else {
+            userMessage = `Error ${error.status}: ${error.error?.message || error.statusText || 'Error desconocido'}`;
+          }
+          
+          this.showAlertMessage(userMessage, 'error');
         }
-        
-        this.showAlertMessage(userMessage, 'error');
-      }
-    });
+      });
+    } else {
+      // Crear nuevo socio
+      this.partnerService.createPartner(partnerInput).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.showAlertMessage('Socio creado exitosamente', 'success');
+          
+          // Resetear formulario después de 2 segundos
+          setTimeout(() => {
+            this.resetForm();
+          }, 2000);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Error al crear partner:', error);
+          
+          let userMessage = '';
+          
+          if (error.status === 0) {
+            userMessage = 'No se puede conectar al servidor.';
+          } else if (error.status === 401) {
+            userMessage = 'Se requiere autenticación. Por favor inicia sesión primero.';
+          } else if (error.status === 403) {
+            userMessage = 'No tienes permisos para crear partners.';
+          } else if (error.status === 404) {
+            userMessage = 'Recurso no encontrado.';
+          } else if (error.status === 400) {
+            userMessage = `Datos inválidos: ${error.error?.message || 'Verifica los datos ingresados'}`;
+          } else if (error.status === 422) {
+            userMessage = `Error de validación: ${error.error?.message || 'Revisa los campos del formulario'}`;
+          } else if (error.status === 500) {
+            userMessage = 'Error interno del servidor. Contacta al administrador.';
+          } else {
+            userMessage = `Error ${error.status}: ${error.error?.message || error.statusText || 'Error desconocido'}`;
+          }
+          
+          this.showAlertMessage(userMessage, 'error');
+        }
+      });
+    }
   }
 
   onSaveDraft(): void {
@@ -346,9 +419,12 @@ export class AddPartnerComponent implements OnInit {
   }
 
   onWaterMeterNumberChange(value: string | number): void {
-    // Solo permitir números
-    const stringValue = String(value || '');
-    const filteredValue = stringValue.replace(/[^0-9]/g, '');
+    // Permitir letras y números, convertir a mayúsculas
+    let stringValue = String(value || '');
+    // Solo permitir letras y números
+    stringValue = stringValue.replace(/[^A-Za-z0-9]/g, '');
+    // Convertir a mayúsculas
+    const filteredValue = stringValue.toUpperCase();
     this.waterMeterNumber = filteredValue;
     
     // Limpiar timeout anterior si existe
@@ -360,7 +436,7 @@ export class AddPartnerComponent implements OnInit {
     this.meterNumberExists = false;
     
     // Validar unicidad después de 500ms de inactividad (debounce)
-    if (filteredValue && filteredValue.trim().length > 0 && /^[0-9]+$/.test(filteredValue.trim())) {
+    if (filteredValue && filteredValue.trim().length > 0 && /^[A-Z0-9]+$/.test(filteredValue.trim())) {
       this.meterNumberCheckTimeout = setTimeout(() => {
         this.checkMeterNumberUniqueness(filteredValue.trim());
       }, 500);
@@ -374,21 +450,23 @@ export class AddPartnerComponent implements OnInit {
     }
     
     this.isCheckingMeterNumber = true;
-    this.partnerService.checkWaterMeterNumberExists(meterNumber).subscribe({
+    // En modo edición, excluir el socio actual de la verificación
+    const excludePartnerId = this.isEditMode && this.partnerId ? this.partnerId : undefined;
+    this.partnerService.checkWaterMeterNumberExists(meterNumber, excludePartnerId).subscribe({
       next: (response) => {
         this.meterNumberExists = response.exists;
         this.isCheckingMeterNumber = false;
         if (response.exists) {
-          this.showAlertMessage('El número de medidor ya está registrado para otro socio', 'error');
+          this.showAlertMessage('El identificador de medidor ya está registrado para otro socio', 'error');
         }
       },
       error: (error) => {
-        console.error('Error al verificar número de medidor:', error);
+        console.error('Error al verificar identificador de medidor:', error);
         this.isCheckingMeterNumber = false;
         // En caso de error, no bloqueamos el formulario pero mostramos un mensaje
         if (error.status === 400 || error.status === 409) {
           this.meterNumberExists = true;
-          this.showAlertMessage('El número de medidor ya está registrado para otro socio', 'error');
+          this.showAlertMessage('El identificador de medidor ya está registrado para otro socio', 'error');
         }
       }
     });

@@ -93,13 +93,11 @@ export class PartnersListComponent implements OnInit {
         const fullName = partner.fullName?.toLowerCase() || '';
         const email = partner.email?.toLowerCase() || '';
         const dni = partner.partnerIdentificationNumber?.toLowerCase() || '';
-        const connectionNumber = partner.waterConnectionNumber?.toLowerCase() || '';
         const meterNumber = partner.waterMeterNumber?.toLowerCase() || '';
 
         return fullName.includes(query) ||
                email.includes(query) ||
                dni.includes(query) ||
-               connectionNumber.includes(query) ||
                meterNumber.includes(query);
       });
     }
@@ -257,9 +255,9 @@ export class PartnersListComponent implements OnInit {
   }
 
   onEdit(partner: PartnerOutputDto): void {
-    console.log('Editar:', partner);
-    // TODO: Navegar a formulario de edición
-    // this.router.navigate(['/partners/edit', partner.id]);
+    if (partner.id) {
+      this.router.navigate(['/partners/edit', partner.id]);
+    }
   }
 
   onDelete(partner: PartnerOutputDto): void {
