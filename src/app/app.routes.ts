@@ -20,6 +20,7 @@ import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
 import { CalenderComponent } from './pages/calender/calender.component';
 import { AddPartnerComponent } from './pages/partners/add-partner.component';
 import { PartnersListComponent } from './pages/partners/partners-list.component';
+import { PartnerDetailComponent } from './pages/partners/partner-detail.component';
 import { JobsListComponent } from './pages/jobs/jobs-list.component';
 import { AddJobComponent } from './pages/jobs/add-job.component';
 import { MeetingsListComponent } from './pages/meetings/meetings-list.component';
@@ -132,7 +133,12 @@ export const routes: Routes = [
       {
         path:'partners',
         component:PartnersListComponent,
-        title:'Lista de Partners | TailAdmin - Angular Admin Dashboard Template'
+        title:'Lista de Socios | Sistema'
+      },
+      {
+        path:'partners/:id',
+        component:PartnerDetailComponent,
+        title:'Detalles del Socio | Sistema'
       },
       {
         path:'jobs',

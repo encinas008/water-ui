@@ -251,9 +251,9 @@ export class PartnersListComponent implements OnInit {
   }
 
   onView(partner: PartnerOutputDto): void {
-    console.log('Ver detalles de:', partner);
-    // TODO: Navegar a vista de detalle
-    // this.router.navigate(['/partners', partner.id]);
+    if (partner.id) {
+      this.router.navigate(['/partners', partner.id]);
+    }
   }
 
   onEdit(partner: PartnerOutputDto): void {
