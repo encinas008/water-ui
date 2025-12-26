@@ -88,8 +88,14 @@ import { map } from 'rxjs/operators';
                 [max]="getMaxWithdrawalAmount()"
                 class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input" 
               />
-              <p class="mt-1 text-sm text-bodydark">
+              <p class="mt-1 text-sm" [ngClass]="{
+                'text-bodydark': !amount || amount <= getMaxWithdrawalAmount(),
+                'text-danger': amount && amount > getMaxWithdrawalAmount()
+              }">
                 Máximo disponible: BOB {{ getMaxWithdrawalAmount() | number:'1.2-2' }}
+                <span *ngIf="amount && amount > getMaxWithdrawalAmount()" class="font-medium">
+                  - El monto excede lo disponible en caja
+                </span>
               </p>
             </div>
 
@@ -283,22 +289,51 @@ export class AddWithdrawalComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-    return !!(
+    if (!(
       this.cashBalanceId &&
       this.amount &&
       this.amount > 0 &&
       this.paymentTypeId &&
       this.description.trim() &&
       this.cashFlowTypeId
-    );
+    )) {
+      return false;
+    }
+    
+    // Validar que el monto no exceda lo disponible en caja
+    const maxAmount = this.getMaxWithdrawalAmount();
+    if (this.amount > maxAmount) {
+      return false;
+    }
+    
+    return true;
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) return;
+    if (!this.isFormValid()) {
+      // Validar específicamente si el monto excede lo disponible
+      if (this.amount && this.amount > this.getMaxWithdrawalAmount()) {
+        this.showAlertMessage(
+          `El monto del retiro (BOB ${this.amount.toFixed(2)}) no puede ser mayor al disponible en caja (BOB ${this.getMaxWithdrawalAmount().toFixed(2)})`,
+          'error'
+        );
+      }
+      return;
+    }
 
     const userInfo = this.authService.getUserInfo();
     if (!userInfo || !userInfo.userId) {
       this.showAlertMessage('No se pudo obtener la información del usuario', 'error');
+      return;
+    }
+
+    // Validación adicional antes de enviar
+    const maxAmount = this.getMaxWithdrawalAmount();
+    if (this.amount && this.amount > maxAmount) {
+      this.showAlertMessage(
+        `El monto del retiro no puede ser mayor al disponible en caja (BOB ${maxAmount.toFixed(2)})`,
+        'error'
+      );
       return;
     }
 
