@@ -24,6 +24,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         [max]="max"
         [step]="step"
         [disabled]="disabled"
+        [readonly]="readonly"
         [ngClass]="inputClasses"
         (input)="onInput($event)"
         (blur)="onTouched()"
@@ -54,6 +55,7 @@ export class InputFieldComponent implements ControlValueAccessor {
   @Input() max?: string;
   @Input() step?: number;
   @Input() disabled: boolean = false;
+  @Input() readonly: boolean = false;
   @Input() success: boolean = false;
   @Input() error: boolean = false;
   @Input() hint?: string;
@@ -87,6 +89,8 @@ export class InputFieldComponent implements ControlValueAccessor {
 
     if (this.disabled) {
       inputClasses += ` text-gray-500 border-gray-300 opacity-40 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700 opacity-40`;
+    } else if (this.readonly) {
+      inputClasses += ` text-gray-500 border-gray-300 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
     } else if (this.error) {
       inputClasses += ` border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
     } else if (this.success) {

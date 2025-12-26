@@ -43,47 +43,46 @@
               type="text"
               name="fullName"
               [(ngModel)]="fullName"
+              (input)="onFullNameInput($event)"
               placeholder="Ingrese el nombre completo"
+              [maxlength]="200"
+              required
             ></app-input-field>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Solo letras, mínimo 2 caracteres, máximo 200. Un espacio entre palabras</p>
           </div>
 
           <!-- Documento de Identificación -->
           <div>
             <app-label>
-              Documento de Identificación <span class="text-red-500">*</span>
+              Documento de Identificación
             </app-label>
             <app-input-field
               type="text"
               name="partnerIdentificationNumber"
               [(ngModel)]="partnerIdentificationNumber"
+              (input)="onPartnerIdentificationNumberInput($event)"
+              (blur)="onPartnerIdentificationNumberBlur()"
               placeholder="DNI / CI / Pasaporte"
+              [maxlength]="50"
             ></app-input-field>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 50 caracteres</p>
           </div>
 
-          <!-- Email -->
+          <!-- Celular -->
           <div>
             <app-label>
-              Email <span class="text-red-500">*</span>
-            </app-label>
-            <app-input-field
-              type="email"
-              name="email"
-              [(ngModel)]="email"
-              placeholder="ejemplo@email.com"
-            ></app-input-field>
-          </div>
-
-          <!-- Teléfono -->
-          <div>
-            <app-label>
-              Teléfono
+              Celular
             </app-label>
             <app-input-field
               type="tel"
               name="phoneNumber"
-              [(ngModel)]="phoneNumber"
-              placeholder="+591 70000000"
+              [ngModel]="phoneNumber"
+              (ngModelChange)="onPhoneNumberChange($event)"
+              placeholder="70000000"
+              [maxlength]="20"
+              pattern="[0-9]*"
             ></app-input-field>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Solo números, máximo 20 caracteres</p>
           </div>
 
           <!-- Dirección -->
@@ -96,7 +95,9 @@
               name="address"
               [(ngModel)]="address"
               placeholder="Ingrese la dirección completa"
+              [maxlength]="500"
             ></app-input-field>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 500 caracteres</p>
           </div>
         </div>
       </div>
@@ -114,30 +115,36 @@
       </div>
       <div class="p-4 sm:p-6">
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <!-- Número de Conexión -->
-          <div>
-            <app-label>
-              Número de Conexión
-            </app-label>
-            <app-input-field
-              type="text"
-              name="waterConnectionNumber"
-              [(ngModel)]="waterConnectionNumber"
-              placeholder="Ej: WC-001"
-            ></app-input-field>
-          </div>
-
           <!-- Número de Medidor -->
           <div>
             <app-label>
-              Número de Medidor
+              Número de Medidor <span class="text-red-500">*</span>
             </app-label>
-            <app-input-field
-              type="text"
-              name="waterMeterNumber"
-              [(ngModel)]="waterMeterNumber"
-              placeholder="Ej: M-12345"
-            ></app-input-field>
+            <div class="relative">
+              <app-input-field
+                type="text"
+                name="waterMeterNumber"
+                [ngModel]="waterMeterNumber"
+                (ngModelChange)="onWaterMeterNumberChange($event)"
+                placeholder="Ej: 12345"
+                [maxlength]="50"
+                pattern="[0-9]*"
+                required
+                [error]="meterNumberExists"
+              ></app-input-field>
+              <div *ngIf="isCheckingMeterNumber" class="absolute right-3 top-1/2 -translate-y-1/2">
+                <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            </div>
+            <p *ngIf="meterNumberExists" class="mt-1 text-xs text-red-600 dark:text-red-400">
+              Este número de medidor ya está registrado para otro socio
+            </p>
+            <p *ngIf="!meterNumberExists && !isCheckingMeterNumber" class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Solo números, obligatorio, mínimo 6 dígitos, máximo 50 caracteres
+            </p>
           </div>
 
           <!-- Estado de Conexión -->
@@ -159,10 +166,27 @@
               Fecha de Instalación
             </app-label>
             <app-input-field
-              type="date"
+              type="text"
               name="connectionDate"
-              [(ngModel)]="connectionDate"
+              [ngModel]="formattedConnectionDate"
+              [readonly]="true"
+              placeholder="Fecha de instalación"
             ></app-input-field>
+          </div>
+
+          <!-- Tercera Edad -->
+          <div>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="isElderly"
+                [(ngModel)]="isElderly"
+                class="h-5 w-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900"
+              />
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Es de la tercera edad
+              </span>
+            </label>
           </div>
 
           <!-- Dirección de Conexión -->
@@ -175,7 +199,9 @@
               name="waterConnectionAddress"
               [(ngModel)]="waterConnectionAddress"
               placeholder="Dirección donde está instalado el medidor (si es diferente)"
+              [maxlength]="500"
             ></app-input-field>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 500 caracteres</p>
           </div>
 
           <!-- Notas -->
@@ -188,8 +214,10 @@
               [(ngModel)]="notes"
               rows="3"
               placeholder="Observaciones adicionales sobre el socio o la conexión..."
+              [maxlength]="1000"
               class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-3 outline-none focus:border-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             ></textarea>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 1000 caracteres</p>
           </div>
         </div>
       </div>
@@ -211,7 +239,7 @@
             variant="primary"
             size="md"
             (btnClick)="onSubmit()"
-            [disabled]="isLoading"
+            [disabled]="isLoading || !isFormValid"
           >
             <span *ngIf="!isLoading">Crear Socio</span>
             <span *ngIf="isLoading">

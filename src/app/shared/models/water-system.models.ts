@@ -39,6 +39,7 @@ export interface PartnerOutputDto {
   waterConnectionAddress?: string;
   currentDebt?: number;
   lastBillingDate?: string;
+  isElderly?: boolean;
   notes?: string;
   
   active: boolean;
@@ -48,17 +49,16 @@ export interface PartnerOutputDto {
 
 export interface PartnerInputDto {
   fullName: string;
-  partnerIdentificationNumber: string;
+  partnerIdentificationNumber?: string;
   phoneNumber?: string;
-  email?: string;
   address?: string;
   
   // Campos de conexión de agua
-  waterConnectionNumber?: string;
   waterMeterNumber?: string;
   connectionStatusCode?: string;
   connectionDate?: string;
   waterConnectionAddress?: string;
+  isElderly?: boolean;
   notes?: string;
 }
 

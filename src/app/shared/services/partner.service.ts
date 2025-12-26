@@ -187,6 +187,24 @@ export class PartnerService {
     );
   }
 
+  /**
+   * Verificar si un número de medidor ya existe
+   * GET /partners/check-meter-number?meterNumber={number}&excludePartnerId={id}
+   */
+  checkWaterMeterNumberExists(meterNumber: string, excludePartnerId?: string): Observable<{ exists: boolean }> {
+    const headers = this.getHeaders();
+    let params = new HttpParams().set('meterNumber', meterNumber);
+    if (excludePartnerId) {
+      params = params.set('excludePartnerId', excludePartnerId);
+    }
+    return this.http.get<{ exists: boolean }>(`${this.apiUrl}/check-meter-number`, { headers, params }).pipe(
+      catchError(error => {
+        console.error('❌ Error al verificar número de medidor:', error);
+        throw error;
+      })
+    );
+  }
+
   // ============================================
   // MÉTODOS DE UTILIDAD
   // ============================================
