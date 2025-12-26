@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { PartnerService } from '../../shared/services/partner.service';
-import { PartnerOutputDto } from '../../shared/models/water-system.models';
+import { PartnerOutputDto, PageResponse } from '../../shared/models/water-system.models';
 
 @Component({
   selector: 'app-partners-list',
@@ -14,29 +16,51 @@ import { PartnerOutputDto } from '../../shared/models/water-system.models';
   imports: [
     CommonModule,
     FormsModule,
+    ScrollingModule,
     PageBreadcrumbComponent,
     ButtonComponent,
     BadgeComponent,
   ],
   templateUrl: './partners-list.component.html',
-  styles: ``
+  styles: `
+    .cdk-virtual-scroll-viewport {
+      height: 600px;
+    }
+    .cdk-virtual-scroll-content-wrapper {
+      min-width: 100%;
+    }
+    .partners-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    .partners-table th,
+    .partners-table td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .col-checkbox { width: 60px; }
+    .col-socio { width: 30%; }
+    .col-medidor { width: 15%; }
+    .col-estado { width: 12%; }
+    .col-deuda { width: 15%; }
+    .col-acciones { width: 15%; }
+  `
 })
 export class PartnersListComponent implements OnInit {
+  @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
+
   partners: PartnerOutputDto[] = [];
-  filteredPartners: PartnerOutputDto[] = [];
-  paginatedPartners: PartnerOutputDto[] = [];
   
-  // Búsqueda
+  // Búsqueda con debounce
   searchQuery: string = '';
+  private searchSubject = new Subject<string>();
   
-  // Paginación
-  currentPage: number = 1;
-  itemsPerPage: number = 10;
-  itemsPerPageOptions: number[] = [5, 10, 20, 50, 100];
-  totalPages: number = 1;
-  pageNumbers: number[] = [];
-  startEntry: number = 0;
-  endEntry: number = 0;
+  // Paginación del servidor
+  currentPage: number = 0;
+  pageSize: number = 20;
+  totalElements: number = 0;
+  totalPages: number = 0;
+  isLoadingMore: boolean = false;
   
   // Selección
   selectAll: boolean = false;
@@ -45,29 +69,57 @@ export class PartnersListComponent implements OnInit {
   // Estado
   isLoading: boolean = true;
   errorMessage: string = '';
+  hasMoreData: boolean = true;
 
   constructor(
     private partnerService: PartnerService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {
+    // Configurar debounce para búsqueda (500ms)
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.currentPage = 0;
+      this.partners = [];
+      this.hasMoreData = true;
+      this.loadPartners();
+    });
+  }
 
   ngOnInit(): void {
     this.loadPartners();
   }
 
   loadPartners(): void {
-    this.isLoading = true;
+    if (this.isLoadingMore) return;
+    
+    this.isLoading = this.currentPage === 0;
+    this.isLoadingMore = this.currentPage > 0;
     this.errorMessage = '';
 
-    this.partnerService.getPartners().subscribe({
-      next: (data) => {
-        this.partners = data;
-        this.filteredPartners = [...this.partners];
-        this.calculatePagination();
+    const search = this.searchQuery.trim() || undefined;
+    
+    this.partnerService.getPartnersPaginated(this.currentPage, this.pageSize, search).subscribe({
+      next: (response: PageResponse<PartnerOutputDto>) => {
+        if (this.currentPage === 0) {
+          this.partners = response.content;
+        } else {
+          this.partners = [...this.partners, ...response.content];
+        }
+        
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.hasMoreData = !response.last;
+        
         this.isLoading = false;
+        this.isLoadingMore = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.isLoading = false;
+        this.isLoadingMore = false;
         console.error('Error al cargar socios:', error);
         
         if (error.status === 0) {
@@ -79,92 +131,33 @@ export class PartnersListComponent implements OnInit {
         } else {
           this.errorMessage = `Error al cargar los socios: ${error.message || 'Error desconocido'}`;
         }
+        this.cdr.detectChanges();
       }
     });
   }
 
   onSearch(): void {
-    const query = this.searchQuery.toLowerCase().trim();
-
-    if (!query) {
-      this.filteredPartners = [...this.partners];
-    } else {
-      this.filteredPartners = this.partners.filter(partner => {
-        const fullName = partner.fullName?.toLowerCase() || '';
-        const email = partner.email?.toLowerCase() || '';
-        const dni = partner.partnerIdentificationNumber?.toLowerCase() || '';
-        const meterNumber = partner.waterMeterNumber?.toLowerCase() || '';
-
-        return fullName.includes(query) ||
-               email.includes(query) ||
-               dni.includes(query) ||
-               meterNumber.includes(query);
-      });
-    }
-    this.currentPage = 1;
-    this.calculatePagination();
+    this.searchSubject.next(this.searchQuery);
   }
 
-  calculatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredPartners.length / this.itemsPerPage);
+  onScrolledIndexChange(index: number): void {
+    // Cargar más datos cuando el usuario está cerca del final
+    if (!this.viewport) return;
     
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedPartners = this.filteredPartners.slice(startIndex, endIndex);
+    const end = this.viewport.getRenderedRange().end;
+    const total = this.viewport.getDataLength();
     
-    this.startEntry = this.filteredPartners.length > 0 ? startIndex + 1 : 0;
-    this.endEntry = Math.min(endIndex, this.filteredPartners.length);
-    
-    this.updatePageNumbers();
-  }
-
-  updatePageNumbers(): void {
-    const maxPagesToShow = 5;
-    const pages: number[] = [];
-    
-    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-    
-    if (endPage - startPage < maxPagesToShow - 1) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    this.pageNumbers = pages;
-  }
-
-  onItemsPerPageChange(): void {
-    this.currentPage = 1;
-    this.calculatePagination();
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.calculatePagination();
-    }
-  }
-
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
+    if (end === total && this.hasMoreData && !this.isLoadingMore) {
       this.currentPage++;
-      this.calculatePagination();
+      this.loadPartners();
     }
-  }
-
-  goToPage(page: number): void {
-    this.currentPage = page;
-    this.calculatePagination();
   }
 
   toggleSelectAll(): void {
     this.selectAll = !this.selectAll;
 
     if (this.selectAll) {
-      this.paginatedPartners.forEach(partner => {
+      this.partners.forEach(partner => {
         if (partner.id) {
           this.selectedPartners.add(partner.id);
         }
@@ -183,7 +176,7 @@ export class PartnersListComponent implements OnInit {
       this.selectedPartners.add(id);
     }
 
-    this.selectAll = this.paginatedPartners.every(p => p.id && this.selectedPartners.has(p.id));
+    this.selectAll = this.partners.length > 0 && this.partners.every(p => p.id && this.selectedPartners.has(p.id));
   }
 
   isSelected(id: string | undefined): boolean {
@@ -265,7 +258,10 @@ export class PartnersListComponent implements OnInit {
       this.partnerService.deletePartner(partner.id).subscribe({
         next: () => {
           console.log('Socio eliminado:', partner);
-          this.loadPartners(); // Recargar la lista
+          // Recargar desde el inicio
+          this.currentPage = 0;
+          this.partners = [];
+          this.loadPartners();
         },
         error: (error) => {
           console.error('Error al eliminar socio:', error);

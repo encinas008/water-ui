@@ -4,7 +4,8 @@ import { Observable, tap, catchError } from 'rxjs';
 import { 
   PartnerOutputDto, 
   PartnerInputDto, 
-  PartnerDebtSummaryDto 
+  PartnerDebtSummaryDto,
+  PageResponse
 } from '../models/water-system.models';
 import { environment } from '../../../environments/environment';
 
@@ -86,6 +87,38 @@ export class PartnerService {
         throw error;
       })
     ) as Observable<PartnerOutputDto[]>;
+  }
+
+  /**
+   * Obtener partners paginados
+   * GET /partners?page=0&size=20&search=query
+   */
+  getPartnersPaginated(page: number = 0, size: number = 20, search?: string): Observable<PageResponse<PartnerOutputDto>> {
+    const headers = this.getHeaders();
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    
+    return this.http.get<any>(this.apiUrl, { headers, params }).pipe(
+      tap(response => {
+        // Mapear 'cel' del backend a 'phoneNumber' del frontend
+        if (response.content) {
+          response.content.forEach((partner: any) => {
+            if (partner.cel !== undefined && !partner.phoneNumber) {
+              partner.phoneNumber = partner.cel;
+            }
+          });
+        }
+      }),
+      catchError(error => {
+        console.error('❌ Error al cargar partners paginados:', error);
+        throw error;
+      })
+    ) as Observable<PageResponse<PartnerOutputDto>>;
   }
 
   /**

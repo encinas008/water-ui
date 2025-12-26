@@ -47,6 +47,18 @@ export interface PartnerOutputDto {
   updatedAt: string;
 }
 
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+  empty: boolean;
+}
+
 export interface PartnerInputDto {
   fullName: string;
   partnerIdentificationNumber?: string;
