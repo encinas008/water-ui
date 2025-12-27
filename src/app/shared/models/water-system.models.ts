@@ -29,7 +29,7 @@ export interface PartnerOutputDto {
   phoneNumber?: string;
   email?: string;
   address?: string;
-  
+
   // Campos de conexión de agua
   waterConnectionNumber?: string;
   waterMeterNumber?: string;
@@ -41,7 +41,7 @@ export interface PartnerOutputDto {
   lastBillingDate?: string;
   isElderly?: boolean;
   notes?: string;
-  
+
   active: boolean;
   createdAt: string;
   updatedAt: string;
@@ -64,7 +64,7 @@ export interface PartnerInputDto {
   partnerIdentificationNumber?: string;
   phoneNumber?: string;
   address?: string;
-  
+
   // Campos de conexión de agua
   waterMeterNumber?: string;
   connectionStatusCode?: string;
@@ -97,15 +97,15 @@ export interface WaterMeterReadingOutputDto {
   partnerId: string;
   partnerName: string;
   waterMeterNumber?: string;
-  
+
   readingDate: string;
   previousReading?: number;
   currentReading: number;
   consumption: number;  // Backend usa 'consumption' no 'consumptionM3'
-  
+
   observation?: string;  // Backend usa 'observation' no 'notes'
   imageUrl?: string;
-  
+
   createdAt: string;
   updatedAt: string;
 }
@@ -136,34 +136,34 @@ export interface WaterBillOutputDto {
   partnerId: string;
   partnerName: string;
   waterConnectionNumber?: string;
-  
+
   billingPeriodStart: string;
   billingPeriodEnd: string;
-  
+
   readingId?: string;
   previousReading?: number;
   currentReading?: number;
   consumptionM3: number;
-  
+
   ratePerM3: number;
   baseAmount: number;
   totalAmount: number;
   paidAmount: number;
   remainingBalance: number;
-  
+
   statusCode: string;
   statusName: string;
-  
+
   dueDate: string;
   paidDate?: string;
   isOverdue: boolean;
-  
+
   concepts?: BillConceptItemDto[];  // Conceptos de cobro desglosados
-  
+
   totalFinesPaid?: number;  // Total de multas pagadas en esta factura
-  
+
   notes?: string;
-  
+
   createdAt: string;
   updatedAt: string;
 }
@@ -180,6 +180,16 @@ export interface WaterBillSummaryDto {
   billStatus: string;
   dueDate: string;
   isOverdue: boolean;
+}
+
+export interface WaterBillStatsDto {
+  totalBills: number;
+  pendingBillsCount: number;
+  overdueBillsCount: number;
+  paidBillsCount: number;
+  totalPendingAmount: number;
+  totalOverdueAmount: number;
+  totalPaidAmount: number;
 }
 
 export interface GenerateMonthlyBillsRequestDto {
@@ -225,21 +235,21 @@ export interface WaterPaymentOutputDto {
   billNumber: string;
   partnerId: string;
   partnerName: string;
-  
+
   paymentDate: string;
   amount: number;
-  
+
   paymentTypeId?: string;
   paymentTypeName: string;
-  
+
   reference?: string;
   notes?: string;
   observation?: string;
-  
+
   processedBy?: string;
   cashierName?: string;
   paymentDetail?: PaymentDetailDto; // Detalle del pago incluyendo multas
-  
+
   createdAt: string;
   updatedAt?: string;
 }

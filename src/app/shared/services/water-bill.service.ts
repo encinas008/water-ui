@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
-import { 
+import {
   WaterBillOutputDto,
   WaterBillDetailDto,
   WaterBillSummaryDto,
   GenerateMonthlyBillsRequestDto,
   GenerateMonthlyBillsResponseDto,
-  PageResponse
+  PageResponse,
+  WaterBillStatsDto
 } from '../models/water-system.models';
 import { environment } from '../../../environments/environment';
 
@@ -39,8 +40,8 @@ export class WaterBillService {
   generateMonthlyBills(request: GenerateMonthlyBillsRequestDto): Observable<GenerateMonthlyBillsResponseDto> {
     const headers = this.getHeaders();
     return this.http.post<GenerateMonthlyBillsResponseDto>(
-      `${this.apiUrl}/generate-monthly`, 
-      request, 
+      `${this.apiUrl}/generate-monthly`,
+      request,
       { headers }
     ).pipe(
       catchError(error => {
@@ -73,15 +74,15 @@ export class WaterBillService {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
+
     if (search && search.trim()) {
       params = params.set('search', search.trim());
     }
-    
+
     if (statusCode && statusCode.trim()) {
       params = params.set('statusCode', statusCode.trim());
     }
-    
+
     return this.http.get<PageResponse<WaterBillOutputDto>>(this.apiUrl, { headers, params }).pipe(
       catchError(error => {
         console.error('❌ Error al cargar facturas paginadas:', error);
@@ -125,7 +126,7 @@ export class WaterBillService {
   getBillsByPartner(partnerId: string): Observable<WaterBillOutputDto[]> {
     const headers = this.getHeaders();
     return this.http.get<WaterBillOutputDto[]>(
-      `${this.apiUrl}/partner/${partnerId}`, 
+      `${this.apiUrl}/partner/${partnerId}`,
       { headers }
     ).pipe(
       catchError(error => {
@@ -169,11 +170,21 @@ export class WaterBillService {
   getBillsSummary(): Observable<{ total: number; pending: number; overdue: number; paid: number }> {
     const headers = this.getHeaders();
     return this.http.get<{ total: number; pending: number; overdue: number; paid: number }>(
-      `${this.apiUrl}/summary`, 
+      `${this.apiUrl}/summary`,
       { headers }
     ).pipe(
       catchError(error => {
         console.error('❌ Error al obtener resumen de facturas:', error);
+        throw error;
+      })
+    );
+  }
+
+  getBillStats(): Observable<WaterBillStatsDto> {
+    const headers = this.getHeaders();
+    return this.http.get<WaterBillStatsDto>(`${this.apiUrl}/summary`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener estadísticas de facturas:', error);
         throw error;
       })
     );

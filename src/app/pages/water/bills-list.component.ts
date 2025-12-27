@@ -522,6 +522,10 @@ export class BillsListComponent implements OnInit {
   totalPages: number = 0;
   isLoadingMore: boolean = false;
 
+  // Stats
+  totalPendingAmount: number = 0;
+  pendingBillsCount: number = 0;
+
   // Estados
   isLoading = true;
   errorMessage = '';
@@ -538,7 +542,7 @@ export class BillsListComponent implements OnInit {
   constructor(
     private waterBillService: WaterBillService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.searchSubject.pipe(
@@ -576,6 +580,16 @@ export class BillsListComponent implements OnInit {
         console.error('Error al cargar facturas:', error);
         this.isLoading = false;
         this.errorMessage = this.getErrorMessage(error);
+      }
+    });
+
+    this.waterBillService.getBillStats().subscribe({
+      next: (stats) => {
+        this.totalPendingAmount = stats.totalPendingAmount;
+        this.pendingBillsCount = stats.pendingBillsCount;
+      },
+      error: (error) => {
+        console.error('Error al cargar estadísticas:', error);
       }
     });
   }
@@ -628,15 +642,11 @@ export class BillsListComponent implements OnInit {
   }
 
   getPendingBillsCount(): number {
-    // Esta métrica se calcula del total de elementos, no de los cargados
-    // Por ahora retornamos 0, pero podría calcularse desde el backend si se necesita
-    return 0;
+    return this.pendingBillsCount;
   }
 
   getTotalPending(): number {
-    // Esta métrica se calcula del total de elementos, no de los cargados
-    // Por ahora retornamos 0, pero podría calcularse desde el backend si se necesita
-    return 0;
+    return this.totalPendingAmount;
   }
 
   getBillStatusClass(status: string): string {
@@ -659,7 +669,7 @@ export class BillsListComponent implements OnInit {
     if (!bill.billingPeriodStart) {
       return '-';
     }
-    
+
     try {
       // Parsear la fecha manualmente para evitar problemas de zona horaria
       // billingPeriodStart viene en formato YYYY-MM-DD
@@ -667,22 +677,22 @@ export class BillsListComponent implements OnInit {
       if (dateParts.length !== 3) {
         return '-';
       }
-      
+
       const year = parseInt(dateParts[0], 10);
       const monthIndex = parseInt(dateParts[1], 10) - 1; // El mes viene en 1-12, convertimos a 0-11 para el array
       const day = parseInt(dateParts[2], 10);
-      
+
       // Validar que los valores sean válidos
       if (isNaN(year) || isNaN(monthIndex) || isNaN(day) || monthIndex < 0 || monthIndex > 11) {
         return '-';
       }
-      
+
       // Formato: "Diciembre 2025"
-      const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
       const monthName = monthNames[monthIndex];
       const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-      
+
       return `${capitalizedMonth} ${year}`;
     } catch (error) {
       console.error('Error formateando mes de facturación:', error, bill);
@@ -726,8 +736,8 @@ export class BillsListComponent implements OnInit {
       const year = parseInt(dateParts[0], 10);
       const monthIndex = parseInt(dateParts[1], 10) - 1;
       if (isNaN(year) || isNaN(monthIndex) || monthIndex < 0 || monthIndex > 11) return '-';
-      const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
       const monthName = monthNames[monthIndex];
       const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
       return `${capitalizedMonth} ${year}`;
