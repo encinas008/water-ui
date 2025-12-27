@@ -1,19 +1,21 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { 
   WaterBillOutputDto,
   WaterBillDetailDto,
   WaterBillSummaryDto,
   GenerateMonthlyBillsRequestDto,
-  GenerateMonthlyBillsResponseDto
+  GenerateMonthlyBillsResponseDto,
+  PageResponse
 } from '../models/water-system.models';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class WaterBillService {
-  private apiUrl = 'http://localhost:8085/api/water-bills';
+  private apiUrl = `${environment.apiUrl}/water-bills`;
 
   constructor(private http: HttpClient) { }
 
@@ -57,6 +59,32 @@ export class WaterBillService {
     return this.http.get<WaterBillOutputDto[]>(this.apiUrl, { headers }).pipe(
       catchError(error => {
         console.error('❌ Error al obtener facturas:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener facturas paginadas
+   * GET /water-bills?page=0&size=20&search=...&statusCode=...
+   */
+  getBillsPaginated(page: number = 0, size: number = 20, search?: string, statusCode?: string): Observable<PageResponse<WaterBillOutputDto>> {
+    const headers = this.getHeaders();
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    
+    if (statusCode && statusCode.trim()) {
+      params = params.set('statusCode', statusCode.trim());
+    }
+    
+    return this.http.get<PageResponse<WaterBillOutputDto>>(this.apiUrl, { headers, params }).pipe(
+      catchError(error => {
+        console.error('❌ Error al cargar facturas paginadas:', error);
         throw error;
       })
     );
