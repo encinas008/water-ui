@@ -3,7 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, catchError, map, of } from 'rxjs';
 import { 
   WaterMeterReadingOutputDto, 
-  WaterMeterReadingInputDto 
+  WaterMeterReadingInputDto,
+  PageResponse
 } from '../models/water-system.models';
 import { environment } from '../../../environments/environment';
 
@@ -103,6 +104,28 @@ export class WaterReadingService {
     ).pipe(
       catchError(error => {
         console.error('❌ Error al obtener lecturas por período:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener lecturas paginadas
+   * GET /water-readings?page=0&size=20&search=...
+   */
+  getReadingsPaginated(page: number = 0, size: number = 20, search?: string): Observable<PageResponse<WaterMeterReadingOutputDto>> {
+    const headers = this.getHeaders();
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    
+    return this.http.get<PageResponse<WaterMeterReadingOutputDto>>(this.apiUrl, { headers, params }).pipe(
+      catchError(error => {
+        console.error('❌ Error al cargar lecturas paginadas:', error);
         throw error;
       })
     );

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,7 +6,9 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { WaterReadingService } from '../../shared/services/water-reading.service';
-import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.models';
+import { WaterMeterReadingOutputDto, PageResponse } from '../../shared/models/water-system.models';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-readings-list',
@@ -16,9 +18,31 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
     FormsModule,
     PageBreadcrumbComponent,
     ButtonComponent,
-    BadgeComponent
+    BadgeComponent,
+    ScrollingModule,
   ],
   template: `
+    <style>
+      .cdk-virtual-scroll-viewport {
+        height: 600px;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+      }
+      .cdk-virtual-scroll-content-wrapper {
+        min-width: 100%;
+      }
+      .table-fixed {
+        table-layout: fixed;
+      }
+      .col-fecha { width: 15%; }
+      .col-socio { width: 18%; }
+      .col-medidor { width: 12%; }
+      .col-anterior { width: 12%; }
+      .col-actual { width: 12%; }
+      .col-consumo { width: 12%; }
+      .col-estado { width: 12%; }
+      .col-acciones { width: 7%; }
+    </style>
     <div>
       <app-page-breadcrumb pageTitle="Lecturas de Medidor" />
 
@@ -63,7 +87,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
               <app-button
                 size="sm"
                 variant="outline"
-                (btnClick)="loadReadings()">
+                (btnClick)="resetAndLoadReadings()">
                 Actualizar
               </app-button>
               <app-button
@@ -75,56 +99,49 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
             </div>
           </div>
 
-          <!-- Filtro de entries -->
-          <div class="mt-4 flex items-center gap-2">
-            <span class="text-sm text-gray-600 dark:text-gray-400">Mostrar</span>
-            <select
-              [(ngModel)]="itemsPerPage"
-              (change)="onItemsPerPageChange()"
-              class="h-9 rounded-lg border border-gray-300 bg-transparent px-3 text-sm focus:border-brand-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90">
-              <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
-            </select>
-            <span class="text-sm text-gray-600 dark:text-gray-400">registros</span>
-          </div>
         </div>
 
         <!-- Tabla -->
         <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="border-b border-gray-200 dark:border-gray-800">
+          <table class="w-full table-fixed">
+            <thead>
               <tr>
-                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="col-fecha px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Fecha Lectura
                 </th>
-                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="col-socio px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Socio
                 </th>
-                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="col-medidor px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Medidor
                 </th>
-                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="col-anterior px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Lectura Anterior
                 </th>
-                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="col-actual px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Lectura Actual
                 </th>
-                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="col-consumo px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Consumo (m³)
                 </th>
-                <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="col-estado px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                   Estado
                 </th>
-                <th class="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                <th class="col-acciones px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
                   Acciones
                 </th>
               </tr>
             </thead>
+          </table>
+        </div>
 
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-              <tr *ngFor="let reading of paginatedReadings" 
-                  class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+        <cdk-virtual-scroll-viewport itemSize="80" class="cdk-virtual-scroll-viewport" (scrolledIndexChange)="onScrolledIndexChange($event)">
+          <table class="w-full table-fixed">
+            <tbody>
+              <tr *cdkVirtualFor="let reading of (readings || [])" 
+                  class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors border-b border-gray-200 dark:border-gray-800">
                 <!-- Fecha Lectura -->
-                <td class="px-4 py-4">
+                <td class="col-fecha px-4 py-4">
                   <div class="text-sm">
                     <p class="font-medium text-gray-900 dark:text-white">
                       {{ reading.readingDate | date:'dd/MM/yyyy' }}
@@ -136,35 +153,35 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
                 </td>
 
                 <!-- Socio -->
-                <td class="px-4 py-4">
+                <td class="col-socio px-4 py-4">
                   <p class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ reading.partnerName }}
                   </p>
                 </td>
 
                 <!-- Medidor -->
-                <td class="px-4 py-4">
+                <td class="col-medidor px-4 py-4">
                   <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">
                     {{ reading.waterMeterNumber || '-' }}
                   </span>
                 </td>
 
                 <!-- Lectura Anterior -->
-                <td class="px-4 py-4 text-left">
+                <td class="col-anterior px-4 py-4 text-left">
                   <p class="text-sm text-gray-700 dark:text-gray-300">
                     {{ reading.previousReading || 0 | number:'1.2-2' }}
                   </p>
                 </td>
 
                 <!-- Lectura Actual -->
-                <td class="px-4 py-4 text-left">
+                <td class="col-actual px-4 py-4 text-left">
                   <p class="text-sm font-medium text-gray-900 dark:text-white">
                     {{ reading.currentReading | number:'1.2-2' }}
                   </p>
                 </td>
 
                 <!-- Consumo -->
-                <td class="px-4 py-4 text-left">
+                <td class="col-consumo px-4 py-4 text-left">
                   <app-badge 
                     [variant]="'light'" 
                     [color]="getConsumptionColor(reading.consumption)">
@@ -173,7 +190,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
                 </td>
 
                 <!-- Estado -->
-                <td class="px-4 py-4 text-left">
+                <td class="col-estado px-4 py-4 text-left">
                   <app-badge 
                     [variant]="'light'" 
                     [color]="getStatusColor(reading)">
@@ -182,7 +199,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
                 </td>
 
                 <!-- Acciones -->
-                <td class="px-4 py-4">
+                <td class="col-acciones px-4 py-4">
                   <div class="flex items-center justify-center gap-2">
                     <button
                       (click)="viewReading(reading)"
@@ -206,7 +223,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
               </tr>
 
               <!-- Empty State -->
-              <tr *ngIf="paginatedReadings.length === 0">
+              <tr *ngIf="!isLoading && (!readings || readings.length === 0)">
                 <td colspan="8" class="px-4 py-12 text-center">
                   <div class="flex flex-col items-center justify-center">
                     <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,85 +247,45 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
               </tr>
             </tbody>
           </table>
+        </cdk-virtual-scroll-viewport>
+
+        <div *ngIf="isLoadingMore" class="flex justify-center py-4">
+          <svg class="animate-spin h-5 w-5 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
         </div>
 
-        <!-- Paginación -->
-        <div *ngIf="filteredReadings.length > 0" class="border-t border-gray-200 px-4 py-4 dark:border-gray-800 sm:px-6 lg:px-8">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <!-- Info -->
-            <p class="text-sm text-gray-700 dark:text-gray-300">
-              Mostrando
-              <span class="font-medium">{{ startEntry }}</span>
-              a
-              <span class="font-medium">{{ endEntry }}</span>
-              de
-              <span class="font-medium">{{ filteredReadings.length }}</span>
-              registros
-            </p>
-
-            <!-- Botones de paginación -->
-            <nav class="flex items-center gap-2">
-              <!-- Previous -->
-              <button
-                (click)="previousPage()"
-                [disabled]="currentPage === 1"
-                [class.opacity-50]="currentPage === 1"
-                [class.cursor-not-allowed]="currentPage === 1"
-                class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:hover:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-                Anterior
-              </button>
-
-              <!-- Page Numbers -->
-              <button
-                *ngFor="let page of pageNumbers"
-                (click)="goToPage(page)"
-                [class.bg-brand-500]="currentPage === page"
-                [class.text-white]="currentPage === page"
-                [class.border-brand-500]="currentPage === page"
-                [class.bg-white]="currentPage !== page"
-                [class.text-gray-700]="currentPage !== page"
-                [class.dark:bg-gray-800]="currentPage !== page"
-                [class.dark:text-gray-300]="currentPage !== page"
-                class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
-                {{ page }}
-              </button>
-
-              <!-- Next -->
-              <button
-                (click)="nextPage()"
-                [disabled]="currentPage === totalPages"
-                [class.opacity-50]="currentPage === totalPages"
-                [class.cursor-not-allowed]="currentPage === totalPages"
-                class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:hover:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-                Siguiente
-              </button>
-            </nav>
-          </div>
+        <!-- Info de total -->
+        <div *ngIf="!isLoading && totalElements > 0" class="border-t border-gray-200 px-4 py-4 dark:border-gray-800 sm:px-6 lg:px-8">
+          <p class="text-sm text-gray-700 dark:text-gray-300">
+            Total de lecturas: <span class="font-medium">{{ totalElements }}</span>
+          </p>
         </div>
       </div>
     </div>
   `
 })
 export class ReadingsListComponent implements OnInit {
-  readings: WaterMeterReadingOutputDto[] = [];
-  filteredReadings: WaterMeterReadingOutputDto[] = [];
-  paginatedReadings: WaterMeterReadingOutputDto[] = [];
+  @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
 
+  readings: WaterMeterReadingOutputDto[] = [];
+  totalElements: number = 0;
+  
   // Búsqueda
   searchQuery: string = '';
-
+  private searchSubject = new Subject<string>();
+  
   // Paginación
-  currentPage: number = 1;
-  itemsPerPage: number = 10;
-  itemsPerPageOptions: number[] = [5, 10, 20, 50, 100];
-  totalPages: number = 1;
-  pageNumbers: number[] = [];
-  startEntry: number = 0;
-  endEntry: number = 0;
-
+  currentPage: number = 0; // Backend pages are 0-indexed
+  pageSize: number = 20;
+  totalPages: number = 0;
+  isLoadingMore: boolean = false;
+  
   // Estado
   isLoading: boolean = true;
   errorMessage: string = '';
+  hasMoreData: boolean = true;
 
   constructor(
     private waterReadingService: WaterReadingService,
@@ -316,109 +293,78 @@ export class ReadingsListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.resetAndLoadReadings();
+    });
     this.loadReadings();
   }
 
   loadReadings(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.hasMoreData = true;
+    this.currentPage = 0; // Start from the first page
 
-    // Obtener lecturas de los últimos 12 meses
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 12);
-
-    const startDateStr = startDate.toISOString().split('T')[0];
-    const endDateStr = endDate.toISOString().split('T')[0];
-
-    this.waterReadingService.getReadingsByPeriod(startDateStr, endDateStr).subscribe({
-      next: (data) => {
-        this.readings = data.sort((a, b) => 
-          new Date(b.readingDate).getTime() - new Date(a.readingDate).getTime()
-        );
-        this.filteredReadings = [...this.readings];
-        this.calculatePagination();
+    this.waterReadingService.getReadingsPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+      next: (response: PageResponse<WaterMeterReadingOutputDto>) => {
+        this.readings = response.content;
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.hasMoreData = !response.last;
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error al cargar lecturas:', error);
         this.isLoading = false;
+        console.error('Error al cargar lecturas:', error);
         this.errorMessage = this.getErrorMessage(error);
       }
     });
   }
 
+  loadMoreReadings(): void {
+    if (this.isLoading || this.isLoadingMore || !this.hasMoreData) {
+      return;
+    }
+
+    this.isLoadingMore = true;
+    this.currentPage++;
+
+    this.waterReadingService.getReadingsPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+      next: (response: PageResponse<WaterMeterReadingOutputDto>) => {
+        this.readings = [...this.readings, ...response.content];
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.hasMoreData = !response.last;
+        this.isLoadingMore = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar más lecturas:', error);
+        this.isLoadingMore = false;
+      }
+    });
+  }
+
   onSearch(): void {
-    const query = this.searchQuery.toLowerCase().trim();
-    
-    if (!query) {
-      this.filteredReadings = [...this.readings];
-    } else {
-      this.filteredReadings = this.readings.filter(reading => {
-        return (
-          reading.partnerName.toLowerCase().includes(query) ||
-          reading.waterMeterNumber?.toLowerCase().includes(query)
-        );
-      });
+    this.searchSubject.next(this.searchQuery);
+  }
+
+  resetAndLoadReadings(): void {
+    this.readings = [];
+    this.currentPage = 0;
+    this.totalElements = 0;
+    this.totalPages = 0;
+    this.hasMoreData = true;
+    this.loadReadings();
+  }
+
+  onScrolledIndexChange(index: number): void {
+    // Cargar más datos cuando el usuario se acerca al final de la lista
+    if (this.viewport && index > this.readings.length - this.pageSize / 2) {
+      this.loadMoreReadings();
     }
-    
-    this.currentPage = 1;
-    this.calculatePagination();
-  }
-
-  calculatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredReadings.length / this.itemsPerPage);
-    
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedReadings = this.filteredReadings.slice(startIndex, endIndex);
-    
-    this.startEntry = this.filteredReadings.length > 0 ? startIndex + 1 : 0;
-    this.endEntry = Math.min(endIndex, this.filteredReadings.length);
-    
-    this.updatePageNumbers();
-  }
-
-  updatePageNumbers(): void {
-    const maxPagesToShow = 5;
-    const pages: number[] = [];
-    
-    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-    
-    if (endPage - startPage < maxPagesToShow - 1) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    this.pageNumbers = pages;
-  }
-
-  onItemsPerPageChange(): void {
-    this.currentPage = 1;
-    this.calculatePagination();
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.calculatePagination();
-    }
-  }
-
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.calculatePagination();
-    }
-  }
-
-  goToPage(page: number): void {
-    this.currentPage = page;
-    this.calculatePagination();
   }
 
   navigateToAddReading(): void {
