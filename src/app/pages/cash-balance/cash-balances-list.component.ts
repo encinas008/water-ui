@@ -156,8 +156,28 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
                   </td>
               </tr>
               <tr *ngIf="!isLoading && (!cashBalances || cashBalances.length === 0)">
-                <td colspan="7" class="py-10 text-center text-bodydark">
-                  No se encontraron balances de caja
+                <td colspan="7" class="px-4 py-12 text-center">
+                  <div class="flex flex-col items-center justify-center">
+                    <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      No se encontraron balances de caja
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      {{ searchQuery ? 'Intenta con otro término de búsqueda' : 'Comienza abriendo tu primer balance de caja' }}
+                    </p>
+                    <app-button
+                      *ngIf="!searchQuery"
+                      size="sm"
+                      variant="primary"
+                      (btnClick)="navigateTo('/cash-balances/open')">
+                      <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                      </svg>
+                      Abrir Balance de Caja
+                    </app-button>
+                  </div>
                 </td>
               </tr>
             </tbody>

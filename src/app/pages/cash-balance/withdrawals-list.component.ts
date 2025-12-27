@@ -119,10 +119,27 @@ import { CashFlowOutputDto, CashBalanceOutputDto } from '../../shared/models/wat
             <div class="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
           </div>
 
-          <div *ngIf="!isLoading && withdrawals.length === 0" class="py-10 text-center text-bodydark">
-            No se encontraron retiros
-            <div *ngIf="selectedCashBalanceId" class="mt-2 text-sm">
-              para el balance de caja seleccionado
+          <div *ngIf="!isLoading && withdrawals.length === 0" class="px-4 py-12 text-center">
+            <div class="flex flex-col items-center justify-center">
+              <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
+                No se encontraron retiros
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                {{ selectedCashBalanceId ? 'No hay retiros registrados para el balance de caja seleccionado' : 'Comienza registrando tu primer retiro' }}
+              </p>
+              <app-button
+                *ngIf="!selectedCashBalanceId"
+                size="sm"
+                variant="primary"
+                (btnClick)="navigateTo('/cash-balances/withdrawal')">
+                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Registrar Retiro
+              </app-button>
             </div>
           </div>
 

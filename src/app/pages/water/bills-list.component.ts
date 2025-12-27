@@ -235,8 +235,28 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
                 </td>
               </tr>
               <tr *ngIf="!isLoading && (!bills || bills.length === 0)">
-                <td colspan="7" class="py-10 text-center text-bodydark">
-                  No se encontraron facturas
+                <td colspan="7" class="px-4 py-12 text-center">
+                  <div class="flex flex-col items-center justify-center">
+                    <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      No se encontraron facturas
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      {{ searchQuery || filterStatus ? 'Intenta con otro término de búsqueda o filtro' : 'Comienza generando tu primera factura' }}
+                    </p>
+                    <app-button
+                      *ngIf="!searchQuery && !filterStatus"
+                      size="sm"
+                      variant="primary"
+                      (btnClick)="navigateToGenerateBills()">
+                      <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                      </svg>
+                      Generar Facturas
+                    </app-button>
+                  </div>
                 </td>
               </tr>
             </tbody>
