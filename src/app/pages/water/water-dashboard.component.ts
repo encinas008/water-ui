@@ -256,10 +256,12 @@ export class WaterDashboardComponent implements OnInit {
   loadDashboardData(): void {
     this.isLoading = true;
 
-    // Cargar partners
-    this.partnerService.getPartners().subscribe({
-      next: (partners) => {
-        this.metrics.totalPartners = partners.length;
+    // Cargar partners - usar paginación con tamaño grande para obtener todos
+    // Usamos un tamaño grande (10000) para obtener todos los partners en una sola página
+    this.partnerService.getPartnersPaginated(0, 10000, '').subscribe({
+      next: (pageResponse) => {
+        const partners = pageResponse.content;
+        this.metrics.totalPartners = pageResponse.totalElements;
         this.metrics.activeConnections = partners.filter(p => p.connectionStatusCode === 'ACTIVE').length;
         
         // Top deudores
@@ -269,12 +271,17 @@ export class WaterDashboardComponent implements OnInit {
         
         this.metrics.totalDebt = this.topDebtors.reduce((sum, p) => sum + (p.currentDebt || 0), 0);
       },
-      error: (error) => console.error('Error al cargar partners:', error)
+      error: (error) => {
+        console.error('Error al cargar partners:', error);
+        // En caso de error, intentar con método alternativo si existe
+        this.metrics.totalPartners = 0;
+      }
     });
 
-    // Cargar facturas
-    this.waterBillService.getAllBills().subscribe({
-      next: (bills) => {
+    // Cargar facturas - usar paginación con tamaño grande
+    this.waterBillService.getBillsPaginated(0, 10000, '', '').subscribe({
+      next: (pageResponse) => {
+        const bills = pageResponse.content;
         this.metrics.pendingBills = bills.filter(b => 
           b.statusCode === 'PENDING' || b.statusCode === 'PARTIAL_PAID'
         ).length;
