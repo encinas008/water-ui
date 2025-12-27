@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MeetingInputDto, MeetingOutputDto, MeetingUpdateDto } from '../models/water-system.models';
+import { MeetingInputDto, MeetingOutputDto, MeetingUpdateDto, PageResponse } from '../models/water-system.models';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +29,28 @@ export class MeetingService {
     return this.http.get<MeetingOutputDto[]>(this.apiUrl, { headers }).pipe(
       catchError(error => {
         console.error('❌ Error al cargar reuniones:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener reuniones paginadas
+   * GET /meetings?page=0&size=20&search=...
+   */
+  getMeetingsPaginated(page: number = 0, size: number = 20, search?: string): Observable<PageResponse<MeetingOutputDto>> {
+    const headers = this.getHeaders();
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    
+    return this.http.get<PageResponse<MeetingOutputDto>>(this.apiUrl, { headers, params }).pipe(
+      catchError(error => {
+        console.error('❌ Error al cargar reuniones paginadas:', error);
         throw error;
       })
     );

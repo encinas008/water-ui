@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
@@ -7,7 +7,9 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { AssignPartnersModalComponent } from './assign-partners-modal.component';
 import { MeetingService } from '../../shared/services/meeting.service';
-import { MeetingOutputDto } from '../../shared/models/water-system.models';
+import { MeetingOutputDto, PageResponse } from '../../shared/models/water-system.models';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-meetings-list',
@@ -19,26 +21,46 @@ import { MeetingOutputDto } from '../../shared/models/water-system.models';
     ButtonComponent,
     BadgeComponent,
     AssignPartnersModalComponent,
+    ScrollingModule,
   ],
   templateUrl: './meetings-list.component.html',
-  styles: ``
+  styles: `
+    .cdk-virtual-scroll-viewport {
+      height: 600px;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+    }
+    .cdk-virtual-scroll-content-wrapper {
+      min-width: 100%;
+    }
+    .table-fixed {
+      table-layout: fixed;
+    }
+    .col-checkbox { width: 60px; }
+    .col-nombre { width: 18%; }
+    .col-tipo { width: 12%; }
+    .col-fecha { width: 12%; }
+    .col-hora { width: 10%; }
+    .col-descripcion { width: 20%; }
+    .col-multa { width: 12%; }
+    .col-acciones { width: 14%; }
+  `
 })
 export class MeetingsListComponent implements OnInit {
+  @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
+
   meetings: MeetingOutputDto[] = [];
-  filteredMeetings: MeetingOutputDto[] = [];
-  paginatedMeetings: MeetingOutputDto[] = [];
+  totalElements: number = 0;
   
   // Búsqueda
   searchQuery: string = '';
+  private searchSubject = new Subject<string>();
   
   // Paginación
-  currentPage: number = 1;
-  itemsPerPage: number = 10;
-  itemsPerPageOptions: number[] = [5, 10, 20, 50, 100];
-  totalPages: number = 1;
-  pageNumbers: number[] = [];
-  startEntry: number = 0;
-  endEntry: number = 0;
+  currentPage: number = 0; // Backend pages are 0-indexed
+  pageSize: number = 20;
+  totalPages: number = 0;
+  isLoadingMore: boolean = false;
   
   // Selección
   selectAll: boolean = false;
@@ -47,6 +69,7 @@ export class MeetingsListComponent implements OnInit {
   // Estado
   isLoading: boolean = true;
   errorMessage: string = '';
+  hasMoreData: boolean = true;
 
   // Modal de asignación de socios
   showAssignPartnersModal: boolean = false;
@@ -59,18 +82,27 @@ export class MeetingsListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.resetAndLoadMeetings();
+    });
     this.loadMeetings();
   }
 
   loadMeetings(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.hasMoreData = true;
+    this.currentPage = 0; // Start from the first page
 
-    this.meetingService.getMeetings().subscribe({
-      next: (data) => {
-        this.meetings = data;
-        this.filteredMeetings = [...this.meetings];
-        this.calculatePagination();
+    this.meetingService.getMeetingsPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+      next: (response: PageResponse<MeetingOutputDto>) => {
+        this.meetings = response.content;
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.hasMoreData = !response.last;
         this.isLoading = false;
       },
       error: (error) => {
@@ -90,83 +122,54 @@ export class MeetingsListComponent implements OnInit {
     });
   }
 
+  loadMoreMeetings(): void {
+    if (this.isLoading || this.isLoadingMore || !this.hasMoreData) {
+      return;
+    }
+
+    this.isLoadingMore = true;
+    this.currentPage++;
+
+    this.meetingService.getMeetingsPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+      next: (response: PageResponse<MeetingOutputDto>) => {
+        this.meetings = [...this.meetings, ...response.content];
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.hasMoreData = !response.last;
+        this.isLoadingMore = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar más reuniones:', error);
+        this.isLoadingMore = false;
+      }
+    });
+  }
+
   onSearch(): void {
-    const query = this.searchQuery.toLowerCase().trim();
+    this.searchSubject.next(this.searchQuery);
+  }
 
-    if (!query) {
-      this.filteredMeetings = [...this.meetings];
-    } else {
-      this.filteredMeetings = this.meetings.filter(meeting => {
-        const name = meeting.name?.toLowerCase() || '';
-        const description = meeting.description?.toLowerCase() || '';
+  resetAndLoadMeetings(): void {
+    this.meetings = [];
+    this.currentPage = 0;
+    this.totalElements = 0;
+    this.totalPages = 0;
+    this.hasMoreData = true;
+    this.loadMeetings();
+  }
 
-        return name.includes(query) || description.includes(query);
-      });
+  onScrolledIndexChange(index: number): void {
+    // Cargar más datos cuando el usuario se acerca al final de la lista
+    if (this.viewport && index > this.meetings.length - this.pageSize / 2) {
+      this.loadMoreMeetings();
     }
-    this.currentPage = 1;
-    this.calculatePagination();
-  }
-
-  calculatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredMeetings.length / this.itemsPerPage);
-    
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedMeetings = this.filteredMeetings.slice(startIndex, endIndex);
-    
-    this.startEntry = this.filteredMeetings.length > 0 ? startIndex + 1 : 0;
-    this.endEntry = Math.min(endIndex, this.filteredMeetings.length);
-    
-    this.updatePageNumbers();
-  }
-
-  updatePageNumbers(): void {
-    const maxPagesToShow = 5;
-    const pages: number[] = [];
-    
-    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-    
-    if (endPage - startPage < maxPagesToShow - 1) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    this.pageNumbers = pages;
-  }
-
-  onItemsPerPageChange(): void {
-    this.currentPage = 1;
-    this.calculatePagination();
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.calculatePagination();
-    }
-  }
-
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.calculatePagination();
-    }
-  }
-
-  goToPage(page: number): void {
-    this.currentPage = page;
-    this.calculatePagination();
   }
 
   toggleSelectAll(): void {
     this.selectAll = !this.selectAll;
 
     if (this.selectAll) {
-      this.paginatedMeetings.forEach(meeting => {
+      this.meetings.forEach(meeting => {
         if (meeting.id) {
           this.selectedMeetings.add(meeting.id);
         }
@@ -185,7 +188,7 @@ export class MeetingsListComponent implements OnInit {
       this.selectedMeetings.add(id);
     }
 
-    this.selectAll = this.paginatedMeetings.every(m => m.id && this.selectedMeetings.has(m.id));
+    this.selectAll = this.meetings.length > 0 && this.meetings.every(m => m.id && this.selectedMeetings.has(m.id));
   }
 
   isSelected(id: string | undefined): boolean {
@@ -225,7 +228,7 @@ export class MeetingsListComponent implements OnInit {
       this.meetingService.deleteMeeting(meeting.id).subscribe({
         next: () => {
           console.log('Reunión eliminada:', meeting);
-          this.loadMeetings(); // Recargar la lista
+          this.resetAndLoadMeetings(); // Recargar la lista
         },
         error: (error) => {
           console.error('Error al eliminar reunión:', error);

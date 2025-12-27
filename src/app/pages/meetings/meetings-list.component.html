@@ -54,26 +54,15 @@
         </div>
       </div>
 
-      <!-- Filtro de entries -->
-      <div class="mt-4 flex items-center gap-2">
-        <span class="text-sm text-gray-600 dark:text-gray-400">Mostrar</span>
-        <select
-          [(ngModel)]="itemsPerPage"
-          (change)="onItemsPerPageChange()"
-          class="h-9 rounded-lg border border-gray-300 bg-transparent px-3 text-sm focus:border-brand-300 focus:outline-hidden focus:ring-2 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90">
-          <option *ngFor="let option of itemsPerPageOptions" [value]="option">{{ option }}</option>
-        </select>
-        <span class="text-sm text-gray-600 dark:text-gray-400">registros</span>
-      </div>
     </div>
 
     <!-- Tabla -->
     <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="border-b border-gray-200 dark:border-gray-800">
+      <table class="w-full table-fixed">
+        <thead>
           <tr>
             <!-- Checkbox -->
-            <th class="px-4 py-4 text-left sm:px-6 lg:px-8">
+            <th class="col-checkbox px-4 py-4 text-left sm:px-6 lg:px-8">
               <input
                 type="checkbox"
                 [checked]="selectAll"
@@ -82,41 +71,45 @@
               />
             </th>
             <!-- Nombre -->
-            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+            <th class="col-nombre px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
               Nombre
             </th>
             <!-- Tipo -->
-            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+            <th class="col-tipo px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
               Tipo
             </th>
             <!-- Fecha -->
-            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+            <th class="col-fecha px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
               Fecha
             </th>
             <!-- Hora -->
-            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+            <th class="col-hora px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
               Hora
             </th>
             <!-- Descripción -->
-            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+            <th class="col-descripcion px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
               Descripción
             </th>
             <!-- Multa -->
-            <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+            <th class="col-multa px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
               Multa
             </th>
             <!-- Acciones -->
-            <th class="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
+            <th class="col-acciones px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
               Acciones
             </th>
           </tr>
         </thead>
+      </table>
+    </div>
 
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-          <tr *ngFor="let meeting of paginatedMeetings" 
-              class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+    <cdk-virtual-scroll-viewport itemSize="80" class="cdk-virtual-scroll-viewport" (scrolledIndexChange)="onScrolledIndexChange($event)">
+      <table class="w-full table-fixed">
+        <tbody>
+          <tr *cdkVirtualFor="let meeting of (meetings || [])" 
+              class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors border-b border-gray-200 dark:border-gray-800">
             <!-- Checkbox -->
-            <td class="px-4 py-4 sm:px-6 lg:px-8">
+            <td class="col-checkbox px-4 py-4 sm:px-6 lg:px-8">
               <input
                 type="checkbox"
                 [checked]="isSelected(meeting.id)"
@@ -126,14 +119,14 @@
             </td>
 
             <!-- Nombre -->
-            <td class="px-4 py-4">
+            <td class="col-nombre px-4 py-4">
               <p class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ meeting.name }}
               </p>
             </td>
 
             <!-- Tipo -->
-            <td class="px-4 py-4">
+            <td class="col-tipo px-4 py-4">
               <span *ngIf="meeting.meetingTypeName" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
                     [ngClass]="{
                       'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': meeting.meetingTypeCode === 'AULL',
@@ -147,28 +140,28 @@
             </td>
 
             <!-- Fecha -->
-            <td class="px-4 py-4">
+            <td class="col-fecha px-4 py-4">
               <span class="text-sm text-gray-700 dark:text-gray-300">
                 {{ formatDateSpanish(meeting.meetingDate) }}
               </span>
             </td>
 
             <!-- Hora -->
-            <td class="px-4 py-4">
+            <td class="col-hora px-4 py-4">
               <span class="text-sm text-gray-700 dark:text-gray-300">
                 {{ formatTime(meeting.hour, meeting.minute, meeting.amPm) }}
               </span>
             </td>
 
             <!-- Descripción -->
-            <td class="px-4 py-4">
+            <td class="col-descripcion px-4 py-4">
               <p class="text-sm text-gray-700 dark:text-gray-300 max-w-md truncate">
                 {{ meeting.description || 'Sin descripción' }}
               </p>
             </td>
 
             <!-- Multa -->
-            <td class="px-4 py-4">
+            <td class="col-multa px-4 py-4">
               <span *ngIf="meeting.fine" class="text-sm font-medium text-gray-900 dark:text-white">
                 {{ formatCurrency(meeting.fine) }}
               </span>
@@ -178,7 +171,7 @@
             </td>
 
             <!-- Acciones -->
-            <td class="px-4 py-4">
+            <td class="col-acciones px-4 py-4">
               <div class="flex items-center justify-center gap-2">
                 <button
                   *ngIf="meeting.meetingTypeCode !== 'CLASSIC'"
@@ -219,7 +212,7 @@
           </tr>
 
           <!-- Empty State -->
-          <tr *ngIf="paginatedMeetings.length === 0">
+          <tr *ngIf="!isLoading && (!meetings || meetings.length === 0)">
             <td colspan="8" class="px-4 py-12 text-center">
               <div class="flex flex-col items-center justify-center">
                 <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -243,60 +236,20 @@
           </tr>
         </tbody>
       </table>
+    </cdk-virtual-scroll-viewport>
+
+    <div *ngIf="isLoadingMore" class="flex justify-center py-4">
+      <svg class="animate-spin h-5 w-5 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
     </div>
 
-    <!-- Paginación -->
-    <div *ngIf="filteredMeetings.length > 0" class="border-t border-gray-200 px-4 py-4 dark:border-gray-800 sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <!-- Info -->
-        <p class="text-sm text-gray-700 dark:text-gray-300">
-          Mostrando
-          <span class="font-medium">{{ startEntry }}</span>
-          a
-          <span class="font-medium">{{ endEntry }}</span>
-          de
-          <span class="font-medium">{{ filteredMeetings.length }}</span>
-          registros
-        </p>
-
-        <!-- Botones de paginación -->
-        <nav class="flex items-center gap-2">
-          <!-- Previous -->
-          <button
-            (click)="previousPage()"
-            [disabled]="currentPage === 1"
-            [class.opacity-50]="currentPage === 1"
-            [class.cursor-not-allowed]="currentPage === 1"
-            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:hover:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-            Anterior
-          </button>
-
-          <!-- Page Numbers -->
-          <button
-            *ngFor="let page of pageNumbers"
-            (click)="goToPage(page)"
-            [class.bg-brand-500]="currentPage === page"
-            [class.text-white]="currentPage === page"
-            [class.border-brand-500]="currentPage === page"
-            [class.bg-white]="currentPage !== page"
-            [class.text-gray-700]="currentPage !== page"
-            [class.dark:bg-gray-800]="currentPage !== page"
-            [class.dark:text-gray-300]="currentPage !== page"
-            class="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700">
-            {{ page }}
-          </button>
-
-          <!-- Next -->
-          <button
-            (click)="nextPage()"
-            [disabled]="currentPage === totalPages"
-            [class.opacity-50]="currentPage === totalPages"
-            [class.cursor-not-allowed]="currentPage === totalPages"
-            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:hover:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-            Siguiente
-          </button>
-        </nav>
-      </div>
+    <!-- Info de total -->
+    <div *ngIf="!isLoading && totalElements > 0" class="border-t border-gray-200 px-4 py-4 dark:border-gray-800 sm:px-6 lg:px-8">
+      <p class="text-sm text-gray-700 dark:text-gray-300">
+        Total de reuniones: <span class="font-medium">{{ totalElements }}</span>
+      </p>
     </div>
   </div>
 
