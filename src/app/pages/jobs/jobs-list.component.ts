@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
@@ -7,7 +7,9 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { AssignPartnersModalComponent } from './assign-partners-modal.component';
 import { JobService } from '../../shared/services/job.service';
-import { JobOutputDto } from '../../shared/models/water-system.models';
+import { JobOutputDto, PageResponse } from '../../shared/models/water-system.models';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-jobs-list',
@@ -19,26 +21,44 @@ import { JobOutputDto } from '../../shared/models/water-system.models';
     ButtonComponent,
     BadgeComponent,
     AssignPartnersModalComponent,
+    ScrollingModule,
   ],
   templateUrl: './jobs-list.component.html',
-  styles: ``
+  styles: `
+    .cdk-virtual-scroll-viewport {
+      height: 600px;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+    }
+    .cdk-virtual-scroll-content-wrapper {
+      min-width: 100%;
+    }
+    .table-fixed {
+      table-layout: fixed;
+    }
+    .col-checkbox { width: 60px; }
+    .col-nombre { width: 25%; }
+    .col-fecha { width: 15%; }
+    .col-descripcion { width: 30%; }
+    .col-multa { width: 15%; }
+    .col-acciones { width: 15%; }
+  `
 })
 export class JobsListComponent implements OnInit {
+  @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
+
   jobs: JobOutputDto[] = [];
-  filteredJobs: JobOutputDto[] = [];
-  paginatedJobs: JobOutputDto[] = [];
+  totalElements: number = 0;
   
   // Búsqueda
   searchQuery: string = '';
+  private searchSubject = new Subject<string>();
   
   // Paginación
-  currentPage: number = 1;
-  itemsPerPage: number = 10;
-  itemsPerPageOptions: number[] = [5, 10, 20, 50, 100];
-  totalPages: number = 1;
-  pageNumbers: number[] = [];
-  startEntry: number = 0;
-  endEntry: number = 0;
+  currentPage: number = 0; // Backend pages are 0-indexed
+  pageSize: number = 20;
+  totalPages: number = 0;
+  isLoadingMore: boolean = false;
   
   // Selección
   selectAll: boolean = false;
@@ -47,6 +67,7 @@ export class JobsListComponent implements OnInit {
   // Estado
   isLoading: boolean = true;
   errorMessage: string = '';
+  hasMoreData: boolean = true;
 
   // Modal de asignación de socios
   showAssignPartnersModal: boolean = false;
@@ -59,18 +80,27 @@ export class JobsListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.resetAndLoadJobs();
+    });
     this.loadJobs();
   }
 
   loadJobs(): void {
     this.isLoading = true;
     this.errorMessage = '';
+    this.hasMoreData = true;
+    this.currentPage = 0; // Start from the first page
 
-    this.jobService.getJobs().subscribe({
-      next: (data) => {
-        this.jobs = data;
-        this.filteredJobs = [...this.jobs];
-        this.calculatePagination();
+    this.jobService.getJobsPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+      next: (response: PageResponse<JobOutputDto>) => {
+        this.jobs = response.content;
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.hasMoreData = !response.last;
         this.isLoading = false;
       },
       error: (error) => {
@@ -90,83 +120,54 @@ export class JobsListComponent implements OnInit {
     });
   }
 
+  loadMoreJobs(): void {
+    if (this.isLoading || this.isLoadingMore || !this.hasMoreData) {
+      return;
+    }
+
+    this.isLoadingMore = true;
+    this.currentPage++;
+
+    this.jobService.getJobsPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+      next: (response: PageResponse<JobOutputDto>) => {
+        this.jobs = [...this.jobs, ...response.content];
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.hasMoreData = !response.last;
+        this.isLoadingMore = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar más trabajos:', error);
+        this.isLoadingMore = false;
+      }
+    });
+  }
+
   onSearch(): void {
-    const query = this.searchQuery.toLowerCase().trim();
+    this.searchSubject.next(this.searchQuery);
+  }
 
-    if (!query) {
-      this.filteredJobs = [...this.jobs];
-    } else {
-      this.filteredJobs = this.jobs.filter(job => {
-        const name = job.name?.toLowerCase() || '';
-        const description = job.description?.toLowerCase() || '';
+  resetAndLoadJobs(): void {
+    this.jobs = [];
+    this.currentPage = 0;
+    this.totalElements = 0;
+    this.totalPages = 0;
+    this.hasMoreData = true;
+    this.loadJobs();
+  }
 
-        return name.includes(query) || description.includes(query);
-      });
+  onScrolledIndexChange(index: number): void {
+    // Cargar más datos cuando el usuario se acerca al final de la lista
+    if (this.viewport && index > this.jobs.length - this.pageSize / 2) {
+      this.loadMoreJobs();
     }
-    this.currentPage = 1;
-    this.calculatePagination();
-  }
-
-  calculatePagination(): void {
-    this.totalPages = Math.ceil(this.filteredJobs.length / this.itemsPerPage);
-    
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    this.paginatedJobs = this.filteredJobs.slice(startIndex, endIndex);
-    
-    this.startEntry = this.filteredJobs.length > 0 ? startIndex + 1 : 0;
-    this.endEntry = Math.min(endIndex, this.filteredJobs.length);
-    
-    this.updatePageNumbers();
-  }
-
-  updatePageNumbers(): void {
-    const maxPagesToShow = 5;
-    const pages: number[] = [];
-    
-    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
-    let endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-    
-    if (endPage - startPage < maxPagesToShow - 1) {
-      startPage = Math.max(1, endPage - maxPagesToShow + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    this.pageNumbers = pages;
-  }
-
-  onItemsPerPageChange(): void {
-    this.currentPage = 1;
-    this.calculatePagination();
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.calculatePagination();
-    }
-  }
-
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.calculatePagination();
-    }
-  }
-
-  goToPage(page: number): void {
-    this.currentPage = page;
-    this.calculatePagination();
   }
 
   toggleSelectAll(): void {
     this.selectAll = !this.selectAll;
 
     if (this.selectAll) {
-      this.paginatedJobs.forEach(job => {
+      this.jobs.forEach(job => {
         if (job.id) {
           this.selectedJobs.add(job.id);
         }
@@ -185,7 +186,7 @@ export class JobsListComponent implements OnInit {
       this.selectedJobs.add(id);
     }
 
-    this.selectAll = this.paginatedJobs.every(j => j.id && this.selectedJobs.has(j.id));
+    this.selectAll = this.jobs.length > 0 && this.jobs.every(j => j.id && this.selectedJobs.has(j.id));
   }
 
   isSelected(id: string | undefined): boolean {
@@ -209,7 +210,7 @@ export class JobsListComponent implements OnInit {
       this.jobService.deleteJob(job.id).subscribe({
         next: () => {
           console.log('Trabajo eliminado:', job);
-          this.loadJobs(); // Recargar la lista
+          this.resetAndLoadJobs(); // Recargar la lista
         },
         error: (error) => {
           console.error('Error al eliminar trabajo:', error);

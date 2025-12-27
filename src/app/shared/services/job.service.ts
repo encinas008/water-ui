@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, catchError } from 'rxjs';
 import { 
   JobOutputDto, 
   JobInputDto, 
-  JobUpdateDto 
+  JobUpdateDto,
+  PageResponse
 } from '../models/water-system.models';
 import { environment } from '../../../environments/environment';
 
@@ -39,6 +40,28 @@ export class JobService {
     return this.http.get<JobOutputDto[]>(this.apiUrl, { headers }).pipe(
       catchError(error => {
         console.error('❌ Error al cargar trabajos:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener trabajos paginados
+   * GET /jobs?page=0&size=20&search=...
+   */
+  getJobsPaginated(page: number = 0, size: number = 20, search?: string): Observable<PageResponse<JobOutputDto>> {
+    const headers = this.getHeaders();
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    
+    return this.http.get<PageResponse<JobOutputDto>>(this.apiUrl, { headers, params }).pipe(
+      catchError(error => {
+        console.error('❌ Error al cargar trabajos paginados:', error);
         throw error;
       })
     );
