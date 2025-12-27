@@ -130,7 +130,7 @@ import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.mo
               <h4 class="text-title-md font-bold text-black dark:text-white">
                 {{ cashBalanceDetails.cashBalanceDetails.totalCashFromSales | currency:'USD':'symbol':'1.2-2' }}
               </h4>
-              <span class="text-sm font-medium text-bodydark">Total de Ventas</span>
+              <span class="text-sm font-medium text-bodydark">Total</span>
             </div>
           </div>
         </div>
