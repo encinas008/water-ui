@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,13 +6,35 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
 import { AuthService } from '../../shared/services/auth.service';
-import { CashBalanceOutputDto } from '../../shared/models/water-system.models';
+import { CashBalanceOutputDto, PageResponse } from '../../shared/models/water-system.models';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-cash-balances-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent, ScrollingModule],
   template: `
+    <style>
+      .cdk-virtual-scroll-viewport {
+        height: 600px;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+      }
+      .cdk-virtual-scroll-content-wrapper {
+        min-width: 100%;
+      }
+      .table-fixed {
+        table-layout: fixed;
+      }
+      .col-descripcion { width: 20%; }
+      .col-asignado { width: 18%; }
+      .col-apertura { width: 15%; }
+      .col-cierre { width: 15%; }
+      .col-dinero { width: 12%; }
+      .col-estado { width: 10%; }
+      .col-acciones { width: 10%; }
+    </style>
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Balances de Caja'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
@@ -25,14 +47,31 @@ import { CashBalanceOutputDto } from '../../shared/models/water-system.models';
         <span>{{ alertMessage }}</span>
       </div>
 
-      <!-- Acciones -->
-      <div class="mb-6 flex justify-end">
-        <app-button (click)="navigateTo('/cash-balances/open')" [variant]="'primary'">
-          <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Abrir Balance de Caja
-        </app-button>
+      <!-- Acciones y búsqueda -->
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex gap-3">
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+            placeholder="Buscar por descripción, asignado a..."
+            class="w-full rounded-lg border border-stroke bg-transparent py-3 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary sm:w-80"
+          />
+        </div>
+        <div class="flex gap-3">
+          <app-button (click)="navigateTo('/cash-balances/open')" [variant]="'primary'">
+            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Abrir Balance de Caja
+          </app-button>
+          <app-button (click)="resetAndLoadCashBalances()" [variant]="'secondary'">
+            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Actualizar
+          </app-button>
+        </div>
       </div>
 
       <!-- Tabla de balances -->
@@ -45,54 +84,54 @@ import { CashBalanceOutputDto } from '../../shared/models/water-system.models';
             <div class="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
           </div>
 
-          <div *ngIf="!isLoading && cashBalances.length === 0" class="py-10 text-center text-bodydark">
-            No se encontraron balances de caja
-          </div>
+          <table *ngIf="!isLoading" class="w-full table-fixed">
+            <thead>
+              <tr class="bg-gray-2 text-left dark:bg-meta-4">
+                <th class="col-descripcion py-4 px-4 font-medium text-black dark:text-white">Descripción</th>
+                <th class="col-asignado py-4 px-4 font-medium text-black dark:text-white">Asignado a</th>
+                <th class="col-apertura py-4 px-4 font-medium text-black dark:text-white">Fecha Apertura</th>
+                <th class="col-cierre py-4 px-4 font-medium text-black dark:text-white">Fecha Cierre</th>
+                <th class="col-dinero py-4 px-4 font-medium text-black dark:text-white text-right">Dinero Inicial</th>
+                <th class="col-estado py-4 px-4 font-medium text-black dark:text-white text-center">Estado</th>
+                <th class="col-acciones py-4 px-4 font-medium text-black dark:text-white text-center">Acciones</th>
+              </tr>
+            </thead>
+          </table>
+        </div>
 
-          <div *ngIf="!isLoading && cashBalances.length > 0" class="overflow-x-auto">
-            <table class="w-full table-auto">
-              <thead>
-                <tr class="bg-gray-2 text-left dark:bg-meta-4">
-                  <th class="py-4 px-4 font-medium text-black dark:text-white">Descripción</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white">Asignado a</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white">Fecha Apertura</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white">Fecha Cierre</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white text-right">Dinero Inicial</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white text-center">Estado</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white text-center">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let balance of cashBalances" class="border-b border-[#eee] dark:border-strokedark">
-                  <td class="py-5 px-4">
-                    <p class="text-black dark:text-white font-medium">{{ balance.description || 'Sin descripción' }}</p>
-                  </td>
-                  <td class="py-5 px-4">
-                    <p class="text-black dark:text-white">{{ balance.assignee }}</p>
-                  </td>
-                  <td class="py-5 px-4">
-                    <p class="text-black dark:text-white">{{ balance.openTime | date:'dd/MM/yyyy HH:mm' }}</p>
-                  </td>
-                  <td class="py-5 px-4">
-                    <p class="text-black dark:text-white">
-                      {{ balance.closeTime ? (balance.closeTime | date:'dd/MM/yyyy HH:mm') : '-' }}
-                    </p>
-                  </td>
-                  <td class="py-5 px-4 text-right">
-                    <p class="text-black dark:text-white font-medium">
-                      BOB {{ balance.initialMoney | number:'1.2-2' }}
-                    </p>
-                  </td>
-                  <td class="py-5 px-4 text-center">
-                    <span [ngClass]="{
-                      'px-3 py-1 rounded-full text-xs font-medium': true,
-                      'bg-success/10 text-success': balance.active && !balance.closeTime,
-                      'bg-meta-3/10 text-meta-3': !balance.active || balance.closeTime
-                    }">
-                      {{ getBalanceStatus(balance) }}
-                    </span>
-                  </td>
-                  <td class="py-5 px-4 text-center">
+        <cdk-virtual-scroll-viewport *ngIf="!isLoading" itemSize="80" class="cdk-virtual-scroll-viewport" (scrolledIndexChange)="onScrolledIndexChange($event)">
+          <table class="w-full table-fixed">
+            <tbody>
+              <tr *cdkVirtualFor="let balance of (cashBalances || [])" class="border-b border-[#eee] dark:border-strokedark">
+                <td class="col-descripcion py-5 px-4">
+                  <p class="text-black dark:text-white font-medium">{{ balance.description || 'Sin descripción' }}</p>
+                </td>
+                <td class="col-asignado py-5 px-4">
+                  <p class="text-black dark:text-white">{{ balance.assignee }}</p>
+                </td>
+                <td class="col-apertura py-5 px-4">
+                  <p class="text-black dark:text-white">{{ balance.openTime | date:'dd/MM/yyyy HH:mm' }}</p>
+                </td>
+                <td class="col-cierre py-5 px-4">
+                  <p class="text-black dark:text-white">
+                    {{ balance.closeTime ? (balance.closeTime | date:'dd/MM/yyyy HH:mm') : '-' }}
+                  </p>
+                </td>
+                <td class="col-dinero py-5 px-4 text-right">
+                  <p class="text-black dark:text-white font-medium">
+                    BOB {{ balance.initialMoney | number:'1.2-2' }}
+                  </p>
+                </td>
+                <td class="col-estado py-5 px-4 text-center">
+                  <span [ngClass]="{
+                    'px-3 py-1 rounded-full text-xs font-medium': true,
+                    'bg-success/10 text-success': balance.active && !balance.closeTime,
+                    'bg-meta-3/10 text-meta-3': !balance.active || balance.closeTime
+                  }">
+                    {{ getBalanceStatus(balance) }}
+                  </span>
+                </td>
+                <td class="col-acciones py-5 px-4 text-center">
                     <div class="flex items-center justify-center gap-2">
                       <button
                         (click)="viewDetails(balance.id)"
@@ -115,23 +154,57 @@ import { CashBalanceOutputDto } from '../../shared/models/water-system.models';
                       </button>
                     </div>
                   </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+              </tr>
+              <tr *ngIf="!isLoading && (!cashBalances || cashBalances.length === 0)">
+                <td colspan="7" class="py-10 text-center text-bodydark">
+                  No se encontraron balances de caja
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </cdk-virtual-scroll-viewport>
+
+        <div *ngIf="isLoadingMore" class="flex justify-center py-4">
+          <svg class="animate-spin h-5 w-5 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+
+        <!-- Info de total -->
+        <div *ngIf="!isLoading && totalElements > 0" class="border-t border-stroke px-6.5 py-4 dark:border-strokedark">
+          <p class="text-sm text-bodydark">
+            Total de balances: <span class="font-medium">{{ totalElements }}</span>
+          </p>
         </div>
       </div>
     </div>
   `
 })
 export class CashBalancesListComponent implements OnInit {
+  @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
+
   breadcrumbItems = [
     { label: 'Dashboard', link: '/' },
     { label: 'Balances de Caja', link: '/cash-balances' }
   ];
 
   cashBalances: CashBalanceOutputDto[] = [];
-  isLoading = false;
+  totalElements: number = 0;
+  
+  // Búsqueda
+  searchQuery: string = '';
+  private searchSubject = new Subject<string>();
+  
+  // Paginación
+  currentPage: number = 0; // Backend pages are 0-indexed
+  pageSize: number = 20;
+  totalPages: number = 0;
+  isLoadingMore: boolean = false;
+  
+  // Estados
+  isLoading: boolean = false;
+  hasMoreData: boolean = true;
   showAlert = false;
   alertType: 'success' | 'error' = 'success';
   alertMessage = '';
@@ -143,21 +216,26 @@ export class CashBalancesListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.resetAndLoadCashBalances();
+    });
     this.loadCashBalances();
   }
 
   loadCashBalances(): void {
     this.isLoading = true;
+    this.hasMoreData = true;
+    this.currentPage = 0; // Start from the first page
 
-    // Cargar todos los balances activos sin filtrar por usuario
-    this.cashBalanceService.getAllCashBalances().subscribe({
-      next: (data) => {
-        // Ordenar por fecha de apertura descendente (más recientes primero)
-        this.cashBalances = data.sort((a, b) => {
-          const dateA = new Date(a.openTime).getTime();
-          const dateB = new Date(b.openTime).getTime();
-          return dateB - dateA;
-        });
+    this.cashBalanceService.getCashBalancesPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+      next: (response: PageResponse<CashBalanceOutputDto>) => {
+        this.cashBalances = response.content;
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.hasMoreData = !response.last;
         this.isLoading = false;
       },
       error: (error) => {
@@ -166,6 +244,49 @@ export class CashBalancesListComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  loadMoreCashBalances(): void {
+    if (this.isLoading || this.isLoadingMore || !this.hasMoreData) {
+      return;
+    }
+
+    this.isLoadingMore = true;
+    this.currentPage++;
+
+    this.cashBalanceService.getCashBalancesPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+      next: (response: PageResponse<CashBalanceOutputDto>) => {
+        this.cashBalances = [...this.cashBalances, ...response.content];
+        this.totalElements = response.totalElements;
+        this.totalPages = response.totalPages;
+        this.hasMoreData = !response.last;
+        this.isLoadingMore = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar más balances de caja:', error);
+        this.isLoadingMore = false;
+      }
+    });
+  }
+
+  onSearch(): void {
+    this.searchSubject.next(this.searchQuery);
+  }
+
+  resetAndLoadCashBalances(): void {
+    this.cashBalances = [];
+    this.currentPage = 0;
+    this.totalElements = 0;
+    this.totalPages = 0;
+    this.hasMoreData = true;
+    this.loadCashBalances();
+  }
+
+  onScrolledIndexChange(index: number): void {
+    // Cargar más datos cuando el usuario se acerca al final de la lista
+    if (this.viewport && index > this.cashBalances.length - this.pageSize / 2) {
+      this.loadMoreCashBalances();
+    }
   }
 
   getBalanceStatus(balance: CashBalanceOutputDto): string {
@@ -188,7 +309,7 @@ export class CashBalancesListComponent implements OnInit {
       next: (success) => {
         if (success) {
           this.showAlertMessage('Balance de caja cerrado exitosamente', 'success');
-          this.loadCashBalances();
+          this.resetAndLoadCashBalances();
         } else {
           this.showAlertMessage('Error al cerrar el balance de caja', 'error');
         }

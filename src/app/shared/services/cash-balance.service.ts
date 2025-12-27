@@ -5,7 +5,8 @@ import {
   CashBalanceInputDto,
   CashBalanceOutputDto,
   CashBalanceDetailsOutputDto,
-  CloseCashBalanceInputDto
+  CloseCashBalanceInputDto,
+  PageResponse
 } from '../models/water-system.models';
 import { environment } from '../../../environments/environment';
 
@@ -128,6 +129,28 @@ export class CashBalanceService {
     return this.http.get<CashBalanceOutputDto[]>(this.apiUrl, { headers }).pipe(
       catchError(error => {
         console.error('❌ Error al obtener todos los balances de caja:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener balances de caja paginados
+   * GET /cash-balances?page=0&size=20&search=...
+   */
+  getCashBalancesPaginated(page: number = 0, size: number = 20, search?: string): Observable<PageResponse<CashBalanceOutputDto>> {
+    const headers = this.getHeaders();
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    
+    return this.http.get<PageResponse<CashBalanceOutputDto>>(this.apiUrl, { headers, params }).pipe(
+      catchError(error => {
+        console.error('❌ Error al cargar balances de caja paginados:', error);
         throw error;
       })
     );
