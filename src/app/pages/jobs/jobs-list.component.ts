@@ -229,12 +229,16 @@ export class JobsListComponent implements OnInit {
   // Formatear fecha a formato español "Jun 15, 2015"
   formatDateSpanish(dateString: string): string {
     if (!dateString) return '';
-    const date = new Date(dateString);
+    
+    // Extraer solo la fecha (YYYY-MM-DD) ignorando hora y timezone
+    const soloFecha = dateString.split(/[T ]/)[0];
+    const [year, month, day] = soloFecha.split('-').map(Number);
+    
+    if (!year || !month || !day) return '';
+    
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    const month = months[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
-    return `${month} ${day}, ${year}`;
+    
+    return `${months[month - 1]} ${day}, ${year}`;
   }
 
   // Métodos para asignación de socios

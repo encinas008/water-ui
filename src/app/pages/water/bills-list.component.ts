@@ -119,7 +119,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
             type="text"
             [(ngModel)]="searchQuery"
             (input)="onSearch()"
-            placeholder="Buscar por socio, número de factura..."
+            placeholder="Buscar por número de socio"
             class="w-full rounded-lg border border-stroke bg-transparent py-3 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary sm:w-80"
           />
           
@@ -130,19 +130,17 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
           >
             <option value="">Todos los estados</option>
             <option value="PENDING">Pendientes</option>
-            <option value="OVERDUE">Vencidas</option>
-            <option value="PARTIAL_PAID">Parcialmente Pagadas</option>
             <option value="PAID">Pagadas</option>
           </select>
         </div>
 
         <div class="flex gap-3">
-          <app-button (click)="navigateToGenerateBills()" [variant]="'primary'">
+          <!-- <app-button (click)="navigateToGenerateBills()" [variant]="'primary'">
             <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             Generar Facturas
-          </app-button>
+          </app-button> -->
           <app-button (click)="resetAndLoadBills()" [variant]="'secondary'">
             <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>

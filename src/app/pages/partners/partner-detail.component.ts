@@ -148,17 +148,19 @@ export class PartnerDetailComponent implements OnInit {
 
   formatDate(date: string | undefined): string {
     if (!date) return 'N/A';
-    const d = new Date(date);
+    
+    const soloFecha = date.split(' ')[0]; // "2025-12-29"
+    const [year, month, day] = soloFecha.split('-').map(Number);
+    
+    const d = new Date(year, month - 1, day);
+    
     if (isNaN(d.getTime())) return 'N/A';
     
-    const day = d.getDate();
     const months = [
       'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
       'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
     ];
-    const month = months[d.getMonth()];
-    const year = d.getFullYear();
     
-    return `${day} de ${month} ${year}`;
+    return `${day} de ${months[month - 1]} ${year}`;
   }
 }
