@@ -315,7 +315,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupAutocomplete();
-    
+
     // Cerrar dropdown al hacer click fuera
     document.addEventListener('click', this.handleClickOutside.bind(this));
   }
@@ -329,27 +329,27 @@ export class AddReadingComponent implements OnInit, OnDestroy {
     this.searchTerms$.pipe(
       // Debug: log cada término de búsqueda
       tap(term => console.log('🔍 Término recibido:', term)),
-      
+
       // Filtrar solo términos con al menos 3 caracteres
       filter(term => term.length >= 3),
-      
+
       // Esperar 400ms después de cada keystroke antes de buscar
       debounceTime(400),
-      
+
       // Ignorar si el término es el mismo que el anterior
       distinctUntilChanged(),
-      
+
       // Debug: log términos que pasan los filtros
       tap(term => console.log('🔎 Buscando en servidor:', term)),
-      
+
       // Indicar que está buscando
       tap(() => {
         this.isSearching = true;
         this.showPartnerDropdown = true;
       }),
-      
+
       // Cancelar búsquedas anteriores y hacer nueva búsqueda
-      switchMap(term => 
+      switchMap(term =>
         this.partnerService.searchPartners(term).pipe(
           // En caso de error, retornar array vacío
           catchError(error => {
@@ -359,14 +359,13 @@ export class AddReadingComponent implements OnInit, OnDestroy {
           })
         )
       ),
-      
+
       // Filtrar solo socios con conexión activa
       tap(partners => console.log('✅ Resultados del servidor:', partners.length)),
       tap(partners => {
         this.filteredPartners = partners.filter(p => {
-          const hasConnection = !!p.waterConnectionNumber;
           const isActive = !p.connectionStatusCode || p.connectionStatusCode === 'ACTIVE';
-          return hasConnection && isActive;
+          return isActive;
         });
         console.log('✅ Socios con conexión activa:', this.filteredPartners.length);
         this.isSearching = false;
@@ -400,15 +399,15 @@ export class AddReadingComponent implements OnInit, OnDestroy {
     if (this.isSelectingPartner) {
       return;
     }
-    
+
     if (!this.partnerSearch) {
       this.filteredPartners = [];
       this.showPartnerDropdown = false;
       return;
     }
-    
+
     const query = this.partnerSearch.trim();
-    
+
     // Si tiene menos de 3 caracteres, limpiar y ocultar
     if (query.length < 3) {
       this.filteredPartners = [];
@@ -423,25 +422,25 @@ export class AddReadingComponent implements OnInit, OnDestroy {
 
   selectPartner(partner: PartnerOutputDto): void {
     console.log('👤 Socio seleccionado:', partner);
-    
+
     // Activar bandera para evitar que se dispare la búsqueda
     this.isSelectingPartner = true;
-    
+
     // Primero limpiar y cerrar todo
     this.showPartnerDropdown = false;
     this.filteredPartners = [];
-    
+
     // Luego establecer el socio seleccionado
     this.selectedPartner = partner;
-    
+
     // Finalmente actualizar el campo de búsqueda (esto puede disparar input, pero la bandera lo previene)
     this.partnerSearch = partner.fullName;
-    
+
     // Verificar si ya existe una lectura para este mes
     if (this.readingDate) {
       this.checkExistingReadingForMonth();
     }
-    
+
     // Desactivar bandera después de un delay para permitir que el input se actualice sin disparar búsqueda
     setTimeout(() => {
       this.isSelectingPartner = false;
@@ -461,7 +460,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       this.currentReading !== null &&
       this.currentReading > 0
     );
-    
+
     console.log('🔍 Validación del formulario:', {
       isValid,
       selectedPartner: !!this.selectedPartner,
@@ -469,7 +468,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       currentReading: this.currentReading,
       currentReadingValid: this.currentReading !== null && this.currentReading > 0
     });
-    
+
     return isValid;
   }
 
@@ -488,7 +487,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
         this.readingDateObject = dateObj;
       }
     }
-    
+
     // Verificar si ya existe una lectura para este mes
     if (this.selectedPartner && this.readingDate) {
       this.checkExistingReadingForMonth();
@@ -504,8 +503,8 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       next: (exists) => {
         if (exists) {
           const date = new Date(this.readingDate);
-          const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+          const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+            'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
           const monthName = monthNames[date.getMonth()];
           const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
           this.showAlertMessage(
@@ -529,7 +528,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       currentReading: this.currentReading,
       observation: this.observation
     });
-    
+
     if (!this.isFormValid()) {
       console.log('❌ Formulario inválido');
       this.showAlertMessage('Por favor complete todos los campos obligatorios', 'warning');
@@ -541,8 +540,8 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       next: (exists) => {
         if (exists) {
           const date = new Date(this.readingDate);
-          const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+          const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+            'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
           const monthName = monthNames[date.getMonth()];
           const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
           this.showAlertMessage(
@@ -551,7 +550,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
           );
           return;
         }
-        
+
         // Si no existe, proceder con el envío
         this.proceedWithSubmission();
       },
@@ -568,17 +567,17 @@ export class AddReadingComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
 
-      const readingInput: WaterMeterReadingInputDto = {
-        partnerId: this.selectedPartner!.id,
-        userId: this.authService.getUserInfo().userId,
-        readingDate: this.readingDate,
-        currentReading: this.currentReading!,
-        observation: this.observation || undefined
-      };
-      
-      console.log('📦 DTO a enviar:', readingInput);
+    const readingInput: WaterMeterReadingInputDto = {
+      partnerId: this.selectedPartner!.id,
+      userId: this.authService.getUserInfo().userId,
+      readingDate: this.readingDate,
+      currentReading: this.currentReading!,
+      observation: this.observation || undefined
+    };
 
-      this.waterReadingService.createReading(readingInput).subscribe({
+    console.log('📦 DTO a enviar:', readingInput);
+
+    this.waterReadingService.createReading(readingInput).subscribe({
       next: (response) => {
         // Obtener la factura generada automáticamente
         this.waterBillService.getBillsByPartner(this.selectedPartner!.id).subscribe({
@@ -615,14 +614,14 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al crear lectura:', error);
-        
+
         let errorMsg = 'Error al registrar la lectura';
         if (error.status === 400) {
           errorMsg = error.error?.message || 'La lectura actual debe ser mayor a la anterior';
         } else if (error.status === 404) {
           errorMsg = 'Socio no encontrado';
         }
-        
+
         this.showAlertMessage(errorMsg, 'error');
       }
     });
