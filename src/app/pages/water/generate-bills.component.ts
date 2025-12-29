@@ -82,7 +82,7 @@ import { GenerateMonthlyBillsRequestDto } from '../../shared/models/water-system
           <h4 class="mb-4 text-xl font-semibold text-black dark:text-white">Resultado de la Generación</h4>
           <div class="space-y-2">
             <p><strong>Facturas generadas:</strong> {{ generationResult.billsGenerated }}</p>
-            <p><strong>Monto total:</strong> {{ generationResult.totalAmount | currency:'USD':'symbol':'1.2-2' }}</p>
+            <p><strong>Monto total:</strong> BOB {{ generationResult.totalAmount | number:'1.2-2' }}</p>
             <div *ngIf="generationResult.errors.length > 0" class="mt-4">
               <p class="text-danger font-medium">Errores:</p>
               <ul class="list-disc pl-5">
@@ -120,7 +120,7 @@ export class GenerateBillsComponent {
     const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
     const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     const dueDay = new Date(today.getFullYear(), today.getMonth() + 1, 15);
-    
+
     this.billingPeriodStart = firstDay.toISOString().split('T')[0];
     this.billingPeriodEnd = lastDay.toISOString().split('T')[0];
     this.dueDate = dueDay.toISOString().split('T')[0];

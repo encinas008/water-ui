@@ -159,7 +159,9 @@ export interface WaterBillOutputDto {
   isOverdue: boolean;
 
   concepts?: BillConceptItemDto[];  // Conceptos de cobro desglosados
-
+  pendingFines?: PendingFineDto[]; // Multas pendientes (trabajos/reuniones)
+  totalFinesAmount?: number; // Suma de multas pendientes
+  totalPayableAmount?: number; // totalAmount + totalFinesAmount
   totalFinesPaid?: number;  // Total de multas pagadas en esta factura
 
   notes?: string;

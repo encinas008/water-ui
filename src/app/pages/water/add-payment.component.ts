@@ -8,12 +8,13 @@ import { WaterPaymentService } from '../../shared/services/water-payment.service
 import { WaterBillService } from '../../shared/services/water-bill.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
-import { WaterPaymentInputDto, WaterBillOutputDto, PaymentType, CashBalanceOutputDto, MonthlyPendingFinesDto, PaymentDetailDto } from '../../shared/models/water-system.models';
+import { WaterPaymentInputDto, WaterBillOutputDto, PaymentType, CashBalanceOutputDto, MonthlyPendingFinesDto, PaymentDetailDto, PaymentReceiptFullDto } from '../../shared/models/water-system.models';
+import { PaymentReceiptPreviewComponent } from './payment-receipt-preview.component';
 
 @Component({
   selector: 'app-add-payment',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent, PaymentReceiptPreviewComponent],
   template: `
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Registrar Pago'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
@@ -39,9 +40,9 @@ import { WaterPaymentInputDto, WaterBillOutputDto, PaymentType, CashBalanceOutpu
               <div><strong>N° Factura:</strong> {{ selectedBill.billNumber }}</div>
               <div><strong>Socio:</strong> {{ selectedBill.partnerName }}</div>
               <div><strong>Mes:</strong> {{ formatBillingMonth(selectedBill) }}</div>
-              <div><strong>Total:</strong> {{ selectedBill.totalAmount | currency:'USD':'symbol':'1.2-2' }}</div>
-              <div><strong>Pagado:</strong> {{ selectedBill.paidAmount | currency:'USD':'symbol':'1.2-2' }}</div>
-              <div><strong class="text-danger">Saldo:</strong> <span class="text-danger font-bold">{{ selectedBill.remainingBalance | currency:'USD':'symbol':'1.2-2' }}</span></div>
+              <div><strong>Total (con multas):</strong> BOB {{ (selectedBill.totalPayableAmount || selectedBill.totalAmount) | number:'1.2-2' }}</div>
+              <div><strong>Pagado (Total):</strong> BOB {{ (selectedBill.paidAmount + (selectedBill.totalFinesPaid || 0)) | number:'1.2-2' }}</div>
+              <div><strong class="text-danger">Saldo Pendiente Total:</strong> <span class="text-danger font-bold">BOB {{ (selectedBill.remainingBalance + (selectedBill.totalFinesAmount || 0)) | number:'1.2-2' }}</span></div>
             </div>
           </div>
 
@@ -58,7 +59,7 @@ import { WaterPaymentInputDto, WaterBillOutputDto, PaymentType, CashBalanceOutpu
                 <div *ngFor="let bill of filteredBills" (click)="selectBill(bill)"
                      class="p-3 hover:bg-gray-2 dark:hover:bg-meta-4 cursor-pointer border-b">
                   <p class="font-medium">{{ bill.billNumber }} - {{ bill.partnerName }}</p>
-                  <p class="text-sm text-bodydark">Saldo: {{ bill.remainingBalance | currency:'USD':'symbol':'1.2-2' }}</p>
+                  <p class="text-sm text-bodydark">Saldo: BOB {{ bill.remainingBalance | number:'1.2-2' }}</p>
                 </div>
               </div>
             </div>
@@ -77,7 +78,6 @@ import { WaterPaymentInputDto, WaterBillOutputDto, PaymentType, CashBalanceOutpu
             <div *ngIf="pendingFines && (pendingFines.jobAbsences.length > 0 || pendingFines.meetingAbsences.length > 0)" class="mb-4.5 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
               <div class="mb-3">
                 <h4 class="font-medium text-black dark:text-white">Multas Pendientes del Mes ({{ formatBillingMonth(selectedBill) }})</h4>
-                <p class="text-sm text-bodydark mt-1">Las multas pendientes del mes de la factura se incluirán automáticamente en el pago</p>
               </div>
               
               <div *ngIf="isLoadingPendingFines" class="text-sm text-bodydark">
@@ -262,6 +262,38 @@ import { WaterPaymentInputDto, WaterBillOutputDto, PaymentType, CashBalanceOutpu
           </div>
         </div>
       </div>
+
+      <!-- Modal de Vista Previa de Factura -->
+      <div *ngIf="showReceiptPreview && fullReceipt" 
+           class="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 p-4"
+           (click)="closeReceiptPreview()">
+        <div class="max-w-6xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-boxdark rounded-lg shadow-xl"
+             (click)="$event.stopPropagation()">
+          <div class="sticky top-0 bg-white dark:bg-boxdark border-b border-stroke dark:border-strokedark py-4 px-6.5 flex justify-between items-center z-10">
+            <h3 class="font-medium text-black dark:text-white">Factura de Pago</h3>
+            <div class="flex gap-3">
+                  <button (click)="downloadReceiptPdf()" 
+                          [disabled]="isLoadingReceipt"
+                          class="inline-flex items-center justify-center rounded-md bg-primary py-2 px-4 text-center font-medium text-white hover:bg-opacity-90">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    {{ isLoadingReceipt ? 'Generando...' : 'Imprimir Factura (PDF)' }}
+                  </button>
+              <button (click)="closeReceiptPreview()" 
+                      class="inline-flex items-center justify-center rounded-md bg-meta-3 py-2 px-4 text-center font-medium text-white hover:bg-opacity-90">
+                Cerrar
+              </button>
+            </div>
+          </div>
+          
+          <app-payment-receipt-preview 
+            [receipt]="fullReceipt"
+            (printReceipt)="downloadReceiptPdf()"
+            (close)="closeReceiptPreview()">
+          </app-payment-receipt-preview>
+        </div>
+      </div>
     </div>
   `
 })
@@ -291,13 +323,18 @@ export class AddPaymentComponent implements OnInit {
   alertType: 'success' | 'error' = 'success';
   alertMessage = '';
 
-  // Pendientes del mes
+  // Pendientes del mes (trabajos/reuniones) - Siempre se incluyen
   pendingFines: MonthlyPendingFinesDto | null = null;
-  includePendingFines = true; // Siempre incluir multas pendientes
   isLoadingPendingFines = false;
-  
+
   // Detalle del pago registrado
   registeredPaymentDetail: PaymentDetailDto | null = null;
+
+  // Factura imprimible
+  registeredPaymentId: string | null = null;
+  showReceiptPreview = false;
+  fullReceipt: PaymentReceiptFullDto | null = null;
+  isLoadingReceipt = false;
 
   constructor(
     private waterPaymentService: WaterPaymentService,
@@ -314,7 +351,7 @@ export class AddPaymentComponent implements OnInit {
     this.loadPaymentTypes();
     this.loadPendingBills();
     this.loadOpenCashBalance();
-    
+
     // Si viene el billId desde query params, cargar esa factura
     this.route.queryParams.subscribe(params => {
       if (params['billId']) {
@@ -378,7 +415,7 @@ export class AddPaymentComponent implements OnInit {
     }
 
     this.isLoadingPendingFines = true;
-    
+
     // Obtener el mes y año de la factura (usar billingPeriodStart)
     // Parsear manualmente para evitar problemas de zona horaria
     const dateParts = this.selectedBill.billingPeriodStart.split('-');
@@ -386,7 +423,7 @@ export class AddPaymentComponent implements OnInit {
       this.isLoadingPendingFines = false;
       return;
     }
-    
+
     const year = parseInt(dateParts[0], 10);
     const month = parseInt(dateParts[1], 10); // El mes viene en formato 1-12, que es lo que necesita el backend
 
@@ -395,7 +432,7 @@ export class AddPaymentComponent implements OnInit {
         this.pendingFines = data;
         this.isLoadingPendingFines = false;
         // Calcular automáticamente el monto total incluyendo multas
-        if (this.selectedBill && this.includePendingFines) {
+        if (this.selectedBill) {
           this.amount = this.selectedBill.remainingBalance + data.totalFines;
         }
       },
@@ -411,7 +448,7 @@ export class AddPaymentComponent implements OnInit {
     if (!bill.billingPeriodStart) {
       return '-';
     }
-    
+
     try {
       // Parsear la fecha manualmente para evitar problemas de zona horaria
       // billingPeriodStart viene en formato YYYY-MM-DD
@@ -419,22 +456,22 @@ export class AddPaymentComponent implements OnInit {
       if (dateParts.length !== 3) {
         return '-';
       }
-      
+
       const year = parseInt(dateParts[0], 10);
       const monthIndex = parseInt(dateParts[1], 10) - 1; // El mes viene en 1-12, convertimos a 0-11 para el array
       const day = parseInt(dateParts[2], 10);
-      
+
       // Validar que los valores sean válidos
       if (isNaN(year) || isNaN(monthIndex) || isNaN(day) || monthIndex < 0 || monthIndex > 11) {
         return '-';
       }
-      
+
       // Formato: "Diciembre 2025"
-      const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      const monthNames = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
       const monthName = monthNames[monthIndex];
       const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-      
+
       return `${capitalizedMonth} ${year}`;
     } catch (error) {
       console.error('Error formateando mes de facturación:', error, bill);
@@ -446,7 +483,7 @@ export class AddPaymentComponent implements OnInit {
   getMaxPaymentAmount(): number {
     if (!this.selectedBill) return 0;
     let max = this.selectedBill.remainingBalance;
-    if (this.includePendingFines && this.pendingFines) {
+    if (this.pendingFines) {
       max += this.pendingFines.totalFines;
     }
     return max;
@@ -482,13 +519,13 @@ export class AddPaymentComponent implements OnInit {
     if (!this.selectedBill || !this.paymentDate || !this.amount || this.amount <= 0 || !this.paymentTypeId || !this.cashBalanceId) {
       return false;
     }
-    
-    // Calcular monto máximo permitido
+
+    // Calcular monto máximo permitido (Factura + Multas)
     let maxAmount = this.selectedBill.remainingBalance;
-    if (this.includePendingFines && this.pendingFines) {
+    if (this.pendingFines) {
       maxAmount += this.pendingFines.totalFines;
     }
-    
+
     return this.amount <= maxAmount;
   }
 
@@ -510,7 +547,7 @@ export class AddPaymentComponent implements OnInit {
       userId: userId,
       cashBalanceId: this.cashBalanceId!,
       observation: this.observation || undefined,
-      includePendingFines: this.includePendingFines
+      includePendingFines: true
     };
 
     this.waterPaymentService.createPayment(payment).subscribe({
@@ -518,15 +555,17 @@ export class AddPaymentComponent implements OnInit {
         this.isLoading = false;
         // Guardar detalle del pago para mostrarlo
         this.registeredPaymentDetail = response.paymentDetail || null;
-        
+        this.registeredPaymentId = response.id;
+
         // Mostrar detalle de pago si está disponible
         if (response.paymentDetail && response.paymentDetail.finesAmount > 0) {
-          this.showAlertMessage('Pago registrado exitosamente. Ver detalle abajo.', 'success');
+          this.showAlertMessage('Pago registrado exitosamente. Cargando factura...', 'success');
         } else {
-          this.showAlertMessage('Pago registrado exitosamente', 'success');
+          this.showAlertMessage('Pago registrado exitosamente. Cargando factura...', 'success');
         }
-        // No redirigir automáticamente para que el usuario pueda ver el detalle
-        // setTimeout(() => this.router.navigate(['/water-bills']), 5000);
+
+        // Cargar factura completa
+        this.loadFullReceipt(response.id);
       },
       error: (error) => {
         this.isLoading = false;
@@ -550,25 +589,58 @@ export class AddPaymentComponent implements OnInit {
   buildPaymentDetailMessage(detail: PaymentDetailDto): string {
     let message = `\n\nDetalle del Pago:\n`;
     message += `- Monto Factura: BOB ${detail.billAmount.toFixed(2)}\n`;
-    
+
     if (detail.jobFines.length > 0) {
       message += `\nMultas de Trabajos (${detail.jobFines.length}):\n`;
       detail.jobFines.forEach(fine => {
         message += `  • ${fine.name} (${new Date(fine.date).toLocaleDateString('es-ES')}): BOB ${fine.fineAmount.toFixed(2)}\n`;
       });
     }
-    
+
     if (detail.meetingFines.length > 0) {
       message += `\nMultas de Reuniones (${detail.meetingFines.length}):\n`;
       detail.meetingFines.forEach(fine => {
         message += `  • ${fine.name} (${new Date(fine.date).toLocaleDateString('es-ES')}): BOB ${fine.fineAmount.toFixed(2)}\n`;
       });
     }
-    
+
     message += `\nTotal Multas: BOB ${detail.finesAmount.toFixed(2)}\n`;
     message += `Total Pagado: BOB ${detail.totalAmount.toFixed(2)}`;
-    
+
     return message;
   }
-}
 
+  loadFullReceipt(paymentId: string): void {
+    this.isLoadingReceipt = true;
+    this.waterPaymentService.getFullPaymentReceipt(paymentId).subscribe({
+      next: (receipt) => {
+        this.fullReceipt = receipt;
+        this.isLoadingReceipt = false;
+        this.showReceiptPreview = true;
+      },
+      error: (error) => {
+        this.isLoadingReceipt = false;
+        console.error('Error al cargar factura:', error);
+        this.showAlertMessage('Error al cargar la factura', 'error');
+      }
+    });
+  }
+
+  closeReceiptPreview(): void {
+    this.showReceiptPreview = false;
+  }
+
+  downloadReceiptPdf(): void {
+    if (!this.registeredPaymentId) return;
+
+    this.isLoadingReceipt = true;
+    this.waterPaymentService.downloadReceiptPdf(this.registeredPaymentId).then(() => {
+      this.isLoadingReceipt = false;
+      this.showAlertMessage('Vista de impresión generada', 'success');
+    }).catch((error) => {
+      this.isLoadingReceipt = false;
+      console.error('Error al generar PDF:', error);
+      this.showAlertMessage('Error al generar la vista de impresión', 'error');
+    });
+  }
+}

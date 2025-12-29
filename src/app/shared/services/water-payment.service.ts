@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, catchError, map } from 'rxjs';
-import { 
-  WaterPaymentOutputDto, 
+import {
+  WaterPaymentOutputDto,
   WaterPaymentInputDto,
   PaymentReceiptDto,
   PaymentReceiptFullDto,
@@ -53,7 +53,7 @@ export class WaterPaymentService {
   getPaymentsByPartner(partnerId: string): Observable<WaterPaymentOutputDto[]> {
     const headers = this.getHeaders();
     return this.http.get<WaterPaymentOutputDto[]>(
-      `${this.apiUrl}/partner/${partnerId}`, 
+      `${this.apiUrl}/partner/${partnerId}`,
       { headers }
     ).pipe(
       catchError(error => {
@@ -99,7 +99,7 @@ export class WaterPaymentService {
     const headers = this.getHeaders();
     const params = new HttpParams().set('receiptType', receiptType);
     return this.http.get<PaymentReceiptFullDto>(
-      `${this.apiUrl}/receipt-full/${id}`, 
+      `${this.apiUrl}/receipt-full/${id}`,
       { headers, params }
     ).pipe(
       catchError(error => {
@@ -130,12 +130,12 @@ export class WaterPaymentService {
   getPaymentTypes(): Observable<PaymentType[]> {
     const headers = this.getHeaders();
     const commonsUrl = `${environment.apiUrl}/commons`;
-    
+
     return this.http.get<any>(commonsUrl, { headers }).pipe(
       map(response => {
         // Extraer paymentTypes del payload de respuesta
         const paymentTypes = response.paymentTypes || [];
-        
+
         // Mapear PaymentTypeOutputDto a PaymentType
         return paymentTypes.map((pt: any) => ({
           id: pt.id,
@@ -178,5 +178,27 @@ export class WaterPaymentService {
       })
     );
   }
-}
 
+  /**
+   * Descargar PDF de recibo de pago
+   * GET /water-payments/{id}/receipt-pdf
+   */
+  downloadReceiptPdf(paymentId: string): Promise<void> {
+    const headers = this.getHeaders().set("Accept", "application/pdf");
+    const reportUrl = `${environment.apiUrl}/reports/${paymentId}/receipt-pdf`;
+
+    return this.http
+      .get(reportUrl, { headers: headers, responseType: "blob" })
+      .toPromise()
+      .then((result: Blob | undefined) => {
+        if (!result) return;
+        const file = new Blob([result], { type: "application/pdf" });
+        const fileURL = URL.createObjectURL(file);
+        window.open(fileURL, "_blank", "width=1000, height=800");
+      })
+      .catch((error) => {
+        console.error('❌ Error al generar impresión PDF:', error);
+        throw error;
+      });
+  }
+}

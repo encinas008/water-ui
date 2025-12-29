@@ -98,7 +98,7 @@ import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.mo
             </div>
             <div class="mt-4">
               <h4 class="text-title-md font-bold text-black dark:text-white">
-                {{ cashBalanceDetails.initialMoney | currency:'USD':'symbol':'1.2-2' }}
+                BOB {{ cashBalanceDetails.initialMoney | number:'1.2-2' }}
               </h4>
               <span class="text-sm font-medium text-bodydark">Dinero Inicial</span>
             </div>
@@ -113,7 +113,7 @@ import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.mo
             </div>
             <div class="mt-4">
               <h4 class="text-title-md font-bold text-black dark:text-white">
-                {{ cashBalanceDetails.cashBalanceDetails.totalCashInBox | currency:'USD':'symbol':'1.2-2' }}
+                BOB {{ cashBalanceDetails.cashBalanceDetails.totalCashInBox | number:'1.2-2' }}
               </h4>
               <span class="text-sm font-medium text-bodydark">Total en Caja</span>
             </div>
@@ -128,7 +128,7 @@ import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.mo
             </div>
             <div class="mt-4">
               <h4 class="text-title-md font-bold text-black dark:text-white">
-                {{ cashBalanceDetails.cashBalanceDetails.totalCashFromSales | currency:'USD':'symbol':'1.2-2' }}
+                BOB {{ cashBalanceDetails.cashBalanceDetails.totalCashFromSales | number:'1.2-2' }}
               </h4>
               <span class="text-sm font-medium text-bodydark">Total</span>
             </div>
@@ -145,19 +145,19 @@ import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.mo
               <div class="p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">Efectivo</p>
                 <p class="text-xl font-bold text-black dark:text-white">
-                  {{ cashBalanceDetails.cashFromSalesDetails.cash | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashFromSalesDetails.cash | number:'1.2-2' }}
                 </p>
               </div>
               <div class="p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">QR</p>
                 <p class="text-xl font-bold text-black dark:text-white">
-                  {{ cashBalanceDetails.cashFromSalesDetails.qr | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashFromSalesDetails.qr | number:'1.2-2' }}
                 </p>
               </div>
               <div class="p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">Transferencia</p>
                 <p class="text-xl font-bold text-black dark:text-white">
-                  {{ cashBalanceDetails.cashFromSalesDetails.transference | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashFromSalesDetails.transference | number:'1.2-2' }}
                 </p>
               </div>
             </div>
@@ -174,25 +174,25 @@ import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.mo
               <div class="p-4 bg-success/10 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">Entradas en Efectivo</p>
                 <p class="text-xl font-bold text-success">
-                  {{ cashBalanceDetails.cashFromCashFlowsDetails.cashIn | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashIn | number:'1.2-2' }}
                 </p>
               </div>
               <div class="p-4 bg-success/10 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">Entradas QR</p>
                 <p class="text-xl font-bold text-success">
-                  {{ cashBalanceDetails.cashFromCashFlowsDetails.cashQrIn | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashQrIn | number:'1.2-2' }}
                 </p>
               </div>
               <div class="p-4 bg-success/10 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">Entradas Transferencia</p>
                 <p class="text-xl font-bold text-success">
-                  {{ cashBalanceDetails.cashFromCashFlowsDetails.cashTransferIn | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashTransferIn | number:'1.2-2' }}
                 </p>
               </div>
               <div class="p-4 bg-danger/10 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">Salidas</p>
                 <p class="text-xl font-bold text-danger">
-                  {{ cashBalanceDetails.cashFromCashFlowsDetails.cashOut | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashOut | number:'1.2-2' }}
                 </p>
               </div>
             </div>
@@ -209,19 +209,19 @@ import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.mo
               <div class="p-4 bg-primary/10 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">Total Efectivo</p>
                 <p class="text-xl font-bold text-primary">
-                  {{ cashBalanceDetails.cashBalanceDetails.totalCash | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashBalanceDetails.totalCash | number:'1.2-2' }}
                 </p>
               </div>
               <div class="p-4 bg-meta-3/10 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">Total Otros (QR + Transferencia)</p>
                 <p class="text-xl font-bold text-meta-3">
-                  {{ cashBalanceDetails.cashBalanceDetails.totalOthers | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashBalanceDetails.totalOthers | number:'1.2-2' }}
                 </p>
               </div>
               <div class="p-4 bg-success/10 rounded-lg">
                 <p class="text-sm text-bodydark mb-2">Total en Caja</p>
                 <p class="text-2xl font-bold text-success">
-                  {{ cashBalanceDetails.cashBalanceDetails.totalCashInBox | currency:'USD':'symbol':'1.2-2' }}
+                  BOB {{ cashBalanceDetails.cashBalanceDetails.totalCashInBox | number:'1.2-2' }}
                 </p>
               </div>
             </div>
@@ -256,7 +256,7 @@ export class CashBalanceDetailsComponent implements OnInit {
     private cashBalanceService: CashBalanceService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {

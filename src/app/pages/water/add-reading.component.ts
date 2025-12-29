@@ -52,7 +52,7 @@ import { AuthService } from '../../shared/services/auth.service';
             </h4>
             <div class="space-y-1 text-sm text-green-700 dark:text-green-300">
               <p><strong>Número de Factura:</strong> {{ generatedBill.billNumber }}</p>
-              <p><strong>Monto Total:</strong> {{ generatedBill.totalAmount | currency:'BOB':'symbol':'1.2-2' }}</p>
+              <p><strong>Monto Total:</strong> BOB {{ generatedBill.totalAmount | number:'1.2-2' }}</p>
               <p><strong>Fecha de Vencimiento:</strong> {{ generatedBill.dueDate | date:'dd/MM/yyyy' }}</p>
               <p><strong>Estado:</strong> {{ generatedBill.statusName }}</p>
             </div>

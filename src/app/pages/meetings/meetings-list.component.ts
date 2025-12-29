@@ -51,21 +51,21 @@ export class MeetingsListComponent implements OnInit {
 
   meetings: MeetingOutputDto[] = [];
   totalElements: number = 0;
-  
+
   // Búsqueda
   searchQuery: string = '';
   private searchSubject = new Subject<string>();
-  
+
   // Paginación
   currentPage: number = 0; // Backend pages are 0-indexed
   pageSize: number = 20;
   totalPages: number = 0;
   isLoadingMore: boolean = false;
-  
+
   // Selección
   selectAll: boolean = false;
   selectedMeetings: Set<string> = new Set();
-  
+
   // Estado
   isLoading: boolean = true;
   errorMessage: string = '';
@@ -79,7 +79,7 @@ export class MeetingsListComponent implements OnInit {
   constructor(
     private meetingService: MeetingService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.searchSubject.pipe(
@@ -108,7 +108,7 @@ export class MeetingsListComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al cargar reuniones:', error);
-        
+
         if (error.status === 0) {
           this.errorMessage = 'No se puede conectar al servidor.';
         } else if (error.status === 401) {
@@ -263,10 +263,8 @@ export class MeetingsListComponent implements OnInit {
 
   // Formatear moneda
   formatCurrency(amount: number | null | undefined): string {
-    if (amount === null || amount === undefined) return '0.00';
-    return new Intl.NumberFormat('es-BO', {
-      style: 'currency',
-      currency: 'BOB',
+    if (amount === null || amount === undefined) return 'BOB 0.00';
+    return 'BOB ' + new Intl.NumberFormat('es-BO', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(amount);

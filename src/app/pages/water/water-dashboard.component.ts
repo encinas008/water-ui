@@ -73,7 +73,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
           </div>
           <div class="mt-4 flex items-end justify-between">
             <div>
-              <h4 class="text-title-md font-bold text-black dark:text-white">{{ metrics.totalDebt | currency:'USD':'symbol':'1.2-2' }}</h4>
+              <h4 class="text-title-md font-bold text-black dark:text-white">BOB {{ metrics.totalDebt | number:'1.2-2' }}</h4>
               <span class="text-sm font-medium">Deuda Total</span>
             </div>
           </div>
@@ -99,7 +99,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
         <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
           <div class="flex items-end justify-between">
             <div>
-              <h4 class="text-title-md font-bold text-black dark:text-white">{{ metrics.monthlyCollection | currency:'USD':'symbol':'1.2-2' }}</h4>
+              <h4 class="text-title-md font-bold text-black dark:text-white">BOB {{ metrics.monthlyCollection | number:'1.2-2' }}</h4>
               <span class="text-sm font-medium">Recaudación del Mes</span>
             </div>
             <span class="text-meta-3">
@@ -184,7 +184,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
                 <p class="text-sm text-bodydark">{{ bill.billNumber }} - Venc: {{ bill.dueDate | date:'dd/MM/yyyy' }}</p>
               </div>
               <div class="text-right">
-                <p class="font-medium text-danger">{{ bill.remainingBalance | currency:'USD':'symbol':'1.2-2' }}</p>
+                <p class="font-medium text-danger">BOB {{ bill.remainingBalance | number:'1.2-2' }}</p>
               </div>
             </div>
           </div>
@@ -213,7 +213,7 @@ import { WaterMeterReadingOutputDto } from '../../shared/models/water-system.mod
                 <p class="text-sm text-bodydark">Conexión: {{ partner.waterConnectionNumber }}</p>
               </div>
               <div class="text-right">
-                <p class="font-medium text-danger">{{ partner.currentDebt | currency:'USD':'symbol':'1.2-2' }}</p>
+                <p class="font-medium text-danger">BOB {{ partner.currentDebt | number:'1.2-2' }}</p>
               </div>
             </div>
           </div>
@@ -247,7 +247,7 @@ export class WaterDashboardComponent implements OnInit {
     private waterReadingService: WaterReadingService,
     private waterPaymentService: WaterPaymentService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -263,12 +263,12 @@ export class WaterDashboardComponent implements OnInit {
         const partners = pageResponse.content;
         this.metrics.totalPartners = pageResponse.totalElements;
         this.metrics.activeConnections = partners.filter(p => p.connectionStatusCode === 'ACTIVE').length;
-        
+
         // Top deudores
         this.topDebtors = partners
           .filter(p => (p.currentDebt || 0) > 0)
           .sort((a, b) => (b.currentDebt || 0) - (a.currentDebt || 0));
-        
+
         this.metrics.totalDebt = this.topDebtors.reduce((sum, p) => sum + (p.currentDebt || 0), 0);
       },
       error: (error) => {
@@ -282,14 +282,14 @@ export class WaterDashboardComponent implements OnInit {
     this.waterBillService.getBillsPaginated(0, 10000, '', '').subscribe({
       next: (pageResponse) => {
         const bills = pageResponse.content;
-        this.metrics.pendingBills = bills.filter(b => 
+        this.metrics.pendingBills = bills.filter(b =>
           b.statusCode === 'PENDING' || b.statusCode === 'PARTIAL_PAID'
         ).length;
-        
+
         this.overdueBills = bills
           .filter(b => b.statusCode === 'OVERDUE')
           .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
-        
+
         this.metrics.overdueBills = this.overdueBills.length;
       },
       error: (error) => console.error('Error al cargar facturas:', error)
@@ -313,11 +313,11 @@ export class WaterDashboardComponent implements OnInit {
       next: (payments) => {
         const now = new Date();
         const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        
+
         this.metrics.monthlyCollection = payments
           .filter(p => new Date(p.paymentDate) >= firstDayOfMonth)
           .reduce((sum, p) => sum + p.amount, 0);
-        
+
         this.isLoading = false;
       },
       error: (error) => {

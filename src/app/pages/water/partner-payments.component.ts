@@ -13,7 +13,7 @@ import { WaterBillOutputDto, PartnerOutputDto } from '../../shared/models/water-
 @Component({
   selector: 'app-partner-payments',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent, PaymentReceiptPreviewComponent],
+  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent],
   template: `
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Cobros de Agua'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
@@ -74,7 +74,6 @@ import { WaterBillOutputDto, PartnerOutputDto } from '../../shared/models/water-
                 <th class="py-4 px-4 font-medium text-black dark:text-white">FECHA</th>
                 <th class="py-4 px-4 font-medium text-black dark:text-white text-right">MONTO (BS)</th>
                 <th class="py-4 px-4 font-medium text-black dark:text-white text-center">COBRAR MES</th>
-                <th class="py-4 px-4 font-medium text-black dark:text-white text-center">VISTA PREVIA</th>
               </tr>
             </thead>
             <tbody>
@@ -92,14 +91,6 @@ import { WaterBillOutputDto, PartnerOutputDto } from '../../shared/models/water-
                     (change)="toggleBillSelection(bill.id)"
                     class="h-5 w-5 rounded border-stroke text-primary focus:ring-2"
                   />
-                </td>
-                <td class="py-5 px-4 text-center">
-                  <button
-                    (click)="previewReceipt(bill)"
-                    class="text-primary hover:text-primary/80 font-medium"
-                  >
-                    Vista Previa
-                  </button>
                 </td>
               </tr>
             </tbody>
@@ -120,16 +111,6 @@ import { WaterBillOutputDto, PartnerOutputDto } from '../../shared/models/water-
             </app-button>
           </div>
         </div>
-      </div>
-
-      <!-- Vista Previa del Recibo -->
-      <div *ngIf="showReceiptPreview && previewBill" class="mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <app-payment-receipt-preview
-          [bill]="previewBill"
-          [partner]="selectedPartner"
-          [receiptType]="'NOTA DE PAGO'"
-          (close)="closeReceiptPreview()"
-        ></app-payment-receipt-preview>
       </div>
     </div>
   `
@@ -152,10 +133,6 @@ export class PartnerPaymentsComponent implements OnInit {
   selectedBills: string[] = [];
   isLoadingBills = false;
 
-  // Vista previa
-  showReceiptPreview = false;
-  previewBill: WaterBillOutputDto | null = null;
-
   // Estados
   isProcessing = false;
   showAlert = false;
@@ -168,11 +145,11 @@ export class PartnerPaymentsComponent implements OnInit {
     private partnerService: PartnerService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadPartners();
-    
+
     // Si viene partnerId desde query params, cargar ese socio
     this.route.queryParams.subscribe(params => {
       if (params['partnerId']) {
@@ -248,8 +225,8 @@ export class PartnerPaymentsComponent implements OnInit {
 
   formatMonth(dateString: string): string {
     const date = new Date(dateString);
-    const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
-                    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
     return `${months[date.getMonth()]}-${date.getFullYear()}`;
   }
 
@@ -270,16 +247,6 @@ export class PartnerPaymentsComponent implements OnInit {
     this.selectedBills = [];
   }
 
-  previewReceipt(bill: WaterBillOutputDto): void {
-    this.previewBill = bill;
-    this.showReceiptPreview = true;
-  }
-
-  closeReceiptPreview(): void {
-    this.showReceiptPreview = false;
-    this.previewBill = null;
-  }
-
   processPayments(): void {
     if (this.selectedBills.length === 0) return;
 
@@ -287,8 +254,8 @@ export class PartnerPaymentsComponent implements OnInit {
     // TODO: Implementar lógica de procesamiento de pagos múltiples
     // Por ahora, redirigir a la página de pago individual
     if (this.selectedBills.length === 1) {
-      this.router.navigate(['/water-payments/add'], { 
-        queryParams: { billId: this.selectedBills[0] } 
+      this.router.navigate(['/water-payments/add'], {
+        queryParams: { billId: this.selectedBills[0] }
       });
     } else {
       this.showAlertMessage('Procesamiento de múltiples pagos próximamente', 'info');

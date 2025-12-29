@@ -6,6 +6,7 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { WaterBillService } from '../../shared/services/water-bill.service';
+import { WaterPaymentService } from '../../shared/services/water-payment.service';
 import { WaterBillOutputDto, WaterBillDetailDto, BillStatus, PageResponse } from '../../shared/models/water-system.models';
 import { ModalComponent } from '../../shared/components/ui/modal/modal.component';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
@@ -211,7 +212,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
                   <p class="text-meta-3 font-medium">{{ bill.consumptionM3 | number:'1.2-2' }}</p>
                 </td>
                 <td class="col-total py-5 px-4 text-right">
-                  <p class="text-black dark:text-white font-medium">{{ bill.totalAmount | currency:'USD':'symbol':'1.2-2' }}</p>
+                  <p class="text-black dark:text-white font-medium">BOB {{ (bill.totalPayableAmount || bill.totalAmount) | number:'1.2-2' }}</p>
                 </td>
                 <td class="col-estado py-5 px-4">
                   <span [ngClass]="getBillStatusClass(bill.statusCode)">
@@ -229,6 +230,11 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
                     <button *ngIf="bill.remainingBalance > 0" (click)="registerPayment(bill)" class="hover:text-success" title="Registrar pago">
                       <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                      </svg>
+                    </button>
+                    <button *ngIf="bill.paidAmount > 0" (click)="onReprintBill(bill)" class="hover:text-secondary" title="Reimprimir Factura">
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                       </svg>
                     </button>
                   </div>
@@ -332,21 +338,50 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
                   <thead>
                     <tr class="border-b border-stroke dark:border-strokedark">
                       <th class="text-left py-2 font-medium text-black dark:text-white">Concepto</th>
-                      <th class="text-left py-2 font-medium text-black dark:text-white">Fecha</th>
-                      <th class="text-right py-2 font-medium text-black dark:text-white">Importe</th>
+                      <th class="text-left py-2 font-medium text-black dark:text-white text-right">Importe</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr *ngFor="let concept of billDetail.bill.concepts" class="border-b border-stroke dark:border-strokedark">
                       <td class="py-2 text-bodydark">{{ concept.conceptName }}</td>
-                      <td class="py-2 text-bodydark">{{ concept.assignedDate | date:'dd/MM/yyyy' }}</td>
                       <td class="py-2 text-right font-medium text-black dark:text-white">BOB {{ concept.amount | number:'1.2-2' }}</td>
                     </tr>
                   </tbody>
                   <tfoot>
                     <tr class="border-t-2 border-stroke dark:border-strokedark">
-                      <td colspan="2" class="py-2 font-bold text-black dark:text-white">Total Factura</td>
+                      <td class="py-2 font-bold text-black dark:text-white">Subtotal Factura</td>
                       <td class="py-2 text-right font-bold text-lg text-black dark:text-white">BOB {{ billDetail.bill.totalAmount | number:'1.2-2' }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Multas Pendientes -->
+            <div *ngIf="billDetail.bill.pendingFines && billDetail.bill.pendingFines.length > 0" class="mb-6">
+              <h4 class="mb-3 text-lg font-semibold text-warning">Multas Pendientes del Mes</h4>
+              <div class="rounded-lg border border-warning bg-yellow-50 dark:bg-yellow-900/10 p-4">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-warning">
+                      <th class="text-left py-2 font-medium text-black dark:text-white">Multa</th>
+                      <th class="text-left py-2 font-medium text-black dark:text-white">Fecha</th>
+                      <th class="text-right py-2 font-medium text-black dark:text-white">Importe</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let fine of billDetail.bill.pendingFines" class="border-b border-warning/30">
+                      <td class="py-2 text-black dark:text-white">
+                        <span class="font-medium">[{{ fine.type }}]</span> {{ fine.name }}
+                      </td>
+                      <td class="py-2 text-bodydark">{{ fine.date | date:'dd/MM/yyyy' }}</td>
+                      <td class="py-2 text-right font-medium text-danger">BOB {{ fine.fine | number:'1.2-2' }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="2" class="py-2 font-bold text-black dark:text-white text-right pr-4">Total Multas</td>
+                      <td class="py-2 text-right font-bold text-black dark:text-white">BOB {{ billDetail.bill.totalFinesAmount | number:'1.2-2' }}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -356,17 +391,17 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
             <!-- Resumen de Pagos -->
             <div class="grid grid-cols-3 gap-4 pt-4 border-t border-stroke dark:border-strokedark">
               <div>
-                <p class="text-sm text-bodydark">Total Factura</p>
-                <p class="text-lg font-bold text-black dark:text-white">BOB {{ billDetail.bill.totalAmount | number:'1.2-2' }}</p>
+                <p class="text-sm text-bodydark">Total Factura (con multas)</p>
+                <p class="text-lg font-bold text-black dark:text-white">BOB {{ (billDetail.bill.totalPayableAmount || billDetail.bill.totalAmount) | number:'1.2-2' }}</p>
               </div>
               <div>
-                <p class="text-sm text-bodydark">Pagado (Factura)</p>
-                <p class="text-lg font-bold text-success">BOB {{ billDetail.bill.paidAmount | number:'1.2-2' }}</p>
+                <p class="text-sm text-bodydark">Pagado (Total)</p>
+                <p class="text-lg font-bold text-success">BOB {{ (billDetail.bill.paidAmount + (billDetail.bill.totalFinesPaid || 0)) | number:'1.2-2' }}</p>
               </div>
               <div>
-                <p class="text-sm text-bodydark">Saldo Pendiente</p>
-                <p class="text-lg font-bold" [class.text-danger]="billDetail.bill.remainingBalance > 0" [class.text-success]="billDetail.bill.remainingBalance === 0">
-                  BOB {{ billDetail.bill.remainingBalance | number:'1.2-2' }}
+                <p class="text-sm text-bodydark">Saldo Pendiente Total</p>
+                <p class="text-lg font-bold" [class.text-danger]="(billDetail.bill.remainingBalance + (billDetail.bill.totalFinesAmount || 0)) > 0" [class.text-success]="(billDetail.bill.remainingBalance + (billDetail.bill.totalFinesAmount || 0)) === 0">
+                  BOB {{ (billDetail.bill.remainingBalance + (billDetail.bill.totalFinesAmount || 0)) | number:'1.2-2' }}
                 </p>
               </div>
             </div>
@@ -413,9 +448,17 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
                       Cajero: {{ payment.cashierName }}
                     </p>
                   </div>
-                  <div class="text-right">
+                  <div class="text-right flex flex-col items-end gap-2">
                     <p class="text-xs text-bodydark mb-1">Total Pagado</p>
                     <p class="text-2xl font-bold text-success">BOB {{ payment.amount | number:'1.2-2' }}</p>
+                    <button (click)="reprintPayment(payment.id)" 
+                            [disabled]="isLoadingReprint"
+                            class="inline-flex items-center text-xs font-medium text-primary hover:underline">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                      </svg>
+                      Imprimir Recibo
+                    </button>
                   </div>
                 </div>
 
@@ -528,6 +571,7 @@ export class BillsListComponent implements OnInit {
 
   // Estados
   isLoading = true;
+  isLoadingReprint = false;
   errorMessage = '';
   hasMoreData: boolean = true;
   showAlert = false;
@@ -541,6 +585,7 @@ export class BillsListComponent implements OnInit {
 
   constructor(
     private waterBillService: WaterBillService,
+    private waterPaymentService: WaterPaymentService,
     private router: Router
   ) { }
 
@@ -757,8 +802,52 @@ export class BillsListComponent implements OnInit {
     this.router.navigate(['/water-payments/add'], { queryParams: { billId: bill.id } });
   }
 
+  onReprintBill(bill: WaterBillOutputDto): void {
+    this.isLoadingReprint = true;
+    this.waterBillService.getBillDetailWithPayments(bill.id).subscribe({
+      next: (detail) => {
+        if (detail.payments.length === 0) {
+          this.showAlertMessage('No hay pagos registrados para esta factura', 'error');
+          this.isLoadingReprint = false;
+        } else if (detail.payments.length === 1) {
+          // Si solo hay un pago, reimprimir directamente
+          this.reprintPayment(detail.payments[0].id);
+        } else {
+          // Si hay más de uno, abrir el modal para que el usuario elija
+          this.billDetail = detail;
+          this.showBillDetailModal = true;
+          this.isLoadingReprint = false;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar pagos para reimpresión:', error);
+        this.showAlertMessage('Error al cargar los pagos', 'error');
+        this.isLoadingReprint = false;
+      }
+    });
+  }
+
+  reprintPayment(paymentId: string): void {
+    this.isLoadingReprint = true;
+    this.waterPaymentService.downloadReceiptPdf(paymentId).then(() => {
+      this.isLoadingReprint = false;
+      this.showAlertMessage('Recibo generado exitosamente', 'success');
+    }).catch((error) => {
+      console.error('Error al reimprimir:', error);
+      this.showAlertMessage('Error al generar el PDF', 'error');
+      this.isLoadingReprint = false;
+    });
+  }
+
+  showAlertMessage(message: string, type: 'success' | 'error' | 'info'): void {
+    this.alertMessage = message;
+    this.alertType = type as 'success' | 'error';
+    this.showAlert = true;
+    setTimeout(() => this.showAlert = false, 5000);
+  }
+
   formatCurrency(amount: number): string {
-    return `$${amount.toFixed(2)}`;
+    return `BOB ${amount.toFixed(2)}`;
   }
 
   getErrorMessage(error: any): string {

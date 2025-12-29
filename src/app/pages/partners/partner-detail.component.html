@@ -2,18 +2,23 @@
   <app-page-breadcrumb pageTitle="Detalles del Socio" />
 
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-10">
+  <div *ngIf="isLoading"
+    class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-10">
     <div class="flex flex-col items-center justify-center">
-      <svg class="animate-spin h-10 w-10 text-brand-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg class="animate-spin h-10 w-10 text-brand-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <path class="opacity-75" fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+        </path>
       </svg>
       <p class="text-gray-600 dark:text-gray-400">Cargando detalles del socio...</p>
     </div>
   </div>
 
   <!-- Error State -->
-  <div *ngIf="errorMessage && !isLoading" class="rounded-2xl border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 p-4 mb-6">
+  <div *ngIf="errorMessage && !isLoading"
+    class="rounded-2xl border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 p-4 mb-6">
     <p class="text-red-800 dark:text-red-400">{{ errorMessage }}</p>
   </div>
 
@@ -26,10 +31,10 @@
           <div class="flex items-center gap-4">
             <!-- Avatar -->
             <div [ngClass]="getAvatarColor(partner.fullName)"
-                 class="h-16 w-16 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold text-xl">
+              class="h-16 w-16 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold text-xl">
               {{ getInitials(partner.fullName) }}
             </div>
-            
+
             <div>
               <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
                 {{ partner.fullName }}
@@ -41,22 +46,13 @@
           </div>
 
           <div class="flex items-center gap-3">
-            <app-button
-              variant="outline"
-              size="md"
-              (btnClick)="onBack()">
+            <app-button variant="outline" size="md" (btnClick)="onBack()">
               Volver
             </app-button>
-            <app-button
-              variant="primary"
-              size="md"
-              (btnClick)="onEdit()">
+            <app-button variant="primary" size="md" (btnClick)="onEdit()">
               Editar
             </app-button>
-            <app-button
-              variant="outline"
-              size="md"
-              (btnClick)="onDelete()">
+            <app-button variant="outline" size="md" (btnClick)="onDelete()">
               Eliminar
             </app-button>
           </div>
@@ -77,17 +73,18 @@
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre Completo</p>
             <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.fullName }}</p>
           </div>
-          
+
           <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Documento de Identificación</p>
-            <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.partnerIdentificationNumber || 'N/A' }}</p>
+            <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.partnerIdentificationNumber || 'N/A' }}
+            </p>
           </div>
-          
+
           <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Celular</p>
             <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.phoneNumber || 'N/A' }}</p>
           </div>
-          
+
           <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Dirección</p>
             <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.address || 'N/A' }}</p>
@@ -96,10 +93,12 @@
           <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tercera Edad</p>
             <p class="mt-1 text-base text-gray-900 dark:text-white">
-              <span *ngIf="partner.isElderly" class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+              <span *ngIf="partner.isElderly"
+                class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
                 Sí
               </span>
-              <span *ngIf="!partner.isElderly" class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-900/30 dark:text-gray-400">
+              <span *ngIf="!partner.isElderly"
+                class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-900/30 dark:text-gray-400">
                 No
               </span>
             </p>
@@ -121,23 +120,21 @@
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Identificador de Medidor</p>
             <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.waterMeterNumber || 'N/A' }}</p>
           </div>
-          
+
           <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado de Conexión</p>
             <p class="mt-1">
-              <app-badge 
-                [variant]="'light'" 
-                [color]="getStatusColor(partner.connectionStatusCode)">
+              <app-badge [variant]="'light'" [color]="getStatusColor(partner.connectionStatusCode)">
                 {{ getStatusLabel(partner.connectionStatusCode) }}
               </app-badge>
             </p>
           </div>
-          
+
           <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Instalación</p>
             <p class="mt-1 text-base text-gray-900 dark:text-white">{{ formatDate(partner.connectionDate) }}</p>
           </div>
-          
+
           <div>
             <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Dirección de Conexión</p>
             <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.waterConnectionAddress || 'N/A' }}</p>
@@ -149,7 +146,7 @@
               'text-red-600 dark:text-red-400': partner.currentDebt > 0,
               'text-green-600 dark:text-green-400': partner.currentDebt === 0
             }">
-              {{ partner.currentDebt | currency:'BOB':'symbol-narrow':'1.2-2' }}
+              BOB {{ partner.currentDebt | number:'1.2-2' }}
             </p>
           </div>
         </div>
@@ -157,7 +154,8 @@
     </div>
 
     <!-- Notas -->
-    <div *ngIf="partner.notes" class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div *ngIf="partner.notes"
+      class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
         <h3 class="text-lg font-medium text-gray-800 dark:text-white">
           Notas / Observaciones
