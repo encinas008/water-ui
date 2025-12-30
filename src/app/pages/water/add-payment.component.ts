@@ -10,6 +10,7 @@ import { AuthService } from '../../shared/services/auth.service';
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
 import { WaterPaymentInputDto, WaterBillOutputDto, PaymentType, CashBalanceOutputDto, MonthlyPendingFinesDto, PaymentDetailDto, PaymentReceiptFullDto } from '../../shared/models/water-system.models';
 import { PaymentReceiptPreviewComponent } from './payment-receipt-preview.component';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-add-payment',
@@ -19,13 +20,7 @@ import { PaymentReceiptPreviewComponent } from './payment-receipt-preview.compon
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Registrar Pago'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-      <div *ngIf="showAlert" [ngClass]="{
-        'mb-4 rounded-lg p-4': true,
-        'bg-green-50 text-green-800': alertType === 'success',
-        'bg-red-50 text-red-800': alertType === 'error'
-      }">
-        <span>{{ alertMessage }}</span>
-      </div>
+
 
       <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
@@ -319,9 +314,6 @@ export class AddPaymentComponent implements OnInit {
   paymentTypes: PaymentType[] = [];
   openCashBalances: CashBalanceOutputDto[] = [];
   isLoading = false;
-  showAlert = false;
-  alertType: 'success' | 'error' = 'success';
-  alertMessage = '';
 
   // Pendientes del mes (trabajos/reuniones) - Siempre se incluyen
   pendingFines: MonthlyPendingFinesDto | null = null;
@@ -559,9 +551,9 @@ export class AddPaymentComponent implements OnInit {
 
         // Mostrar detalle de pago si está disponible
         if (response.paymentDetail && response.paymentDetail.finesAmount > 0) {
-          this.showAlertMessage('Pago registrado exitosamente. Generando impresión...', 'success');
+          toast.success('Pago registrado exitosamente. Generando impresión...');
         } else {
-          this.showAlertMessage('Pago registrado exitosamente. Generando impresión...', 'success');
+          toast.success('Pago registrado exitosamente. Generando impresión...');
         }
 
         // Cargar factura completa
@@ -573,7 +565,7 @@ export class AddPaymentComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al registrar pago:', error);
-        this.showAlertMessage(error.error?.message || 'Error al registrar el pago', 'error');
+        toast.error(error.error?.message || 'Error al registrar el pago');
       }
     });
   }
@@ -582,12 +574,7 @@ export class AddPaymentComponent implements OnInit {
     this.router.navigate(['/water-bills']);
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    setTimeout(() => this.showAlert = false, 5000);
-  }
+
 
   buildPaymentDetailMessage(detail: PaymentDetailDto): string {
     let message = `\n\nDetalle del Pago:\n`;
@@ -624,7 +611,7 @@ export class AddPaymentComponent implements OnInit {
       error: (error) => {
         this.isLoadingReceipt = false;
         console.error('Error al cargar factura:', error);
-        this.showAlertMessage('Error al cargar la factura', 'error');
+        toast.error('Error al cargar la factura');
       }
     });
   }
@@ -639,13 +626,13 @@ export class AddPaymentComponent implements OnInit {
     this.isLoadingReceipt = true;
     this.waterPaymentService.downloadReceiptPdf(this.registeredPaymentId).then(() => {
       this.isLoadingReceipt = false;
-      this.showAlertMessage('Vista de impresión generada', 'success');
+      toast.success('Vista de impresión generada');
       // Redirigir al listado de facturas después de imprimir
       this.router.navigate(['/water-bills']);
     }).catch((error) => {
       this.isLoadingReceipt = false;
       console.error('Error al generar PDF:', error);
-      this.showAlertMessage('Error al generar la vista de impresión', 'error');
+      toast.error('Error al generar la vista de impresión');
     });
   }
 }

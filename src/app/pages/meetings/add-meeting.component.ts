@@ -12,6 +12,7 @@ import { MeetingService } from '../../shared/services/meeting.service';
 import { MeetingTypeService } from '../../shared/services/meeting-type.service';
 import { MeetingInputDto, MeetingUpdateDto, MeetingTypeOutputDto } from '../../shared/models/water-system.models';
 import { Subscription } from 'rxjs';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-add-meeting',
@@ -37,24 +38,21 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
   meetingDateDisplay: string = ''; // Formato "Jun 15, 2015" para mostrar
   meetingDateBackend: string = ''; // Formato YYYY-MM-DD para backend
   meetingDateObject: Date = new Date(); // Date object para el date picker
-  
+
   // Hora
   hour: number = 12; // 1-12
   minute: number = 0; // 0-59
   amPm: string = 'PM'; // 'AM' o 'PM'
-  
+
   // Tipo de reunión
   meetingTypeCode: string = '';
   meetingTypes: MeetingTypeOutputDto[] = [];
-  
+
   description: string = '';
   fine: string | number = '';
 
   // UI State
   isLoading: boolean = false;
-  showAlert: boolean = false;
-  alertType: 'success' | 'error' | 'warning' | 'info' = 'success';
-  alertMessage: string = '';
 
   // Edit mode
   isEditMode: boolean = false;
@@ -89,7 +87,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Cargar tipos de reunión
     this.loadMeetingTypes();
-    
+
     // Verificar si estamos en modo edición
     this.routeSubscription.add(
       this.route.params.subscribe(params => {
@@ -165,7 +163,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
         this.meetingDateBackend = meeting.meetingDate;
         const dateParts = meeting.meetingDate.split('-');
         const meetingDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
-        
+
         // Si la fecha de la reunión es pasada, usar la fecha actual como mínimo
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -175,7 +173,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
         } else {
           this.meetingDateObject = meetingDate;
         }
-        
+
         this.meetingDate = this.formatDateToDDMMYYYY(this.meetingDateObject);
         this.meetingDateDisplay = this.formatDateToMMMDYYYY(this.meetingDateObject);
         this.hour = meeting.hour;
@@ -189,41 +187,41 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al cargar reunión:', error);
-        this.showAlertMessage('Error al cargar la reunión', 'error');
+        toast.error('Error al cargar la reunión');
       }
     });
   }
 
   validateForm(): boolean {
     if (!this.name || this.name.trim() === '') {
-      this.showAlertMessage('Por favor ingrese el nombre de la reunión', 'error');
+      toast.error('Por favor ingrese el nombre de la reunión');
       return false;
     }
 
     if (!this.meetingDateBackend) {
-      this.showAlertMessage('Por favor seleccione la fecha de la reunión', 'error');
+      toast.error('Por favor seleccione la fecha de la reunión');
       return false;
     }
 
     if (this.hour < 1 || this.hour > 12) {
-      this.showAlertMessage('La hora debe estar entre 1 y 12', 'error');
+      toast.error('La hora debe estar entre 1 y 12');
       return false;
     }
 
     if (this.minute < 0 || this.minute > 59) {
-      this.showAlertMessage('El minuto debe estar entre 0 y 59', 'error');
+      toast.error('El minuto debe estar entre 0 y 59');
       return false;
     }
 
     if (this.amPm !== 'AM' && this.amPm !== 'PM') {
-      this.showAlertMessage('Debe seleccionar AM o PM', 'error');
+      toast.error('Debe seleccionar AM o PM');
       return false;
     }
 
     // Validar que no sea horario de madrugada (12 AM - 6 AM)
     if (this.amPm === 'AM') {
       if (this.hour === 12 || (this.hour >= 1 && this.hour <= 6)) {
-        this.showAlertMessage('No se permiten reuniones entre 12 AM y 6 AM', 'error');
+        toast.error('No se permiten reuniones entre 12 AM y 6 AM');
         return false;
       }
     }
@@ -231,7 +229,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
     // Validar que en PM solo se permitan horas de 1 PM a 8 PM
     if (this.amPm === 'PM') {
       if (this.hour < 1 || this.hour > 8) {
-        this.showAlertMessage('En PM solo se permiten reuniones de 1 PM a 8 PM', 'error');
+        toast.error('En PM solo se permiten reuniones de 1 PM a 8 PM');
         return false;
       }
     }
@@ -263,11 +261,8 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
       this.meetingService.updateMeeting(id, meetingUpdate).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.showAlertMessage('Reunión actualizada exitosamente', 'success');
-
-          setTimeout(() => {
-            this.router.navigate(['/meetings']);
-          }, 2000);
+          toast.success('Reunión actualizada exitosamente');
+          this.router.navigate(['/meetings']);
         },
         error: (error) => {
           this.isLoading = false;
@@ -291,11 +286,8 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
       this.meetingService.createMeeting(meetingInput).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.showAlertMessage('Reunión creada exitosamente', 'success');
-
-          setTimeout(() => {
-            this.resetForm();
-          }, 2000);
+          toast.success('Reunión creada exitosamente');
+          this.router.navigate(['/meetings']);
         },
         error: (error) => {
           this.isLoading = false;
@@ -327,7 +319,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
       userMessage = `Error ${error.status}: ${error.error?.message || error.statusText || 'Error desconocido'}`;
     }
 
-    this.showAlertMessage(userMessage, 'error');
+    toast.error(userMessage);
   }
 
   onCancel(): void {
@@ -347,22 +339,9 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
     this.meetingTypeCode = '';
     this.description = '';
     this.fine = '';
-    this.showAlert = false;
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
 
-    setTimeout(() => {
-      this.showAlert = false;
-    }, 5000);
-  }
-
-  closeAlert(): void {
-    this.showAlert = false;
-  }
 
   onDateChange(event: any): void {
     if (event && event.selectedDates && event.selectedDates.length > 0) {

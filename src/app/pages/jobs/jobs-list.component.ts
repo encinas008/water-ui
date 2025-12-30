@@ -10,6 +10,7 @@ import { JobService } from '../../shared/services/job.service';
 import { JobOutputDto, PageResponse } from '../../shared/models/water-system.models';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-jobs-list',
@@ -214,7 +215,7 @@ export class JobsListComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error al eliminar trabajo:', error);
-          alert('Error al eliminar el trabajo. Por favor intenta de nuevo.');
+          toast.error('Error al eliminar el trabajo. Por favor intenta de nuevo.');
         }
       });
     }
@@ -223,21 +224,21 @@ export class JobsListComponent implements OnInit {
   onDownload(): void {
     console.log('Descargando lista de trabajos...');
     // TODO: Implementar descarga a Excel/PDF
-    alert('Función de descarga en desarrollo');
+    toast.info('Función de descarga en desarrollo');
   }
 
   // Formatear fecha a formato español "Jun 15, 2015"
   formatDateSpanish(dateString: string): string {
     if (!dateString) return '';
-    
+
     // Extraer solo la fecha (YYYY-MM-DD) ignorando hora y timezone
     const soloFecha = dateString.split(/[T ]/)[0];
     const [year, month, day] = soloFecha.split('-').map(Number);
-    
+
     if (!year || !month || !day) return '';
-    
+
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    
+
     return `${months[month - 1]} ${day}, ${year}`;
   }
 

@@ -21,7 +21,7 @@ RUN npm run build -- --output-path=./dist/water-ui --output-hashing=all
 FROM nginx:latest
 
 # Copy the build output to replace the default nginx contents.
-COPY --from=build /usr/local/app/dist/water-ui /usr/share/nginx/html
+COPY --from=build /usr/local/app/dist/water-ui/browser /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80

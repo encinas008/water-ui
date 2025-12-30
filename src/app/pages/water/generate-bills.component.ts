@@ -6,6 +6,7 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { WaterBillService } from '../../shared/services/water-bill.service';
 import { GenerateMonthlyBillsRequestDto } from '../../shared/models/water-system.models';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-generate-bills',
@@ -15,13 +16,7 @@ import { GenerateMonthlyBillsRequestDto } from '../../shared/models/water-system
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Generar Facturas Mensuales'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-      <div *ngIf="showAlert" [ngClass]="{
-        'mb-4 rounded-lg p-4': true,
-        'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200': alertType === 'success',
-        'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200': alertType === 'error'
-      }">
-        <span>{{ alertMessage }}</span>
-      </div>
+
 
       <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
@@ -110,9 +105,6 @@ export class GenerateBillsComponent {
   notes = '';
 
   isLoading = false;
-  showAlert = false;
-  alertType: 'success' | 'error' = 'success';
-  alertMessage = '';
   generationResult: any = null;
 
   constructor(private waterBillService: WaterBillService, private router: Router) {
@@ -143,12 +135,12 @@ export class GenerateBillsComponent {
       next: (response) => {
         this.isLoading = false;
         this.generationResult = response;
-        this.showAlertMessage(`Se generaron ${response.billsGenerated} facturas exitosamente`, 'success');
+        toast.success(`Se generaron ${response.billsGenerated} facturas exitosamente`);
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error al generar facturas:', error);
-        this.showAlertMessage(error.error?.message || 'Error al generar facturas', 'error');
+        toast.error(error.error?.message || 'Error al generar facturas');
       }
     });
   }
@@ -157,11 +149,6 @@ export class GenerateBillsComponent {
     this.router.navigate(['/water-bills']);
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    setTimeout(() => this.showAlert = false, 5000);
-  }
+
 }
 

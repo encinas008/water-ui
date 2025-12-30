@@ -11,6 +11,7 @@ import { TextAreaComponent } from '../../shared/components/form/input/text-area.
 import { JobService } from '../../shared/services/job.service';
 import { AttendanceService } from '../../shared/services/attendance.service';
 import { JobOutputDto, PartnerAssignmentInfoDto, AttendanceOutputDto, BulkAttendanceInputDto, PartnerAttendanceDto } from '../../shared/models/water-system.models';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-job-attendance',
@@ -35,25 +36,22 @@ export class JobAttendanceComponent implements OnInit {
   assignedPartners: PartnerAssignmentInfoDto[] = [];
   filteredPartners: PartnerAssignmentInfoDto[] = [];
   attendanceRecords: AttendanceOutputDto[] = [];
-  
+
   selectedDate: Date = new Date();
   selectedDateStr: string = '';
-  
+
   // Búsqueda
   searchQuery: string = '';
-  
+
   // Estado de asistencia por socio
   partnerAttendanceMap: Map<string, {
     present: boolean;
     checkInTime: string;
     checkOutTime: string;
   }> = new Map();
-  
+
   isLoading: boolean = false;
   isSaving: boolean = false;
-  showAlert: boolean = false;
-  alertType: 'success' | 'error' | 'warning' | 'info' = 'success';
-  alertMessage: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -61,7 +59,7 @@ export class JobAttendanceComponent implements OnInit {
     private jobService: JobService,
     private attendanceService: AttendanceService,
     private datePipe: DatePipe
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -82,7 +80,7 @@ export class JobAttendanceComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar trabajo:', error);
-        this.showAlertMessage('Error al cargar el trabajo', 'error');
+        toast.error('Error al cargar el trabajo');
       }
     });
   }
@@ -99,7 +97,7 @@ export class JobAttendanceComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al cargar socios asignados:', error);
-        this.showAlertMessage('Error al cargar los socios asignados', 'error');
+        toast.error('Error al cargar los socios asignados');
       }
     });
   }
@@ -112,10 +110,10 @@ export class JobAttendanceComponent implements OnInit {
 
     const query = this.searchQuery.trim();
     const queryLower = query.toLowerCase();
-    
+
     // Verificar si la búsqueda es solo números (búsqueda por partnerNumber)
     const isNumericSearch = /^\d+$/.test(query);
-    
+
     this.filteredPartners = this.assignedPartners.filter(partner => {
       if (isNumericSearch) {
         // Si la búsqueda es numérica, buscar coincidencia exacta del número de socio
@@ -143,7 +141,7 @@ export class JobAttendanceComponent implements OnInit {
       const existingRecord = this.attendanceRecords.find(
         a => a.partnerId === partner.partnerId
       );
-      
+
       this.partnerAttendanceMap.set(partner.partnerId, {
         present: existingRecord?.present ?? false,
         checkInTime: existingRecord?.checkInTime ? this.formatTime(existingRecord.checkInTime) : '',
@@ -169,7 +167,7 @@ export class JobAttendanceComponent implements OnInit {
 
   loadAttendanceForDate(): void {
     if (!this.selectedDateStr) return;
-    
+
     this.attendanceService.getAttendanceByJobAndDate(this.jobId, this.selectedDateStr).subscribe({
       next: (records) => {
         this.attendanceRecords = records;
@@ -317,21 +315,10 @@ export class JobAttendanceComponent implements OnInit {
     } else {
       userMessage = `Error: ${error.error?.message || error.statusText || 'Error desconocido'}`;
     }
-    this.showAlertMessage(userMessage, 'error');
+    toast.error(userMessage);
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    setTimeout(() => {
-      this.showAlert = false;
-    }, 5000);
-  }
 
-  closeAlert(): void {
-    this.showAlert = false;
-  }
 
   goBack(): void {
     this.router.navigate(['/jobs']);

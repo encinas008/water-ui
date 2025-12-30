@@ -10,6 +10,7 @@ import { MeetingService } from '../../shared/services/meeting.service';
 import { MeetingOutputDto, PageResponse } from '../../shared/models/water-system.models';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-meetings-list',
@@ -232,7 +233,7 @@ export class MeetingsListComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error al eliminar reunión:', error);
-          alert('Error al eliminar la reunión. Por favor intenta de nuevo.');
+          toast.error('Error al eliminar la reunión. Por favor intenta de nuevo.');
         }
       });
     }
@@ -241,21 +242,21 @@ export class MeetingsListComponent implements OnInit {
   onDownload(): void {
     console.log('Descargando lista de reuniones...');
     // TODO: Implementar descarga a Excel/PDF
-    alert('Función de descarga en desarrollo');
+    toast.info('Función de descarga en desarrollo');
   }
 
   // Formatear fecha a formato español "Jun 15, 2015"
   formatDateSpanish(dateString: string): string {
     if (!dateString) return '';
-    
+
     // Extraer solo la fecha (YYYY-MM-DD) ignorando hora y timezone
     const soloFecha = dateString.split(/[T ]/)[0];
     const [year, month, day] = soloFecha.split('-').map(Number);
-    
+
     if (!year || !month || !day) return '';
-    
+
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    
+
     return `${months[month - 1]} ${day}, ${year}`;
   }
 

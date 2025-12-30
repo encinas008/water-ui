@@ -11,6 +11,7 @@ import { PartnerService } from '../../shared/services/partner.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { CashFlowInputDto, CashBalanceOutputDto, PaymentType, CashFlowType } from '../../shared/models/water-system.models';
 import { map } from 'rxjs/operators';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-add-withdrawal',
@@ -20,14 +21,7 @@ import { map } from 'rxjs/operators';
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Registrar Retiro'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-      <!-- Alertas -->
-      <div *ngIf="showAlert" [ngClass]="{
-        'mb-4 rounded-lg p-4': true,
-        'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200': alertType === 'success',
-        'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200': alertType === 'error'
-      }">
-        <span>{{ alertMessage }}</span>
-      </div>
+
 
       <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
@@ -45,10 +39,10 @@ import { map } from 'rxjs/operators';
               <div><strong>Asignado a:</strong> {{ selectedCashBalance.assignee }}</div>
               <div><strong>Fecha Apertura:</strong> {{ selectedCashBalance.openTime | date:'dd/MM/yyyy HH:mm' }}</div>
               <div><strong>Dinero Inicial:</strong> BOB {{ selectedCashBalance.initialMoney | number:'1.2-2' }}</div>
-              <div><strong>Estado:</strong> <span class="text-success font-medium">ABIERTO</span></div>
+              <div><strong>Estado:</strong> <span class="text-success font-medium"> ABIERTO</span></div>
               <div *ngIf="cashBalanceDetails" class="col-span-2 pt-2 border-t border-stroke dark:border-strokedark">
                 <strong>Total Disponible en Caja:</strong> 
-                <span class="text-lg font-bold text-success">BOB {{ getMaxWithdrawalAmount() | number:'1.2-2' }}</span>
+                <span class="text-lg font-bold text-success"> BOB {{ getMaxWithdrawalAmount() | number:'1.2-2' }}</span>
               </div>
             </div>
           </div>
@@ -157,9 +151,6 @@ export class AddWithdrawalComponent implements OnInit {
   isLoadingDetails = false;
 
   isLoading = false;
-  showAlert = false;
-  alertType: 'success' | 'error' = 'success';
-  alertMessage = '';
 
   constructor(
     private cashFlowService: CashFlowService,
@@ -168,7 +159,7 @@ export class AddWithdrawalComponent implements OnInit {
     private partnerService: PartnerService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadOpenCashBalances();
@@ -179,7 +170,7 @@ export class AddWithdrawalComponent implements OnInit {
   loadOpenCashBalances(): void {
     const userInfo = this.authService.getUserInfo();
     if (!userInfo || !userInfo.userId) {
-      this.showAlertMessage('No se pudo obtener la información del usuario', 'error');
+      toast.error('No se pudo obtener la información del usuario');
       return;
     }
 
@@ -194,7 +185,7 @@ export class AddWithdrawalComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar balance de caja abierto:', error);
-        this.showAlertMessage('Error al cargar balances de caja abiertos', 'error');
+        toast.error('Error al cargar balances de caja abiertos');
       }
     });
   }
@@ -203,16 +194,16 @@ export class AddWithdrawalComponent implements OnInit {
     this.waterPaymentService.getPaymentTypes().subscribe({
       next: (types) => {
         // Filtrar solo tipos de pago en efectivo para retiros
-        this.cashPaymentTypes = types.filter(type => 
-          type.name.toUpperCase() === 'EFECTIVO' || 
+        this.cashPaymentTypes = types.filter(type =>
+          type.name.toUpperCase() === 'EFECTIVO' ||
           type.name.toUpperCase() === 'CASH'
         );
-        
+
         // Si no hay tipos filtrados, usar todos (por si acaso)
         if (this.cashPaymentTypes.length === 0) {
           this.cashPaymentTypes = types;
         }
-        
+
         // Seleccionar el primero por defecto si hay solo uno
         if (this.cashPaymentTypes.length === 1) {
           this.paymentTypeId = this.cashPaymentTypes[0].id;
@@ -220,7 +211,7 @@ export class AddWithdrawalComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar tipos de pago:', error);
-        this.showAlertMessage('Error al cargar tipos de pago', 'error');
+        toast.error('Error al cargar tipos de pago');
       }
     });
   }
@@ -230,8 +221,8 @@ export class AddWithdrawalComponent implements OnInit {
       map(response => {
         const cashFlowTypes = response.cashFlowTypes || [];
         // Buscar el tipo EGRESO
-        const egresoType = cashFlowTypes.find((cft: any) => 
-          cft.name.toUpperCase() === 'EGRESO' || 
+        const egresoType = cashFlowTypes.find((cft: any) =>
+          cft.name.toUpperCase() === 'EGRESO' ||
           cft.code.toUpperCase() === 'OUT' ||
           cft.code.toUpperCase() === 'EGRESO'
         );
@@ -256,7 +247,7 @@ export class AddWithdrawalComponent implements OnInit {
     }
 
     this.selectedCashBalance = this.openCashBalances.find(b => b.id === this.cashBalanceId) || null;
-    
+
     // Cargar detalles del balance para obtener el total disponible
     if (this.selectedCashBalance) {
       this.loadCashBalanceDetails();
@@ -265,7 +256,7 @@ export class AddWithdrawalComponent implements OnInit {
 
   loadCashBalanceDetails(): void {
     if (!this.cashBalanceId) return;
-    
+
     this.isLoadingDetails = true;
     this.cashBalanceService.getCashBalanceDetails(this.cashBalanceId).subscribe({
       next: (details) => {
@@ -299,13 +290,13 @@ export class AddWithdrawalComponent implements OnInit {
     )) {
       return false;
     }
-    
+
     // Validar que el monto no exceda lo disponible en caja
     const maxAmount = this.getMaxWithdrawalAmount();
     if (this.amount > maxAmount) {
       return false;
     }
-    
+
     return true;
   }
 
@@ -313,27 +304,21 @@ export class AddWithdrawalComponent implements OnInit {
     if (!this.isFormValid()) {
       // Validar específicamente si el monto excede lo disponible
       if (this.amount && this.amount > this.getMaxWithdrawalAmount()) {
-        this.showAlertMessage(
-          `El monto del retiro (BOB ${this.amount.toFixed(2)}) no puede ser mayor al disponible en caja (BOB ${this.getMaxWithdrawalAmount().toFixed(2)})`,
-          'error'
-        );
+        toast.error(`El monto del retiro (BOB ${this.amount.toFixed(2)}) no puede ser mayor al disponible en caja (BOB ${this.getMaxWithdrawalAmount().toFixed(2)})`);
       }
       return;
     }
 
     const userInfo = this.authService.getUserInfo();
     if (!userInfo || !userInfo.userId) {
-      this.showAlertMessage('No se pudo obtener la información del usuario', 'error');
+      toast.error('No se pudo obtener la información del usuario');
       return;
     }
 
     // Validación adicional antes de enviar
     const maxAmount = this.getMaxWithdrawalAmount();
     if (this.amount && this.amount > maxAmount) {
-      this.showAlertMessage(
-        `El monto del retiro no puede ser mayor al disponible en caja (BOB ${maxAmount.toFixed(2)})`,
-        'error'
-      );
+      toast.error(`El monto del retiro no puede ser mayor al disponible en caja (BOB ${maxAmount.toFixed(2)})`);
       return;
     }
 
@@ -350,15 +335,13 @@ export class AddWithdrawalComponent implements OnInit {
     this.cashFlowService.createCashFlow(withdrawal).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.showAlertMessage('Retiro registrado exitosamente', 'success');
-        setTimeout(() => {
-          this.router.navigate(['/cash-balances', this.cashBalanceId]);
-        }, 1500);
+        toast.success('Retiro registrado exitosamente');
+        this.router.navigate(['/cash-balances', this.cashBalanceId]);
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error al registrar retiro:', error);
-        
+
         let errorMessage = 'Error al registrar el retiro';
         if (error.error) {
           if (typeof error.error === 'string') {
@@ -367,8 +350,8 @@ export class AddWithdrawalComponent implements OnInit {
             errorMessage = error.error.message;
           }
         }
-        
-        this.showAlertMessage(errorMessage, 'error');
+
+        toast.error(errorMessage);
       }
     });
   }
@@ -377,11 +360,6 @@ export class AddWithdrawalComponent implements OnInit {
     this.router.navigate(['/cash-balances']);
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    setTimeout(() => this.showAlert = false, 5000);
-  }
+
 }
 

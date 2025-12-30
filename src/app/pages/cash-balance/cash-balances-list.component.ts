@@ -9,6 +9,7 @@ import { AuthService } from '../../shared/services/auth.service';
 import { CashBalanceOutputDto, PageResponse } from '../../shared/models/water-system.models';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-cash-balances-list',
@@ -38,14 +39,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Balances de Caja'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-      <!-- Alertas -->
-      <div *ngIf="showAlert" [ngClass]="{
-        'mb-4 rounded-lg p-4': true,
-        'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200': alertType === 'success',
-        'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200': alertType === 'error'
-      }">
-        <span>{{ alertMessage }}</span>
-      </div>
+
 
       <!-- Acciones y búsqueda -->
       <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -211,29 +205,26 @@ export class CashBalancesListComponent implements OnInit {
 
   cashBalances: CashBalanceOutputDto[] = [];
   totalElements: number = 0;
-  
+
   // Búsqueda
   searchQuery: string = '';
   private searchSubject = new Subject<string>();
-  
+
   // Paginación
   currentPage: number = 0; // Backend pages are 0-indexed
   pageSize: number = 20;
   totalPages: number = 0;
   isLoadingMore: boolean = false;
-  
+
   // Estados
   isLoading: boolean = false;
   hasMoreData: boolean = true;
-  showAlert = false;
-  alertType: 'success' | 'error' = 'success';
-  alertMessage = '';
 
   constructor(
     private cashBalanceService: CashBalanceService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.searchSubject.pipe(
@@ -260,7 +251,7 @@ export class CashBalancesListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar balances de caja:', error);
-        this.showAlertMessage(error.error?.message || 'Error al cargar balances de caja', 'error');
+        toast.error(error.error?.message || 'Error al cargar balances de caja');
         this.isLoading = false;
       }
     });
@@ -328,15 +319,15 @@ export class CashBalancesListComponent implements OnInit {
     this.cashBalanceService.closeCashBalance({ cashBalanceId: id }).subscribe({
       next: (success) => {
         if (success) {
-          this.showAlertMessage('Balance de caja cerrado exitosamente', 'success');
+          toast.success('Balance de caja cerrado exitosamente');
           this.resetAndLoadCashBalances();
         } else {
-          this.showAlertMessage('Error al cerrar el balance de caja', 'error');
+          toast.error('Error al cerrar el balance de caja');
         }
       },
       error: (error) => {
         console.error('Error al cerrar balance:', error);
-        this.showAlertMessage(error.error?.message || 'Error al cerrar el balance de caja', 'error');
+        toast.error(error.error?.message || 'Error al cerrar el balance de caja');
       }
     });
   }
@@ -345,11 +336,6 @@ export class CashBalancesListComponent implements OnInit {
     this.router.navigate([path]);
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    setTimeout(() => this.showAlert = false, 5000);
-  }
+
 }
 

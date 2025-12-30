@@ -9,6 +9,7 @@ import { SelectComponent, Option } from '../../shared/components/form/select/sel
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { PartnerService } from '../../shared/services/partner.service';
 import { PartnerInputDto } from '../../shared/models/water-system.models';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-add-partner',
@@ -32,7 +33,7 @@ export class AddPartnerComponent implements OnInit {
   phoneNumber: string = '';
   email: string = '';
   address: string = '';
-  
+
   // Campos específicos de agua
   waterConnectionNumber: string = '';
   waterMeterNumber: string = '';
@@ -52,10 +53,7 @@ export class AddPartnerComponent implements OnInit {
 
   // UI State
   isLoading: boolean = false;
-  showAlert: boolean = false;
-  alertType: 'success' | 'error' | 'warning' | 'info' = 'success';
-  alertMessage: string = '';
-  
+
   // Validación de número de medidor
   isCheckingMeterNumber: boolean = false;
   meterNumberExists: boolean = false;
@@ -134,31 +132,31 @@ export class AddPartnerComponent implements OnInit {
     if (!this.connectionDate || this.connectionDate.trim().length === 0) {
       return '';
     }
-    
+
     // Convertir de YYYY-MM-DD a formato legible usando zona horaria local
     const parts = this.connectionDate.split('-');
     if (parts.length !== 3) {
       return this.connectionDate; // Si no es válida, devolver el valor original
     }
-    
+
     const year = parseInt(parts[0]);
     const month = parseInt(parts[1]) - 1; // Los meses en JavaScript van de 0-11
     const day = parseInt(parts[2]);
-    
+
     // Crear fecha en zona horaria local
     const date = new Date(year, month, day);
-    
+
     // Validar que la fecha sea válida
     if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
       return this.connectionDate; // Si no es válida, devolver el valor original
     }
-    
+
     const months = [
       'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
       'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
     ];
     const monthName = months[date.getMonth()];
-    
+
     return `${day} de ${monthName} ${year}`;
   }
 
@@ -166,7 +164,7 @@ export class AddPartnerComponent implements OnInit {
     // Verificar si estamos en modo edición
     this.partnerId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.partnerId;
-    
+
     if (this.isEditMode && this.partnerId) {
       this.loadPartner(this.partnerId);
     }
@@ -193,10 +191,8 @@ export class AddPartnerComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al cargar socio:', error);
-        this.showAlertMessage('Error al cargar el socio. Por favor intenta de nuevo.', 'error');
-        setTimeout(() => {
-          this.router.navigate(['/partners']);
-        }, 2000);
+        toast.error('Error al cargar el socio. Por favor intenta de nuevo.');
+        this.router.navigate(['/partners']);
       }
     });
   }
@@ -208,23 +204,23 @@ export class AddPartnerComponent implements OnInit {
   validateForm(): boolean {
     // Validar nombre completo (obligatorio, 2-200 caracteres, solo letras y espacios)
     if (!this.fullName || this.fullName.trim().length < 2) {
-      this.showAlertMessage('El nombre completo es obligatorio y debe tener al menos 2 caracteres', 'error');
+      toast.error('El nombre completo es obligatorio y debe tener al menos 2 caracteres');
       return false;
     }
     if (this.fullName.trim().length > 200) {
-      this.showAlertMessage('El nombre completo no puede exceder 200 caracteres', 'error');
+      toast.error('El nombre completo no puede exceder 200 caracteres');
       return false;
     }
     // Validar que solo contenga letras y espacios (ya se filtra en tiempo real, pero validamos por si acaso)
     if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(\s+[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/.test(this.fullName.trim())) {
-      this.showAlertMessage('El nombre completo solo puede contener letras y un espacio entre palabras', 'error');
+      toast.error('El nombre completo solo puede contener letras y un espacio entre palabras');
       return false;
     }
 
     // Validar documento de identificación (opcional, pero si se ingresa debe tener máximo 50 caracteres)
     if (this.partnerIdentificationNumber && this.partnerIdentificationNumber.trim().length > 0) {
       if (this.partnerIdentificationNumber.trim().length > 50) {
-        this.showAlertMessage('El documento de identificación no puede exceder 50 caracteres', 'error');
+        toast.error('El documento de identificación no puede exceder 50 caracteres');
         return false;
       }
     }
@@ -232,44 +228,44 @@ export class AddPartnerComponent implements OnInit {
     // Validar teléfono (opcional, pero si se ingresa debe tener máximo 20 caracteres)
     if (this.phoneNumber && this.phoneNumber.trim().length > 0) {
       if (this.phoneNumber.trim().length > 20) {
-        this.showAlertMessage('El teléfono no puede exceder 20 caracteres', 'error');
+        toast.error('El teléfono no puede exceder 20 caracteres');
         return false;
       }
     }
 
     // Validar dirección (opcional, pero si se ingresa debe tener máximo 500 caracteres)
     if (this.address && this.address.trim().length > 500) {
-      this.showAlertMessage('La dirección no puede exceder 500 caracteres', 'error');
+      toast.error('La dirección no puede exceder 500 caracteres');
       return false;
     }
 
     // Validar identificador de medidor (opcional, letras y números, máximo 50 caracteres, único)
     if (this.waterMeterNumber && this.waterMeterNumber.trim().length > 0) {
       if (this.waterMeterNumber.trim().length > 50) {
-        this.showAlertMessage('El identificador de medidor no puede exceder 50 caracteres', 'error');
+        toast.error('El identificador de medidor no puede exceder 50 caracteres');
         return false;
       }
       // Validar que solo contenga letras y números (ya está en mayúsculas)
       if (!/^[A-Z0-9]+$/.test(this.waterMeterNumber.trim())) {
-        this.showAlertMessage('El identificador de medidor solo puede contener letras y números', 'error');
+        toast.error('El identificador de medidor solo puede contener letras y números');
         return false;
       }
       // Validar unicidad
       if (this.meterNumberExists) {
-        this.showAlertMessage('El identificador de medidor ya está registrado para otro socio', 'error');
+        toast.error('El identificador de medidor ya está registrado para otro socio');
         return false;
       }
     }
 
     // Validar dirección de conexión (opcional, pero si se ingresa debe tener máximo 500 caracteres)
     if (this.waterConnectionAddress && this.waterConnectionAddress.trim().length > 500) {
-      this.showAlertMessage('La dirección de conexión no puede exceder 500 caracteres', 'error');
+      toast.error('La dirección de conexión no puede exceder 500 caracteres');
       return false;
     }
 
     // Validar notas (opcional, pero si se ingresa debe tener máximo 1000 caracteres)
     if (this.notes && this.notes.trim().length > 1000) {
-      this.showAlertMessage('Las notas no pueden exceder 1000 caracteres', 'error');
+      toast.error('Las notas no pueden exceder 1000 caracteres');
       return false;
     }
 
@@ -304,19 +300,15 @@ export class AddPartnerComponent implements OnInit {
       this.partnerService.updatePartner(this.partnerId, partnerInput).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.showAlertMessage('Socio actualizado exitosamente', 'success');
-          
-          // Redirigir a la lista después de 2 segundos
-          setTimeout(() => {
-            this.router.navigate(['/partners']);
-          }, 2000);
+          toast.success('Socio actualizado exitosamente');
+          this.router.navigate(['/partners']);
         },
         error: (error) => {
           this.isLoading = false;
           console.error('Error al actualizar socio:', error);
-          
+
           let userMessage = '';
-          
+
           if (error.status === 0) {
             userMessage = 'No se puede conectar al servidor.';
           } else if (error.status === 401) {
@@ -334,8 +326,8 @@ export class AddPartnerComponent implements OnInit {
           } else {
             userMessage = `Error ${error.status}: ${error.error?.message || error.statusText || 'Error desconocido'}`;
           }
-          
-          this.showAlertMessage(userMessage, 'error');
+
+          toast.error(userMessage);
         }
       });
     } else {
@@ -343,19 +335,17 @@ export class AddPartnerComponent implements OnInit {
       this.partnerService.createPartner(partnerInput).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.showAlertMessage('Socio creado exitosamente', 'success');
-          
-          // Resetear formulario después de 2 segundos
-          setTimeout(() => {
-            this.resetForm();
-          }, 2000);
+          toast.success('Socio creado exitosamente');
+
+          // Redirigir a la lista después de 2 segundos
+          this.router.navigate(['/partners']);
         },
         error: (error) => {
           this.isLoading = false;
           console.error('Error al crear partner:', error);
-          
+
           let userMessage = '';
-          
+
           if (error.status === 0) {
             userMessage = 'No se puede conectar al servidor.';
           } else if (error.status === 401) {
@@ -373,25 +363,28 @@ export class AddPartnerComponent implements OnInit {
           } else {
             userMessage = `Error ${error.status}: ${error.error?.message || error.statusText || 'Error desconocido'}`;
           }
-          
-          this.showAlertMessage(userMessage, 'error');
+
+          toast.error(userMessage);
         }
       });
     }
   }
 
+
+
   onSaveDraft(): void {
-    this.showAlertMessage('Funcionalidad de borrador no implementada', 'info');
+    toast.info('Funcionalidad de borrador no implementada');
   }
 
   resetForm(): void {
     this.fullName = '';
     this.partnerIdentificationNumber = '';
     this.phoneNumber = '';
+    this.email = '';
     this.address = '';
+    this.waterConnectionNumber = '';
     this.waterMeterNumber = '';
     this.connectionStatusCode = 'ACTIVE';
-    // Establecer fecha actual por defecto (usando zona horaria local)
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -400,22 +393,6 @@ export class AddPartnerComponent implements OnInit {
     this.waterConnectionAddress = '';
     this.isElderly = false;
     this.notes = '';
-    this.showAlert = false;
-  }
-
-  showAlertMessage(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-
-    // Auto-ocultar después de 5 segundos
-    setTimeout(() => {
-      this.showAlert = false;
-    }, 5000);
-  }
-
-  closeAlert(): void {
-    this.showAlert = false;
   }
 
   onWaterMeterNumberChange(value: string | number): void {
@@ -426,15 +403,15 @@ export class AddPartnerComponent implements OnInit {
     // Convertir a mayúsculas
     const filteredValue = stringValue.toUpperCase();
     this.waterMeterNumber = filteredValue;
-    
+
     // Limpiar timeout anterior si existe
     if (this.meterNumberCheckTimeout) {
       clearTimeout(this.meterNumberCheckTimeout);
     }
-    
+
     // Resetear estado de validación
     this.meterNumberExists = false;
-    
+
     // Validar unicidad después de 500ms de inactividad (debounce)
     if (filteredValue && filteredValue.trim().length > 0 && /^[A-Z0-9]+$/.test(filteredValue.trim())) {
       this.meterNumberCheckTimeout = setTimeout(() => {
@@ -442,13 +419,13 @@ export class AddPartnerComponent implements OnInit {
       }, 500);
     }
   }
-  
+
   checkMeterNumberUniqueness(meterNumber: string): void {
     if (!meterNumber || meterNumber.trim().length === 0) {
       this.meterNumberExists = false;
       return;
     }
-    
+
     this.isCheckingMeterNumber = true;
     // En modo edición, excluir el socio actual de la verificación
     const excludePartnerId = this.isEditMode && this.partnerId ? this.partnerId : undefined;
@@ -457,7 +434,7 @@ export class AddPartnerComponent implements OnInit {
         this.meterNumberExists = response.exists;
         this.isCheckingMeterNumber = false;
         if (response.exists) {
-          this.showAlertMessage('El identificador de medidor ya está registrado para otro socio', 'error');
+          toast.error('El identificador de medidor ya está registrado para otro socio');
         }
       },
       error: (error) => {
@@ -466,7 +443,7 @@ export class AddPartnerComponent implements OnInit {
         // En caso de error, no bloqueamos el formulario pero mostramos un mensaje
         if (error.status === 400 || error.status === 409) {
           this.meterNumberExists = true;
-          this.showAlertMessage('El identificador de medidor ya está registrado para otro socio', 'error');
+          toast.error('El identificador de medidor ya está registrado para otro socio');
         }
       }
     });
@@ -479,7 +456,7 @@ export class AddPartnerComponent implements OnInit {
     value = value.replace(/^\s+/, '');
     // Eliminar espacios al final (esto se maneja mejor en el blur, pero lo hacemos aquí también)
     value = value.replace(/\s+$/, '');
-    
+
     // Actualizar el modelo y el input
     this.partnerIdentificationNumber = value;
     event.target.value = value;
@@ -502,16 +479,16 @@ export class AddPartnerComponent implements OnInit {
   onFullNameInput(event: any): void {
     // Solo permitir letras y espacios
     let value = event.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
-    
+
     // Reemplazar múltiples espacios consecutivos por un solo espacio
     value = value.replace(/\s+/g, ' ');
-    
+
     // Eliminar espacios al inicio
     value = value.replace(/^\s+/, '');
-    
+
     // Convertir a mayúsculas
     value = value.toUpperCase();
-    
+
     // Actualizar el modelo y el input
     this.fullName = value;
     event.target.value = value;

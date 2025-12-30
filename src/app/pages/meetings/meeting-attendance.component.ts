@@ -10,6 +10,7 @@ import { InputFieldComponent } from '../../shared/components/form/input/input-fi
 import { MeetingService } from '../../shared/services/meeting.service';
 import { MeetingAttendanceService } from '../../shared/services/meeting-attendance.service';
 import { MeetingOutputDto, PartnerAssignmentInfoDto, MeetingAttendanceOutputDto, BulkMeetingAttendanceInputDto, PartnerAttendanceDto } from '../../shared/models/water-system.models';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-meeting-attendance',
@@ -33,24 +34,21 @@ export class MeetingAttendanceComponent implements OnInit {
   assignedPartners: PartnerAssignmentInfoDto[] = [];
   filteredPartners: PartnerAssignmentInfoDto[] = [];
   attendanceRecords: MeetingAttendanceOutputDto[] = [];
-  
+
   selectedDate: Date = new Date();
   selectedDateStr: string = '';
-  
+
   // Búsqueda
   searchQuery: string = '';
-  
+
   // Estado de asistencia por socio
   partnerAttendanceMap: Map<string, {
     present: boolean;
     checkInTime: string;
     checkOutTime: string;
   }> = new Map();
-  
+
   isLoading: boolean = false;
-  showAlert: boolean = false;
-  alertType: 'success' | 'error' | 'warning' | 'info' = 'success';
-  alertMessage: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -58,7 +56,7 @@ export class MeetingAttendanceComponent implements OnInit {
     private meetingService: MeetingService,
     private meetingAttendanceService: MeetingAttendanceService,
     private datePipe: DatePipe
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -79,7 +77,7 @@ export class MeetingAttendanceComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar reunión:', error);
-        this.showAlertMessage('Error al cargar la reunión', 'error');
+        toast.error('Error al cargar la reunión');
       }
     });
   }
@@ -96,7 +94,7 @@ export class MeetingAttendanceComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al cargar socios asignados:', error);
-        this.showAlertMessage('Error al cargar los socios asignados', 'error');
+        toast.error('Error al cargar los socios asignados');
       }
     });
   }
@@ -109,10 +107,10 @@ export class MeetingAttendanceComponent implements OnInit {
 
     const query = this.searchQuery.trim();
     const queryLower = query.toLowerCase();
-    
+
     // Verificar si la búsqueda es solo números (búsqueda por partnerNumber)
     const isNumericSearch = /^\d+$/.test(query);
-    
+
     this.filteredPartners = this.assignedPartners.filter(partner => {
       if (isNumericSearch) {
         // Si la búsqueda es numérica, buscar coincidencia exacta del número de socio
@@ -140,7 +138,7 @@ export class MeetingAttendanceComponent implements OnInit {
       const existingRecord = this.attendanceRecords.find(
         a => a.partnerId === partner.partnerId
       );
-      
+
       this.partnerAttendanceMap.set(partner.partnerId, {
         present: existingRecord?.present ?? false,
         checkInTime: existingRecord?.checkInTime ? this.formatTime(existingRecord.checkInTime) : '',
@@ -166,7 +164,7 @@ export class MeetingAttendanceComponent implements OnInit {
 
   loadAttendanceForDate(): void {
     if (!this.selectedDateStr) return;
-    
+
     this.meetingAttendanceService.getAttendanceByMeetingAndDate(this.meetingId, this.selectedDateStr).subscribe({
       next: (records) => {
         this.attendanceRecords = records;
@@ -303,18 +301,7 @@ export class MeetingAttendanceComponent implements OnInit {
     return `${hours}:${minutes}`;
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    setTimeout(() => {
-      this.showAlert = false;
-    }, 5000);
-  }
 
-  closeAlert(): void {
-    this.showAlert = false;
-  }
 
   goBack(): void {
     this.router.navigate(['/meetings']);

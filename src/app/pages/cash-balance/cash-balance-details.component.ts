@@ -5,6 +5,7 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
 import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.models';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-cash-balance-details',
@@ -14,14 +15,7 @@ import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.mo
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Detalles del Balance de Caja'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-      <!-- Alertas -->
-      <div *ngIf="showAlert" [ngClass]="{
-        'mb-4 rounded-lg p-4': true,
-        'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200': alertType === 'success',
-        'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200': alertType === 'error'
-      }">
-        <span>{{ alertMessage }}</span>
-      </div>
+
 
       <div *ngIf="isLoading" class="flex justify-center py-10">
         <div class="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
@@ -247,9 +241,6 @@ export class CashBalanceDetailsComponent implements OnInit {
 
   cashBalanceDetails: CashBalanceDetailsOutputDto | null = null;
   isLoading = false;
-  showAlert = false;
-  alertType: 'success' | 'error' = 'success';
-  alertMessage = '';
   balanceId: string = '';
 
   constructor(
@@ -276,7 +267,7 @@ export class CashBalanceDetailsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar detalles del balance:', error);
-        this.showAlertMessage(error.error?.message || 'Error al cargar los detalles del balance', 'error');
+        toast.error(error.error?.message || 'Error al cargar los detalles del balance');
         this.isLoading = false;
       }
     });
@@ -290,15 +281,15 @@ export class CashBalanceDetailsComponent implements OnInit {
     this.cashBalanceService.closeCashBalance({ cashBalanceId: this.balanceId }).subscribe({
       next: (success) => {
         if (success) {
-          this.showAlertMessage('Balance de caja cerrado exitosamente', 'success');
+          toast.success('Balance de caja cerrado exitosamente');
           this.loadCashBalanceDetails();
         } else {
-          this.showAlertMessage('Error al cerrar el balance de caja', 'error');
+          toast.error('Error al cerrar el balance de caja');
         }
       },
       error: (error) => {
         console.error('Error al cerrar balance:', error);
-        this.showAlertMessage(error.error?.message || 'Error al cerrar el balance de caja', 'error');
+        toast.error(error.error?.message || 'Error al cerrar el balance de caja');
       }
     });
   }
@@ -307,11 +298,6 @@ export class CashBalanceDetailsComponent implements OnInit {
     this.router.navigate(['/cash-balances']);
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    setTimeout(() => this.showAlert = false, 5000);
-  }
+
 }
 

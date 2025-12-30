@@ -10,6 +10,7 @@ import { DatePickerComponent } from '../../shared/components/form/date-picker/da
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { JobService } from '../../shared/services/job.service';
 import { JobInputDto, JobUpdateDto } from '../../shared/models/water-system.models';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-add-job',
@@ -40,9 +41,6 @@ export class AddJobComponent implements OnInit {
 
   // UI State
   isLoading: boolean = false;
-  showAlert: boolean = false;
-  alertType: 'success' | 'error' | 'warning' | 'info' = 'success';
-  alertMessage: string = '';
 
   // Edit mode
   isEditMode: boolean = false;
@@ -72,7 +70,7 @@ export class AddJobComponent implements OnInit {
     } else {
       dateObj = date;
     }
-    
+
     // Meses en español abreviados
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     const month = months[dateObj.getMonth()];
@@ -151,26 +149,26 @@ export class AddJobComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al cargar trabajo:', error);
-        this.showAlertMessage('Error al cargar el trabajo', 'error');
+        toast.error('Error al cargar el trabajo');
       }
     });
   }
 
   validateForm(): boolean {
     if (!this.name || this.name.trim() === '') {
-      this.showAlertMessage('Por favor ingrese el nombre del trabajo', 'error');
+      toast.error('Por favor ingrese el nombre del trabajo');
       return false;
     }
 
     if (!this.startDate || !this.startDateBackend) {
-      this.showAlertMessage('Por favor seleccione la fecha de inicio', 'error');
+      toast.error('Por favor seleccione la fecha de inicio');
       return false;
     }
 
     // Validar formato de fecha DD/MM/YYYY
     const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
     if (!dateRegex.test(this.startDate)) {
-      this.showAlertMessage('Por favor ingrese una fecha válida en formato DD/MM/YYYY', 'error');
+      toast.error('Por favor ingrese una fecha válida en formato DD/MM/YYYY');
       return false;
     }
 
@@ -186,23 +184,20 @@ export class AddJobComponent implements OnInit {
 
     if (this.isEditMode && this.jobId) {
       // Actualizar trabajo existente
-            const jobUpdate: JobUpdateDto = {
-              name: this.name,
-              startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
-              description: this.description || undefined,
-              fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
-            };
+      const jobUpdate: JobUpdateDto = {
+        name: this.name,
+        startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
+        description: this.description || undefined,
+        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
+      };
 
       const id = this.jobId; // Guardar en variable local para TypeScript
       this.jobService.updateJob(id, jobUpdate).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.showAlertMessage('Trabajo actualizado exitosamente', 'success');
-          
-          // Redirigir después de 2 segundos
-          setTimeout(() => {
-            this.router.navigate(['/jobs']);
-          }, 2000);
+          toast.success('Trabajo actualizado exitosamente');
+
+          this.router.navigate(['/jobs']);
         },
         error: (error) => {
           this.isLoading = false;
@@ -212,22 +207,19 @@ export class AddJobComponent implements OnInit {
       });
     } else {
       // Crear nuevo trabajo
-            const jobInput: JobInputDto = {
-              name: this.name,
-              startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
-              description: this.description || undefined,
-              fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
-            };
+      const jobInput: JobInputDto = {
+        name: this.name,
+        startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
+        description: this.description || undefined,
+        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
+      };
 
       this.jobService.createJob(jobInput).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.showAlertMessage('Trabajo creado exitosamente', 'success');
-          
-          // Resetear formulario después de 2 segundos
-          setTimeout(() => {
-            this.resetForm();
-          }, 2000);
+          toast.success('Trabajo creado exitosamente');
+
+          this.router.navigate(['/jobs']);
         },
         error: (error) => {
           this.isLoading = false;
@@ -240,7 +232,7 @@ export class AddJobComponent implements OnInit {
 
   handleError(error: any): void {
     let userMessage = '';
-    
+
     if (error.status === 0) {
       userMessage = 'No se puede conectar al servidor.';
     } else if (error.status === 401) {
@@ -258,8 +250,8 @@ export class AddJobComponent implements OnInit {
     } else {
       userMessage = `Error ${error.status}: ${error.error?.message || error.statusText || 'Error desconocido'}`;
     }
-    
-    this.showAlertMessage(userMessage, 'error');
+
+    toast.error(userMessage);
   }
 
   onCancel(): void {
@@ -275,7 +267,6 @@ export class AddJobComponent implements OnInit {
     this.startDateBackend = this.formatDateToYYYYMMDDFromDate(today);
     this.description = '';
     this.fine = '';
-    this.showAlert = false;
   }
 
   onDateChange(event: any): void {
@@ -321,21 +312,6 @@ export class AddJobComponent implements OnInit {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-  }
-
-  showAlertMessage(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-
-    // Auto-ocultar después de 5 segundos
-    setTimeout(() => {
-      this.showAlert = false;
-    }, 5000);
-  }
-
-  closeAlert(): void {
-    this.showAlert = false;
   }
 }
 

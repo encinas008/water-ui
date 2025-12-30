@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 import { CashFlowService } from '../../shared/services/cash-flow.service';
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
 import { CashFlowOutputDto, CashBalanceOutputDto } from '../../shared/models/water-system.models';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-withdrawals-list',
@@ -16,14 +17,7 @@ import { CashFlowOutputDto, CashBalanceOutputDto } from '../../shared/models/wat
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Lista de Retiros'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-      <!-- Alertas -->
-      <div *ngIf="showAlert" [ngClass]="{
-        'mb-4 rounded-lg p-4': true,
-        'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200': alertType === 'success',
-        'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200': alertType === 'error'
-      }">
-        <span>{{ alertMessage }}</span>
-      </div>
+
 
       <!-- Filtros -->
       <div class="mb-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -203,15 +197,12 @@ export class WithdrawalsListComponent implements OnInit {
   cashBalances: CashBalanceOutputDto[] = [];
   selectedCashBalanceId = '';
   isLoading = false;
-  showAlert = false;
-  alertType: 'success' | 'error' = 'success';
-  alertMessage = '';
 
   constructor(
     private cashFlowService: CashFlowService,
     private cashBalanceService: CashBalanceService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadCashBalances();
@@ -229,7 +220,7 @@ export class WithdrawalsListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al cargar balances de caja:', error);
-        this.showAlertMessage('Error al cargar balances de caja', 'error');
+        toast.error('Error al cargar balances de caja');
       }
     });
   }
@@ -246,7 +237,7 @@ export class WithdrawalsListComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error al cargar retiros:', error);
-          this.showAlertMessage('Error al cargar retiros', 'error');
+          toast.error('Error al cargar retiros');
           this.isLoading = false;
         }
       });
@@ -316,12 +307,7 @@ export class WithdrawalsListComponent implements OnInit {
     this.router.navigate([path]);
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    setTimeout(() => this.showAlert = false, 5000);
-  }
+
 }
 
 

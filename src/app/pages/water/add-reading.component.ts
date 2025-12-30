@@ -12,6 +12,7 @@ import { PartnerService } from '../../shared/services/partner.service';
 import { WaterBillService } from '../../shared/services/water-bill.service';
 import { WaterMeterReadingInputDto, PartnerOutputDto, WaterBillOutputDto } from '../../shared/models/water-system.models';
 import { AuthService } from '../../shared/services/auth.service';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-add-reading',
@@ -27,18 +28,7 @@ import { AuthService } from '../../shared/services/auth.service';
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Nueva Lectura de Medidor'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-      <!-- Alertas -->
-      <div *ngIf="showAlert" [ngClass]="{
-        'mb-4 rounded-lg p-4': true,
-        'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200': alertType === 'success',
-        'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200': alertType === 'error',
-        'bg-yellow-50 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200': alertType === 'warning'
-      }">
-        <div class="flex items-center justify-between">
-          <span>{{ alertMessage }}</span>
-          <button (click)="showAlert = false" class="text-2xl">&times;</button>
-        </div>
-      </div>
+
 
       <!-- Información de Factura Generada -->
       <div *ngIf="generatedBill" class="mb-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
@@ -112,19 +102,10 @@ import { AuthService } from '../../shared/services/auth.service';
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               
-              <!-- Mensaje: Escribe al menos 3 caracteres -->
-              <div *ngIf="partnerSearch && partnerSearch.length > 0 && partnerSearch.length < 3 && !selectedPartner" 
-                   class="absolute z-999 w-full mt-1 bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg shadow-default p-4">
-                <div class="flex items-center gap-3 text-bodydark">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                  <p class="text-sm">Escribe al menos <strong>3 caracteres</strong> para buscar</p>
-                </div>
-              </div>
+
 
               <!-- Mensaje: Buscando en servidor... -->
-              <div *ngIf="isSearching && partnerSearch && partnerSearch.length >= 3" 
+              <div *ngIf="isSearching && partnerSearch && partnerSearch.length >= 1" 
                    class="absolute z-999 w-full mt-1 bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg shadow-default p-4">
                 <div class="flex items-center gap-3 text-primary">
                   <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -173,7 +154,7 @@ import { AuthService } from '../../shared/services/auth.service';
               </div>
               
               <!-- Mensaje cuando no hay resultados -->
-              <div *ngIf="!isSearching && filteredPartners.length === 0 && partnerSearch && partnerSearch.length >= 3 && !selectedPartner && !isSelectingPartner"
+              <div *ngIf="!isSearching && filteredPartners.length === 0 && partnerSearch && partnerSearch.length >= 1 && !selectedPartner && !isSelectingPartner"
                    class="absolute z-50 w-full mt-1 bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg shadow-lg p-4 text-center">
                 <svg class="w-12 h-12 mx-auto mb-2 text-bodydark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -293,9 +274,6 @@ export class AddReadingComponent implements OnInit, OnDestroy {
 
   // Estados
   isLoading = false;
-  showAlert = false;
-  alertType: 'success' | 'error' | 'warning' = 'success';
-  alertMessage = '';
 
   // Información de factura generada
   generatedBill: WaterBillOutputDto | null = null;
@@ -330,8 +308,8 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       // Debug: log cada término de búsqueda
       tap(term => console.log('🔍 Término recibido:', term)),
 
-      // Filtrar solo términos con al menos 3 caracteres
-      filter(term => term.length >= 3),
+      // Filtrar solo términos con al menos 1 caracter
+      filter(term => term.length >= 1),
 
       // Esperar 400ms después de cada keystroke antes de buscar
       debounceTime(400),
@@ -354,7 +332,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
           // En caso de error, retornar array vacío
           catchError(error => {
             console.error('❌ Error en búsqueda:', error);
-            this.showAlertMessage('Error al buscar socios', 'error');
+            toast.error('Error al buscar socios');
             return of([]);
           })
         )
@@ -388,8 +366,8 @@ export class AddReadingComponent implements OnInit, OnDestroy {
 
 
   onInputFocus(): void {
-    // Si ya tiene texto con al menos 3 caracteres, volver a buscar
-    if (this.partnerSearch && this.partnerSearch.length >= 3) {
+    // Si ya tiene texto con al menos 1 caracter, volver a buscar
+    if (this.partnerSearch && this.partnerSearch.length >= 1) {
       this.searchTerms$.next(this.partnerSearch);
     }
   }
@@ -408,8 +386,8 @@ export class AddReadingComponent implements OnInit, OnDestroy {
 
     const query = this.partnerSearch.trim();
 
-    // Si tiene menos de 3 caracteres, limpiar y ocultar
-    if (query.length < 3) {
+    // Si tiene menos de 1 caracter, limpiar y ocultar
+    if (query.length < 1) {
       this.filteredPartners = [];
       this.showPartnerDropdown = false;
       return;
@@ -507,10 +485,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
           const monthName = monthNames[date.getMonth()];
           const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-          this.showAlertMessage(
-            `Ya existe una lectura registrada para este socio en el mes de ${capitalizedMonth} ${date.getFullYear()}. Solo se permite una lectura por mes.`,
-            'warning'
-          );
+          toast.warning(`Ya existe una lectura registrada para este socio en el mes de ${capitalizedMonth} ${date.getFullYear()}. Solo se permite una lectura por mes.`);
         }
       },
       error: (error) => {
@@ -531,7 +506,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
 
     if (!this.isFormValid()) {
       console.log('❌ Formulario inválido');
-      this.showAlertMessage('Por favor complete todos los campos obligatorios', 'warning');
+      toast.warning('Por favor complete todos los campos obligatorios');
       return;
     }
 
@@ -544,10 +519,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
             'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
           const monthName = monthNames[date.getMonth()];
           const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-          this.showAlertMessage(
-            `Ya existe una lectura registrada para este socio en el mes de ${capitalizedMonth} ${date.getFullYear()}. Solo se permite una lectura por mes.`,
-            'error'
-          );
+          toast.error(`Ya existe una lectura registrada para este socio en el mes de ${capitalizedMonth} ${date.getFullYear()}. Solo se permite una lectura por mes.`);
           return;
         }
 
@@ -586,28 +558,18 @@ export class AddReadingComponent implements OnInit, OnDestroy {
             const billForThisReading = bills.find(b => b.readingId === response.id);
             if (billForThisReading) {
               this.generatedBill = billForThisReading;
-              this.showAlertMessage(
-                `Lectura registrada exitosamente. Factura ${billForThisReading.billNumber} generada automáticamente.`,
-                'success'
-              );
-              // Redirigir a la página de facturas después de 3 segundos
-              setTimeout(() => {
-                this.router.navigate(['/water-bills']);
-              }, 3000);
+              toast.success(`Lectura registrada exitosamente. Factura ${billForThisReading.billNumber} generada automáticamente.`);
+              this.router.navigate(['/water-bills']);
             } else {
               // Si no se encuentra la factura, mostrar mensaje genérico y redirigir a lecturas
-              this.showAlertMessage('Lectura registrada exitosamente', 'success');
-              setTimeout(() => {
-                this.router.navigate(['/water-readings']);
-              }, 2000);
+              toast.success('Lectura registrada exitosamente');
+              this.router.navigate(['/water-readings']);
             }
           },
           error: (error) => {
             console.error('Error al obtener factura generada:', error);
-            this.showAlertMessage('Lectura registrada exitosamente. Verifique si se generó la factura en la lista de facturas.', 'success');
-            setTimeout(() => {
-              this.router.navigate(['/water-bills']);
-            }, 2000);
+            toast.success('Lectura registrada exitosamente');
+            this.router.navigate(['/water-bills']);
           }
         });
       },
@@ -622,7 +584,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
           errorMsg = 'Socio no encontrado';
         }
 
-        this.showAlertMessage(errorMsg, 'error');
+        toast.error(errorMsg);
       }
     });
   }
@@ -635,15 +597,4 @@ export class AddReadingComponent implements OnInit, OnDestroy {
     // Navegar a la lista de facturas - la factura recién creada debería estar visible
     this.router.navigate(['/water-bills']);
   }
-
-  showAlertMessage(message: string, type: 'success' | 'error' | 'warning'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-
-    setTimeout(() => {
-      this.showAlert = false;
-    }, 5000);
-  }
 }
-

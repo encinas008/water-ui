@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { CashBalanceInputDto } from '../../shared/models/water-system.models';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-open-cash-balance',
@@ -16,14 +17,7 @@ import { CashBalanceInputDto } from '../../shared/models/water-system.models';
     <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
       <app-page-breadcrumb [pageTitle]="'Abrir Balance de Caja'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-      <!-- Alertas -->
-      <div *ngIf="showAlert" [ngClass]="{
-        'mb-4 rounded-lg p-4': true,
-        'bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200': alertType === 'success',
-        'bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200': alertType === 'error'
-      }">
-        <span>{{ alertMessage }}</span>
-      </div>
+
 
       <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
@@ -80,21 +74,18 @@ export class OpenCashBalanceComponent implements OnInit {
   moneyToOpenCashBalance: number | null = null;
   userInfo: any = null;
   isLoading = false;
-  showAlert = false;
-  alertType: 'success' | 'error' = 'success';
-  alertMessage = '';
 
   constructor(
     private cashBalanceService: CashBalanceService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.userInfo = this.authService.getUserInfo();
     if (!this.userInfo || !this.userInfo.userId) {
-      this.showAlertMessage('No se pudo obtener la información del usuario', 'error');
-      setTimeout(() => this.router.navigate(['/cash-balances']), 2000);
+      toast.error('No se pudo obtener la información del usuario');
+      this.router.navigate(['/cash-balances']);
     }
   }
 
@@ -115,29 +106,27 @@ export class OpenCashBalanceComponent implements OnInit {
     this.cashBalanceService.createCashBalance(cashBalanceInput).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.showAlertMessage('Balance de caja abierto exitosamente', 'success');
-        setTimeout(() => {
-          this.router.navigate(['/cash-balances', response.id]);
-        }, 1500);
+        toast.success('Balance de caja abierto exitosamente');
+        this.router.navigate(['/cash-balances', response.id]);
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error al abrir balance de caja:', error);
-        
+
         // El backend devuelve el mensaje directamente en error.error para BadRequestException
         let errorMessage = 'Error al abrir el balance de caja';
         if (error.error) {
           // Si error.error es un string, usarlo directamente
           if (typeof error.error === 'string') {
             errorMessage = error.error;
-          } 
+          }
           // Si error.error es un objeto con message, usar message
           else if (error.error.message) {
             errorMessage = error.error.message;
           }
         }
-        
-        this.showAlertMessage(errorMessage, 'error');
+
+        toast.error(errorMessage);
       }
     });
   }
@@ -146,11 +135,6 @@ export class OpenCashBalanceComponent implements OnInit {
     this.router.navigate(['/cash-balances']);
   }
 
-  showAlertMessage(message: string, type: 'success' | 'error'): void {
-    this.alertMessage = message;
-    this.alertType = type;
-    this.showAlert = true;
-    setTimeout(() => this.showAlert = false, 5000);
-  }
+
 }
 
