@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" width="900" height="200">
+
+  <!-- Icon container -->
+  <circle cx="100" cy="100" r="80" fill="#E3F2FD"></circle>
+  <circle cx="100" cy="100" r="74" fill="#1565C0"></circle>
+
+  <!-- Water drop -->
+  <path d="M100 40
+           C75 80 60 105 60 135
+           c0 28 22 50 40 50
+           s40-22 40-50
+           c0-30-15-55-40-95z" fill="#1E88E5"></path>
+
+  <!-- Drop highlight -->
+  <path d="M92 70
+           C78 95 72 110 72 128
+           c0 18 8 32 18 38
+           c-6-10-9-22-9-35
+           c0-20 5-38 9-55z" fill="#64B5F6" opacity="0.9"></path>
+
+  <!-- Text -->
+  <text x="210" y="115" font-size="56" font-family="Segoe UI, Roboto, Arial, Helvetica, sans-serif" fill="#0D47A1" font-weight="700">
+    OTB Guadalupe
+  </text>
+
+  <!-- Subtitle (optional, puedes borrar si no lo quieres) -->
+  <text x="212" y="150" font-size="22" font-family="Segoe UI, Roboto, Arial, Helvetica, sans-serif" fill="#607D8B">
+    Sistema de Agua
+  </text>
+
+</svg>

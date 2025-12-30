@@ -53,7 +53,7 @@ export class SigninFormComponent {
     this.authService.signIn(this.username, this.password).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.router.navigate(['/']);
+        this.router.navigate(['/water-bills']);
       },
       error: (error) => {
         console.error('Error en login:', error);

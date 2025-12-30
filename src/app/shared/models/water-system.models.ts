@@ -135,6 +135,7 @@ export interface WaterBillOutputDto {
   billNumber: string;
   partnerId: string;
   partnerName: string;
+  partnerNumber?: number;
   waterConnectionNumber?: string;
 
   billingPeriodStart: string;

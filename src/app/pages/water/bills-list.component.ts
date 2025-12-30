@@ -198,7 +198,15 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
                   <p class="text-black dark:text-white font-medium">{{ bill.billNumber }}</p>
                 </td>
                 <td class="col-socio py-5 px-4">
-                  <p class="text-black dark:text-white">{{ bill.partnerName }}</p>
+                  <div class="flex items-center gap-2">
+                    <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
+                      {{ bill.partnerName }}
+                    </p>
+                    <span *ngIf="bill.partnerNumber"
+                      class="inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800 dark:bg-brand-900/30 dark:text-brand-400">
+                      #{{ bill.partnerNumber }}
+                    </span>
+                  </div>
                   <p class="text-sm text-bodydark">{{ bill.waterConnectionNumber }}</p>
                 </td>
                 <td class="col-mes py-5 px-4">
@@ -213,9 +221,9 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
                   <p class="text-black dark:text-white font-medium">BOB {{ (bill.totalPayableAmount || bill.totalAmount) | number:'1.2-2' }}</p>
                 </td>
                 <td class="col-estado py-5 px-4">
-                  <span [ngClass]="getBillStatusClass(bill.statusCode)">
+                  <app-badge [variant]="'light'" [color]="getBillStatusColor(bill.statusCode)">
                     {{ bill.statusName }}
-                  </span>
+                  </app-badge>
                 </td>
                 <td class="col-acciones py-5 px-4">
                   <div class="flex items-center space-x-3.5">
@@ -314,9 +322,9 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
               </div>
               <div>
                 <p class="text-sm text-bodydark">Estado</p>
-                <span [ngClass]="getBillStatusClass(billDetail.bill.statusCode)">
+                <app-badge [variant]="'light'" [color]="getBillStatusColor(billDetail.bill.statusCode)">
                   {{ billDetail.bill.statusName }}
-                </span>
+                </app-badge>
               </div>
               <div>
                 <p class="text-sm text-bodydark">Consumo (m³)</p>
@@ -692,19 +700,18 @@ export class BillsListComponent implements OnInit {
     return this.totalPendingAmount;
   }
 
-  getBillStatusClass(status: string): string {
-    const baseClass = 'inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium';
+  getBillStatusColor(status: string): 'success' | 'warning' | 'error' | 'info' {
     switch (status) {
       case 'PAID':
-        return `${baseClass} bg-success text-success`;
+        return 'success';
       case 'PENDING':
-        return `${baseClass} bg-warning text-warning`;
+        return 'warning';
       case 'OVERDUE':
-        return `${baseClass} bg-danger text-danger`;
+        return 'error';
       case 'PARTIAL_PAID':
-        return `${baseClass} bg-primary text-primary`;
+        return 'info';
       default:
-        return `${baseClass} bg-gray text-gray`;
+        return 'info';
     }
   }
 

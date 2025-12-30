@@ -287,11 +287,11 @@ import { PaymentReceiptPreviewComponent } from './payment-receipt-preview.compon
             </div>
           </div>
           
-          <app-payment-receipt-preview 
+          <!-- <app-payment-receipt-preview 
             [receipt]="fullReceipt"
             (printReceipt)="downloadReceiptPdf()"
             (close)="closeReceiptPreview()">
-          </app-payment-receipt-preview>
+          </app-payment-receipt-preview> -->
         </div>
       </div>
     </div>
@@ -559,13 +559,16 @@ export class AddPaymentComponent implements OnInit {
 
         // Mostrar detalle de pago si está disponible
         if (response.paymentDetail && response.paymentDetail.finesAmount > 0) {
-          this.showAlertMessage('Pago registrado exitosamente. Cargando factura...', 'success');
+          this.showAlertMessage('Pago registrado exitosamente. Generando impresión...', 'success');
         } else {
-          this.showAlertMessage('Pago registrado exitosamente. Cargando factura...', 'success');
+          this.showAlertMessage('Pago registrado exitosamente. Generando impresión...', 'success');
         }
 
         // Cargar factura completa
-        this.loadFullReceipt(response.id);
+        // this.loadFullReceipt(response.id);
+
+        // Imprimir directamente (PDF)
+        this.downloadReceiptPdf();
       },
       error: (error) => {
         this.isLoading = false;
@@ -637,6 +640,8 @@ export class AddPaymentComponent implements OnInit {
     this.waterPaymentService.downloadReceiptPdf(this.registeredPaymentId).then(() => {
       this.isLoadingReceipt = false;
       this.showAlertMessage('Vista de impresión generada', 'success');
+      // Redirigir al listado de facturas después de imprimir
+      this.router.navigate(['/water-bills']);
     }).catch((error) => {
       this.isLoadingReceipt = false;
       console.error('Error al generar PDF:', error);

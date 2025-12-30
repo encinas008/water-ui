@@ -68,10 +68,10 @@
           <thead>
             <tr>
               <!-- Checkbox -->
-              <th class="col-checkbox px-4 py-4 text-left">
+              <!-- <th class="col-checkbox px-4 py-4 text-left">
                 <input type="checkbox" [checked]="selectAll" (change)="toggleSelectAll()"
                   class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-              </th>
+              </th> -->
               <!-- Socio -->
               <th class="col-socio px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                 Socio
@@ -105,10 +105,10 @@
             <tr *cdkVirtualFor="let partner of (partners || [])"
               class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors border-b border-gray-200 dark:border-gray-800">
               <!-- Checkbox -->
-              <td class="col-checkbox px-4 py-4">
+              <!-- <td class="col-checkbox px-4 py-4">
                 <input type="checkbox" [checked]="isSelected(partner.id)" (change)="toggleSelectPartner(partner.id)"
                   class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-              </td>
+              </td> -->
 
               <!-- Socio -->
               <td class="col-socio px-4 py-4">
