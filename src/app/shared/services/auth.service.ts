@@ -59,6 +59,26 @@ export class AuthService {
     );
   }
 
+  refreshToken(): Observable<SignInResponse> {
+    const refreshTokenId = this.getRefreshToken();
+    if (!refreshTokenId) {
+      throw new Error('No hay refresh token disponible');
+    }
+
+    return this.http.post<SignInResponse>(`${this.apiUrl}/refresh-token`, { refreshTokenId }).pipe(
+      tap(response => {
+        if (response.token) {
+          this.setToken(response.token);
+          // Actualizar info del usuario si es necesario
+          const userInfo = this.decodeToken(response.token);
+          if (userInfo) {
+            this.setUserInfo(userInfo);
+          }
+        }
+      })
+    );
+  }
+
   // Guardar token
   setToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
