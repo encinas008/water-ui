@@ -22,8 +22,8 @@
               <app-label>
                 Nombre <span class="text-error-500">*</span>
               </app-label>
-              <app-input-field type="text" name="name" [(value)]="name" placeholder="Ingrese el nombre del trabajo"
-                required (keydownEnter)="onSubmit()"></app-input-field>
+              <app-input-field type="text" name="name" [value]="name" (valueChange)="onNameInput($event)"
+                placeholder="Ingrese el nombre del trabajo" required (keydownEnter)="onSubmit()"></app-input-field>
             </div>
 
             <!-- Fecha Inicio -->
@@ -52,10 +52,10 @@
             <!-- Multa -->
             <div>
               <app-label>
-                Multa
+                Multa <span class="text-error-500">*</span>
               </app-label>
-              <app-input-field type="number" name="fine" [(value)]="fine" placeholder="0.00" min="0"
-                [step]="0.01"></app-input-field>
+              <app-input-field type="text" name="fine" [value]="fine" (valueChange)="onFineChange($event)"
+                appNumberLimit [maxLimit]="9999999.99" [minLimit]="1" placeholder="0.00"></app-input-field>
             </div>
           </div>
 
@@ -73,7 +73,7 @@
             <app-button variant="outline" size="md" type="button" (btnClick)="onCancel()" [disabled]="isLoading">
               Cancelar
             </app-button>
-            <app-button variant="primary" size="md" type="submit" [disabled]="isLoading">
+            <app-button variant="primary" size="md" type="submit" [disabled]="!isFormValid || isLoading">
               <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar' : 'Guardar' }}</span>
               <span *ngIf="isLoading">
                 <svg class="animate-spin h-5 w-5 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"

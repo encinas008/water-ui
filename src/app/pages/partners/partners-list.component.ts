@@ -50,22 +50,22 @@ export class PartnersListComponent implements OnInit {
   @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
 
   partners: PartnerOutputDto[] = [];
-  
+
   // Búsqueda con debounce
   searchQuery: string = '';
   private searchSubject = new Subject<string>();
-  
+
   // Paginación del servidor
   currentPage: number = 0;
   pageSize: number = 20;
   totalElements: number = 0;
   totalPages: number = 0;
   isLoadingMore: boolean = false;
-  
+
   // Selección
   selectAll: boolean = false;
   selectedPartners: Set<string> = new Set();
-  
+
   // Estado
   isLoading: boolean = true;
   errorMessage: string = '';
@@ -94,13 +94,13 @@ export class PartnersListComponent implements OnInit {
 
   loadPartners(): void {
     if (this.isLoadingMore) return;
-    
+
     this.isLoading = this.currentPage === 0;
     this.isLoadingMore = this.currentPage > 0;
     this.errorMessage = '';
 
     const search = this.searchQuery.trim() || undefined;
-    
+
     this.partnerService.getPartnersPaginated(this.currentPage, this.pageSize, search).subscribe({
       next: (response: PageResponse<PartnerOutputDto>) => {
         if (this.currentPage === 0) {
@@ -108,11 +108,11 @@ export class PartnersListComponent implements OnInit {
         } else {
           this.partners = [...this.partners, ...response.content];
         }
-        
+
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.hasMoreData = !response.last;
-        
+
         this.isLoading = false;
         this.isLoadingMore = false;
         this.cdr.detectChanges();
@@ -121,7 +121,7 @@ export class PartnersListComponent implements OnInit {
         this.isLoading = false;
         this.isLoadingMore = false;
         console.error('Error al cargar socios:', error);
-        
+
         if (error.status === 0) {
           this.errorMessage = 'No se puede conectar al servidor.';
         } else if (error.status === 401) {
@@ -143,10 +143,10 @@ export class PartnersListComponent implements OnInit {
   onScrolledIndexChange(index: number): void {
     // Cargar más datos cuando el usuario está cerca del final
     if (!this.viewport) return;
-    
+
     const end = this.viewport.getRenderedRange().end;
     const total = this.viewport.getDataLength();
-    
+
     if (end === total && this.hasMoreData && !this.isLoadingMore) {
       this.currentPage++;
       this.loadPartners();
@@ -185,12 +185,12 @@ export class PartnersListComponent implements OnInit {
 
   getInitials(fullName: string | undefined): string {
     if (!fullName) return '?';
-    
+
     const parts = fullName.trim().split(' ');
     if (parts.length === 1) {
       return parts[0].substring(0, 2).toUpperCase();
     }
-    
+
     const firstInitial = parts[0].charAt(0);
     const lastInitial = parts[parts.length - 1].charAt(0);
     return `${firstInitial}${lastInitial}`.toUpperCase();
@@ -231,7 +231,7 @@ export class PartnersListComponent implements OnInit {
       case 'CUT_OFF':
         return 'Cortada';
       case 'INACTIVE':
-        return 'Inactiva';
+        return 'Pasivo';
       default:
         return 'Sin estado';
     }

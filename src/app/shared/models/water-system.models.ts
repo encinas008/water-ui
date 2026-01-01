@@ -528,7 +528,7 @@ export interface JobOutputDto {
   name: string;
   startDate: string;  // LocalDate en backend (YYYY-MM-DD)
   description: string;
-  fine?: number;
+  fine: number;
   active: boolean;
   createdAt: string;  // OffsetDateTime en backend
   updatedAt?: string;  // OffsetDateTime? en backend
@@ -538,14 +538,14 @@ export interface JobInputDto {
   name: string;
   startDate: string;  // LocalDate en backend (YYYY-MM-DD)
   description?: string;
-  fine?: number;
+  fine: number;
 }
 
 export interface JobUpdateDto {
   name?: string;
   startDate?: string;  // LocalDate en backend (YYYY-MM-DD)
   description?: string;
-  fine?: number;
+  fine: number;
 }
 
 // ============================================
@@ -650,7 +650,8 @@ export interface MeetingOutputDto {
   meetingTypeCode?: string;
   meetingTypeName?: string;
   description: string;
-  fine?: number;
+  fine: number;
+  waitingMinutes: number;
   active: boolean;
   createdAt: string;
   updatedAt?: string;
@@ -664,7 +665,8 @@ export interface MeetingInputDto {
   amPm: string; // "AM" o "PM"
   meetingTypeCode?: string;
   description?: string;
-  fine?: number;
+  fine: number;
+  waitingMinutes: number;
 }
 
 export interface MeetingUpdateDto {
@@ -675,7 +677,8 @@ export interface MeetingUpdateDto {
   amPm?: string; // "AM" o "PM"
   meetingTypeCode?: string;
   description?: string;
-  fine?: number;
+  fine: number;
+  waitingMinutes?: number;
 }
 
 // ============================================

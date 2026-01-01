@@ -16,39 +16,17 @@
       </div>
       <div class="p-4 sm:p-6">
         <form (ngSubmit)="onSubmit()" class="space-y-6">
+          <!-- Sección: Identificación -->
           <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <!-- Nombre -->
             <div>
               <app-label>
                 Nombre <span class="text-error-500">*</span>
               </app-label>
-              <app-input-field type="text" name="name" [(value)]="name" placeholder="Ingrese el nombre de la reunión"
-                required (keydownEnter)="onSubmit()"></app-input-field>
+              <app-input-field type="text" name="name" [value]="name" (valueChange)="onNameInput($event)"
+                placeholder="Ingrese el nombre de la reunión" required (keydownEnter)="onSubmit()"></app-input-field>
             </div>
 
-            <!-- Fecha -->
-            <div>
-              <app-label>
-                Fecha <span class="text-error-500">*</span>
-              </app-label>
-              <div class="relative">
-                <app-date-picker id="meetingDate" placeholder="Seleccione una fecha" [dateFormat]="'Y-m-d'"
-                  [defaultDate]="meetingDateObject" [minDate]="minDate" [locale]="'es'" [firstDayOfWeek]="1"
-                  (dateChange)="onDateChange($event)"></app-date-picker>
-                @if (meetingDateDisplay) {
-                <div
-                  class="mt-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Fecha seleccionada: <span class="font-medium text-gray-800 dark:text-gray-200">{{ meetingDateDisplay
-                      }}</span>
-                  </p>
-                </div>
-                }
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <!-- Tipo de Reunión -->
             <div>
               <app-label>
@@ -64,68 +42,99 @@
             </div>
           </div>
 
-          <!-- Hora -->
-          <div>
-            <app-label>
-              Hora <span class="text-error-500">*</span>
-            </app-label>
-            <div class="grid grid-cols-3 gap-4">
-              <!-- Hora (1-12) -->
+          <!-- Sección: Agenda (Fecha y Hora) -->
+          <div class="space-y-6 pt-2">
+            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <!-- Fecha -->
               <div>
-                <select [(ngModel)]="hour" name="hour" (change)="onHourOrAmPmChange()"
-                  class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
-                  [class.border-red-500]="isInvalidTime()">
-                  <option *ngFor="let h of getAvailableHours()" [value]="h" [disabled]="isHourDisabled(h)">
-                    {{ h }}
-                  </option>
-                </select>
+                <app-label>
+                  Fecha <span class="text-error-500">*</span>
+                </app-label>
+                <div class="relative">
+                  <app-date-picker id="meetingDate" placeholder="Seleccione una fecha" [dateFormat]="'Y-m-d'"
+                    [defaultDate]="meetingDateObject" [minDate]="minDate" [locale]="'es'" [firstDayOfWeek]="1"
+                    (dateChange)="onDateChange($event)"></app-date-picker>
+                  @if (meetingDateDisplay) {
+                  <div
+                    class="mt-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                      Fecha seleccionada: <span class="font-medium text-gray-800 dark:text-gray-200">{{
+                        meetingDateDisplay }}</span>
+                    </p>
+                  </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Hora (Agrupado) -->
+              <div>
+                <app-label>
+                  Hora <span class="text-error-500">*</span>
+                </app-label>
+                <div class="grid grid-cols-3 gap-3">
+                  <!-- Hora (1-12) -->
+                  <div>
+                    <select [(ngModel)]="hour" name="hour" (change)="onHourOrAmPmChange()"
+                      class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+                      [class.border-red-500]="isInvalidTime()">
+                      <option *ngFor="let h of getAvailableHours()" [value]="h" [disabled]="isHourDisabled(h)">
+                        {{ h }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Minuto (0-59) -->
+                  <div>
+                    <select [(ngModel)]="minute" name="minute"
+                      class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                      <option *ngFor="let m of minutes" [value]="m">{{ formatMinute(m) }}</option>
+                    </select>
+                  </div>
+
+                  <!-- AM/PM -->
+                  <div>
+                    <select [(ngModel)]="amPm" name="amPm" (change)="onHourOrAmPmChange()"
+                      class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+                      [class.border-red-500]="isInvalidTime()">
+                      <option *ngFor="let option of amPmOptions" [value]="option">{{ option }}</option>
+                    </select>
+                  </div>
+                </div>
                 <p *ngIf="isInvalidTime()" class="mt-1 text-xs text-red-600 dark:text-red-400">
-                  <span *ngIf="amPm === 'AM'">No se permiten reuniones entre 12 AM y 6 AM</span>
-                  <span *ngIf="amPm === 'PM'">En PM solo se permiten reuniones de 1 PM a 8 PM</span>
+                  <span *ngIf="amPm === 'AM'">Inválido: 12 AM - 6 AM</span>
+                  <span *ngIf="amPm === 'PM'">Inválido: fuera de 1 PM - 8 PM</span>
+                </p>
+                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Actual: <span class="font-medium text-gray-700 dark:text-gray-200">{{ hour }}:{{
+                    formatMinute(minute) }} {{ amPm }}</span>
                 </p>
               </div>
-
-              <!-- Minuto (0-59) -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Minuto
-                </label>
-                <select [(ngModel)]="minute" name="minute"
-                  class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
-                  <option *ngFor="let m of minutes" [value]="m">{{ formatMinute(m) }}</option>
-                </select>
-              </div>
-
-              <!-- AM/PM -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  AM/PM
-                </label>
-                <select [(ngModel)]="amPm" name="amPm" (change)="onHourOrAmPmChange()"
-                  class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
-                  [class.border-red-500]="isInvalidTime()">
-                  <option *ngFor="let option of amPmOptions" [value]="option">{{ option }}</option>
-                </select>
-              </div>
-            </div>
-            <!-- Mostrar hora seleccionada -->
-            <div
-              class="mt-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <p class="text-sm text-gray-600 dark:text-gray-400">
-                Hora seleccionada: <span class="font-medium text-gray-800 dark:text-gray-200">{{ hour }}:{{
-                  formatMinute(minute) }} {{ amPm }}</span>
-              </p>
             </div>
           </div>
 
+          <!-- Sección: Reglas Cobro -->
           <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <!-- Multa -->
             <div>
               <app-label>
-                Multa
+                Multa <span class="text-error-500">*</span>
               </app-label>
-              <app-input-field type="number" name="fine" [(value)]="fine" placeholder="0.00" min="0"
-                [step]="0.01"></app-input-field>
+              <app-input-field type="text" name="fine" [value]="fine" (valueChange)="onFineChange($event)"
+                appNumberLimit [maxLimit]="9999999.99" [minLimit]="1" placeholder="0.00"></app-input-field>
+            </div>
+
+            <!-- Minutos de espera -->
+            <div>
+              <app-label>
+                Minutos de espera
+              </app-label>
+              <select [(ngModel)]="waitingMinutes" name="waitingMinutes"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                <option *ngFor="let option of waitingMinutesOptions" [value]="option">
+                  {{ option }} minutos
+                </option>
+              </select>
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tolerancia antes de la multa</p>
             </div>
           </div>
 
@@ -135,7 +144,7 @@
               Descripción
             </app-label>
             <app-text-area placeholder="Ingrese la descripción de la reunión" [value]="description"
-              (valueChange)="description = $event" [rows]="5"></app-text-area>
+              (valueChange)="description = $event" [rows]="3"></app-text-area>
           </div>
 
           <!-- Botones de Acción -->
@@ -143,7 +152,7 @@
             <app-button variant="outline" size="md" type="button" (btnClick)="onCancel()" [disabled]="isLoading">
               Cancelar
             </app-button>
-            <app-button variant="primary" size="md" type="submit" [disabled]="isLoading">
+            <app-button variant="primary" size="md" type="submit" [disabled]="!isFormValid || isLoading">
               <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar' : 'Guardar' }}</span>
               <span *ngIf="isLoading">
                 <svg class="animate-spin h-5 w-5 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"

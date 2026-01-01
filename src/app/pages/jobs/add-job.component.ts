@@ -11,6 +11,7 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 import { JobService } from '../../shared/services/job.service';
 import { JobInputDto, JobUpdateDto } from '../../shared/models/water-system.models';
 import { toast } from 'ngx-sonner';
+import { NumberLimitDirective } from '../../shared/directives/number-limit.directive';
 
 @Component({
   selector: 'app-add-job',
@@ -23,7 +24,8 @@ import { toast } from 'ngx-sonner';
     InputFieldComponent,
     TextAreaComponent,
     DatePickerComponent,
-    ButtonComponent
+    ButtonComponent,
+    NumberLimitDirective
   ],
   providers: [DatePipe],
   templateUrl: './add-job.component.html',
@@ -154,6 +156,15 @@ export class AddJobComponent implements OnInit {
     });
   }
 
+  get isFormValid(): boolean {
+    if (!this.name || this.name.trim() === '') return false;
+    if (!this.startDateBackend) return false;
+    if (this.fine === null || this.fine === undefined || this.fine.toString().trim() === '') return false;
+    const fineValue = typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine;
+    if (isNaN(fineValue) || fineValue < 1 || fineValue > 9999999.99) return false;
+    return true;
+  }
+
   validateForm(): boolean {
     if (!this.name || this.name.trim() === '') {
       toast.error('Por favor ingrese el nombre del trabajo');
@@ -169,6 +180,17 @@ export class AddJobComponent implements OnInit {
     const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
     if (!dateRegex.test(this.startDate)) {
       toast.error('Por favor ingrese una fecha válida en formato DD/MM/YYYY');
+      return false;
+    }
+
+    if (this.fine === null || this.fine === undefined || this.fine === '') {
+      toast.error('Por favor ingrese el monto de la multa');
+      return false;
+    }
+
+    const fineValue = typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine;
+    if (isNaN(fineValue) || fineValue < 0) {
+      toast.error('Por favor ingrese un monto de multa válido');
       return false;
     }
 
@@ -188,7 +210,7 @@ export class AddJobComponent implements OnInit {
         name: this.name,
         startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
         description: this.description || undefined,
-        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
+        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : 0
       };
 
       const id = this.jobId; // Guardar en variable local para TypeScript
@@ -211,7 +233,7 @@ export class AddJobComponent implements OnInit {
         name: this.name,
         startDate: this.startDateBackend, // Usar formato YYYY-MM-DD para backend
         description: this.description || undefined,
-        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
+        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : 0
       };
 
       this.jobService.createJob(jobInput).subscribe({
@@ -228,6 +250,18 @@ export class AddJobComponent implements OnInit {
         }
       });
     }
+  }
+
+  onNameInput(event: any): void {
+    let value = event?.target ? event.target.value : event;
+    if (typeof value !== 'string') value = value?.toString() || '';
+
+    // Reemplazar múltiples espacios consecutivos por un solo espacio y quitar iniciales
+    value = value.toUpperCase().replace(/\s+/g, ' ').replace(/^\s+/, '');
+
+    // Actualizar el modelo y el input
+    this.name = value;
+    if (event?.target) event.target.value = value;
   }
 
   handleError(error: any): void {
@@ -256,6 +290,10 @@ export class AddJobComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/jobs']);
+  }
+
+  onFineChange(value: any): void {
+    this.fine = value;
   }
 
   resetForm(): void {

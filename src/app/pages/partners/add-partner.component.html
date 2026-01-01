@@ -30,32 +30,32 @@
           <!-- Documento de Identificación -->
           <div>
             <app-label>
-              Documento de Identificación
+              Documento de Identificación <span class="text-red-500">*</span>
             </app-label>
             <app-input-field type="text" name="partnerIdentificationNumber" [(ngModel)]="partnerIdentificationNumber"
               (input)="onPartnerIdentificationNumberInput($event)" (blur)="onPartnerIdentificationNumberBlur()"
-              placeholder="CI" [maxlength]="50"></app-input-field>
+              placeholder="CI" [maxlength]="50" required></app-input-field>
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 50 caracteres</p>
           </div>
 
           <!-- Celular -->
           <div>
             <app-label>
-              Celular
+              Celular <span class="text-red-500">*</span>
             </app-label>
             <app-input-field type="tel" name="phoneNumber" [ngModel]="phoneNumber"
               (ngModelChange)="onPhoneNumberChange($event)" placeholder="70000000" [maxlength]="20"
-              pattern="[0-9]*"></app-input-field>
+              pattern="[0-9]*" required></app-input-field>
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Solo números, máximo 20 caracteres</p>
           </div>
 
           <!-- Dirección -->
           <div class="col-span-full">
             <app-label>
-              Dirección
+              Dirección <span class="text-red-500">*</span>
             </app-label>
             <app-input-field type="text" name="address" [(ngModel)]="address"
-              placeholder="Ingrese la dirección completa" [maxlength]="500"></app-input-field>
+              placeholder="Ingrese la dirección completa" [maxlength]="500" required></app-input-field>
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 500 caracteres</p>
           </div>
         </div>

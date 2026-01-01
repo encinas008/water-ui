@@ -182,22 +182,8 @@ export class JobAttendanceComponent implements OnInit {
     });
   }
 
-  toggleAttendance(partnerId: string): void {
-    const attendance = this.partnerAttendanceMap.get(partnerId);
-    if (attendance) {
-      attendance.present = !attendance.present;
-      // Si se marca como ausente, limpiar horas de entrada y salida
-      if (!attendance.present) {
-        attendance.checkInTime = '';
-        attendance.checkOutTime = '';
-      }
-      // Guardar inmediatamente en el API
-      this.saveAttendanceForPartner(partnerId, attendance);
-    }
-  }
-
   isPresent(partnerId: string): boolean {
-    return this.partnerAttendanceMap.get(partnerId)?.present ?? true;
+    return this.partnerAttendanceMap.get(partnerId)?.present ?? false;
   }
 
   getAttendance(partnerId: string) {
@@ -206,86 +192,6 @@ export class JobAttendanceComponent implements OnInit {
       checkInTime: '',
       checkOutTime: ''
     };
-  }
-
-  markCheckIn(partnerId: string): void {
-    const attendance = this.partnerAttendanceMap.get(partnerId);
-    if (attendance && attendance.present) {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      attendance.checkInTime = `${hours}:${minutes}`;
-      // Guardar inmediatamente en el API
-      this.saveAttendanceForPartner(partnerId, attendance);
-    }
-  }
-
-  markCheckOut(partnerId: string): void {
-    const attendance = this.partnerAttendanceMap.get(partnerId);
-    if (attendance && attendance.present) {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      attendance.checkOutTime = `${hours}:${minutes}`;
-      // Guardar inmediatamente en el API
-      this.saveAttendanceForPartner(partnerId, attendance);
-    }
-  }
-
-  canMarkCheckIn(partnerId: string): boolean {
-    const attendance = this.partnerAttendanceMap.get(partnerId);
-    return attendance?.present === true && !attendance.checkInTime;
-  }
-
-  canMarkCheckOut(partnerId: string): boolean {
-    const attendance = this.partnerAttendanceMap.get(partnerId);
-    return attendance?.present === true && !!attendance.checkInTime && !attendance.checkOutTime;
-  }
-
-  saveAttendanceForPartner(partnerId: string, attendance: { present: boolean; checkInTime: string; checkOutTime: string }): void {
-    if (!this.selectedDateStr) {
-      return;
-    }
-
-    // Buscar si ya existe un registro de asistencia para este socio y fecha
-    const existingRecord = this.attendanceRecords.find(
-      a => a.partnerId === partnerId
-    );
-
-    const partnerAttendance: PartnerAttendanceDto = {
-      partnerId,
-      present: attendance.present,
-      checkInTime: attendance.checkInTime ? this.convertToISO(attendance.checkInTime) : undefined,
-      checkOutTime: attendance.checkOutTime ? this.convertToISO(attendance.checkOutTime) : undefined
-    };
-
-    const bulkAttendance: BulkAttendanceInputDto = {
-      jobId: this.jobId,
-      attendanceDate: this.selectedDateStr,
-      attendances: [partnerAttendance]
-    };
-
-    this.attendanceService.bulkCreateAttendance(bulkAttendance).subscribe({
-      next: (savedAttendances) => {
-        // Actualizar el registro local si se guardó exitosamente
-        if (savedAttendances.length > 0) {
-          const saved = savedAttendances[0];
-          if (!existingRecord) {
-            this.attendanceRecords.push(saved);
-          } else {
-            const index = this.attendanceRecords.findIndex(a => a.id === existingRecord.id);
-            if (index !== -1) {
-              this.attendanceRecords[index] = saved;
-            }
-          }
-        }
-      },
-      error: (error) => {
-        console.error(`Error al guardar asistencia para socio ${partnerId}:`, error);
-        // Revertir el cambio local si falla el guardado
-        this.loadAttendanceForDate();
-      }
-    });
   }
 
   convertToISO(timeStr: string): string {

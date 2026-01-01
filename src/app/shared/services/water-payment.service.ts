@@ -15,7 +15,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class WaterPaymentService {
-  private apiUrl = 'http://localhost:8085/api/water-payments';
+  private apiUrl = `${environment.apiUrl}/water-payments`;
 
   constructor(private http: HttpClient) { }
 

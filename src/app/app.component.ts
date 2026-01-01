@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgxSonnerToaster } from 'ngx-sonner';
 
@@ -11,6 +11,7 @@ import { NgxSonnerToaster } from 'ngx-sonner';
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class AppComponent {
   title = 'OTB Guadalupe';

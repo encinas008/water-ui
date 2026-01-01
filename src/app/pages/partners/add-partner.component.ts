@@ -69,22 +69,22 @@ export class AddPartnerComponent implements OnInit {
     if (!this.fullName || this.fullName.trim().length < 2 || this.fullName.trim().length > 200) {
       return false;
     }
-    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(\s+[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/.test(this.fullName.trim())) {
+    if (!/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+(\s+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+)*$/.test(this.fullName.trim())) {
       return false;
     }
 
-    // Validar documento de identificación (opcional, pero si se ingresa debe tener máximo 50 caracteres)
-    if (this.partnerIdentificationNumber && this.partnerIdentificationNumber.trim().length > 50) {
+    // Validar documento de identificación (obligatorio, máximo 50 caracteres)
+    if (!this.partnerIdentificationNumber || this.partnerIdentificationNumber.trim().length === 0 || this.partnerIdentificationNumber.trim().length > 50) {
       return false;
     }
 
-    // Validar teléfono (opcional, pero si se ingresa debe tener máximo 20 caracteres)
-    if (this.phoneNumber && this.phoneNumber.trim().length > 20) {
+    // Validar teléfono (obligatorio, máximo 20 caracteres)
+    if (!this.phoneNumber || this.phoneNumber.trim().length === 0 || this.phoneNumber.trim().length > 20) {
       return false;
     }
 
-    // Validar dirección (opcional, pero si se ingresa debe tener máximo 500 caracteres)
-    if (this.address && this.address.trim().length > 500) {
+    // Validar dirección (obligatorio, máximo 500 caracteres)
+    if (!this.address || this.address.trim().length === 0 || this.address.trim().length > 500) {
       return false;
     }
 
@@ -212,29 +212,37 @@ export class AddPartnerComponent implements OnInit {
       return false;
     }
     // Validar que solo contenga letras y espacios (ya se filtra en tiempo real, pero validamos por si acaso)
-    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(\s+[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*$/.test(this.fullName.trim())) {
-      toast.error('El nombre completo solo puede contener letras y un espacio entre palabras');
+    if (!/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+(\s+[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ]+)*$/.test(this.fullName.trim())) {
+      toast.error('El nombre completo solo puede contener letras, números y un espacio entre palabras');
       return false;
     }
 
-    // Validar documento de identificación (opcional, pero si se ingresa debe tener máximo 50 caracteres)
-    if (this.partnerIdentificationNumber && this.partnerIdentificationNumber.trim().length > 0) {
-      if (this.partnerIdentificationNumber.trim().length > 50) {
-        toast.error('El documento de identificación no puede exceder 50 caracteres');
-        return false;
-      }
+    // Validar documento de identificación (obligatorio, máximo 50 caracteres)
+    if (!this.partnerIdentificationNumber || this.partnerIdentificationNumber.trim().length === 0) {
+      toast.error('El documento de identificación es obligatorio');
+      return false;
+    }
+    if (this.partnerIdentificationNumber.trim().length > 50) {
+      toast.error('El documento de identificación no puede exceder 50 caracteres');
+      return false;
     }
 
-    // Validar teléfono (opcional, pero si se ingresa debe tener máximo 20 caracteres)
-    if (this.phoneNumber && this.phoneNumber.trim().length > 0) {
-      if (this.phoneNumber.trim().length > 20) {
-        toast.error('El teléfono no puede exceder 20 caracteres');
-        return false;
-      }
+    // Validar teléfono (obligatorio, máximo 20 caracteres)
+    if (!this.phoneNumber || this.phoneNumber.trim().length === 0) {
+      toast.error('El número de celular es obligatorio');
+      return false;
+    }
+    if (this.phoneNumber.trim().length > 20) {
+      toast.error('El celular no puede exceder 20 caracteres');
+      return false;
     }
 
-    // Validar dirección (opcional, pero si se ingresa debe tener máximo 500 caracteres)
-    if (this.address && this.address.trim().length > 500) {
+    // Validar dirección (obligatorio, máximo 500 caracteres)
+    if (!this.address || this.address.trim().length === 0) {
+      toast.error('La dirección es obligatoria');
+      return false;
+    }
+    if (this.address.trim().length > 500) {
       toast.error('La dirección no puede exceder 500 caracteres');
       return false;
     }
@@ -477,8 +485,8 @@ export class AddPartnerComponent implements OnInit {
   }
 
   onFullNameInput(event: any): void {
-    // Solo permitir letras y espacios
-    let value = event.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+    // Solo permitir letras, números y espacios
+    let value = event.target.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
 
     // Reemplazar múltiples espacios consecutivos por un solo espacio
     value = value.replace(/\s+/g, ' ');

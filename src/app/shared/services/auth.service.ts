@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface SignInRequest {
   username: string;
@@ -18,13 +19,13 @@ export interface SignInResponse {
   providedIn: 'root'
 })
 export class AuthService {
-    
-  private apiUrl = 'http://localhost:8085/api/auth';
+
+  private apiUrl = `${environment.apiUrl}/auth`;
   private readonly TOKEN_KEY = 'auth_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly USER_KEY = 'user_info';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   signIn(username: string, password: string): Observable<SignInResponse> {
     const headers = new HttpHeaders({
@@ -42,7 +43,7 @@ export class AuthService {
         if (response.token) {
           this.setToken(response.token);
         }
-        
+
         if (response.refreshToken) {
           this.setRefreshToken(response.refreshToken);
         }

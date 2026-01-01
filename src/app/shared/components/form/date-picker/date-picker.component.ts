@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
 import flatpickr from 'flatpickr';
 import { LabelComponent } from '../label/label.component';
-import "flatpickr/dist/flatpickr.css";
 
 // Locale español para flatpickr
 const SpanishLocale: flatpickr.CustomLocale = {

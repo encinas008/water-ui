@@ -13,6 +13,7 @@ import { MeetingTypeService } from '../../shared/services/meeting-type.service';
 import { MeetingInputDto, MeetingUpdateDto, MeetingTypeOutputDto } from '../../shared/models/water-system.models';
 import { Subscription } from 'rxjs';
 import { toast } from 'ngx-sonner';
+import { NumberLimitDirective } from '../../shared/directives/number-limit.directive';
 
 @Component({
   selector: 'app-add-meeting',
@@ -25,7 +26,8 @@ import { toast } from 'ngx-sonner';
     InputFieldComponent,
     TextAreaComponent,
     DatePickerComponent,
-    ButtonComponent
+    ButtonComponent,
+    NumberLimitDirective
   ],
   providers: [DatePipe],
   templateUrl: './add-meeting.component.html',
@@ -50,6 +52,8 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
 
   description: string = '';
   fine: string | number = '';
+  waitingMinutes: number = 15;
+  waitingMinutesOptions: number[] = [10, 15, 20, 30];
 
   // UI State
   isLoading: boolean = false;
@@ -182,6 +186,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
         this.meetingTypeCode = meeting.meetingTypeCode || '';
         this.description = meeting.description || '';
         this.fine = meeting.fine?.toString() || '';
+        this.waitingMinutes = meeting.waitingMinutes || 0;
         this.isLoading = false;
       },
       error: (error) => {
@@ -192,6 +197,28 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
     });
   }
 
+  onFineChange(value: any): void {
+    this.fine = value;
+  }
+
+  get isFormValid(): boolean {
+    // Nombre obligatorio
+    if (!this.name || this.name.trim() === '') return false;
+
+    // Fecha obligatoria
+    if (!this.meetingDateBackend) return false;
+
+    // Multa obligatoria y válida (mínimo 1, máximo 9999999.99)
+    if (this.fine === null || this.fine === undefined || this.fine.toString().trim() === '') return false;
+    const fineValue = typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine;
+    if (isNaN(fineValue) || fineValue < 1 || fineValue > 9999999.99) return false;
+
+    // Hora válida (reglas de negocio AM/PM)
+    if (this.isInvalidTime()) return false;
+
+    return true;
+  }
+
   validateForm(): boolean {
     if (!this.name || this.name.trim() === '') {
       toast.error('Por favor ingrese el nombre de la reunión');
@@ -200,6 +227,17 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
 
     if (!this.meetingDateBackend) {
       toast.error('Por favor seleccione la fecha de la reunión');
+      return false;
+    }
+
+    if (this.fine === null || this.fine === undefined || this.fine.toString().trim() === '') {
+      toast.error('Por favor ingrese el monto de la multa');
+      return false;
+    }
+
+    const fineValue = typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine;
+    if (isNaN(fineValue) || fineValue < 0) {
+      toast.error('La multa debe ser un número válido mayor o igual a 0');
       return false;
     }
 
@@ -255,7 +293,8 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
         amPm: this.amPm,
         meetingTypeCode: this.meetingTypeCode || undefined,
         description: this.description || undefined,
-        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
+        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : 0,
+        waitingMinutes: this.waitingMinutes || 0
       };
 
       this.meetingService.updateMeeting(id, meetingUpdate).subscribe({
@@ -280,7 +319,8 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
         amPm: this.amPm,
         meetingTypeCode: this.meetingTypeCode || undefined,
         description: this.description || undefined,
-        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : undefined
+        fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : 0,
+        waitingMinutes: this.waitingMinutes || 0
       };
 
       this.meetingService.createMeeting(meetingInput).subscribe({
@@ -296,6 +336,21 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
         }
       });
     }
+  }
+
+  onNameInput(event: any): void {
+    let value = event?.target ? event.target.value : event;
+    if (typeof value !== 'string') value = value?.toString() || '';
+
+    // Normalizar espacios (reemplazar múltiples por uno, quitar inicial)
+    value = value.replace(/\s+/g, ' ').replace(/^\s+/, '');
+
+    // Convertir a mayúsculas
+    value = value.toUpperCase();
+
+    // Sincronizar con el modelo y el input
+    this.name = value;
+    if (event?.target) event.target.value = value;
   }
 
   handleError(error: any): void {
@@ -339,6 +394,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
     this.meetingTypeCode = '';
     this.description = '';
     this.fine = '';
+    this.waitingMinutes = 0;
   }
 
 

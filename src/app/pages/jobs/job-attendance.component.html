@@ -108,10 +108,10 @@
           <th class="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
             Asistencia
           </th>
-          <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+          <th class="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
             Hora Entrada
           </th>
-          <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+          <th class="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
             Hora Salida
           </th>
         </tr>
@@ -147,52 +147,27 @@
           <!-- Asistencia -->
           <td class="px-4 py-4">
             <div class="flex items-center justify-center">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" [checked]="isPresent(partner.partnerId)"
-                  (change)="toggleAttendance(partner.partnerId)"
-                  class="h-5 w-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-                <span class="text-sm" [ngClass]="{
+              <span class="text-sm" [ngClass]="{
                           'text-green-600 dark:text-green-400 font-medium': isPresent(partner.partnerId),
                           'text-red-600 dark:text-red-400': !isPresent(partner.partnerId)
                         }">
-                  {{ isPresent(partner.partnerId) ? 'Presente' : 'Ausente' }}
-                </span>
-              </label>
+                {{ isPresent(partner.partnerId) ? 'Presente' : 'Ausente' }}
+              </span>
             </div>
           </td>
 
           <!-- Hora Entrada -->
-          <td class="px-4 py-4">
-            <div class="flex items-center gap-2">
-              <input type="text" [value]="getAttendance(partner.partnerId).checkInTime || '--:--'" readonly
-                class="h-9 w-24 rounded-lg border border-gray-300 bg-gray-50 px-3 text-sm text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 cursor-not-allowed" />
-              <button *ngIf="canMarkCheckIn(partner.partnerId)" (click)="markCheckIn(partner.partnerId)"
-                class="h-9 px-3 rounded-lg bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors dark:bg-green-700 dark:hover:bg-green-600"
-                title="Marcar entrada">
-                Entrada
-              </button>
-              <span *ngIf="!canMarkCheckIn(partner.partnerId) && getAttendance(partner.partnerId).checkInTime"
-                class="text-xs text-green-600 dark:text-green-400">
-                ✓
-              </span>
-            </div>
+          <td class="px-4 py-4 text-center">
+            <span class="text-sm text-gray-700 dark:text-gray-300">
+              {{ getAttendance(partner.partnerId).checkInTime || '--:--' }}
+            </span>
           </td>
 
           <!-- Hora Salida -->
-          <td class="px-4 py-4">
-            <div class="flex items-center gap-2">
-              <input type="text" [value]="getAttendance(partner.partnerId).checkOutTime || '--:--'" readonly
-                class="h-9 w-24 rounded-lg border border-gray-300 bg-gray-50 px-3 text-sm text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 cursor-not-allowed" />
-              <button *ngIf="canMarkCheckOut(partner.partnerId)" (click)="markCheckOut(partner.partnerId)"
-                class="h-9 px-3 rounded-lg bg-red-600 text-white text-xs font-medium hover:bg-red-700 transition-colors dark:bg-red-700 dark:hover:bg-red-600"
-                title="Marcar salida">
-                Salida
-              </button>
-              <span *ngIf="!canMarkCheckOut(partner.partnerId) && getAttendance(partner.partnerId).checkOutTime"
-                class="text-xs text-green-600 dark:text-green-400">
-                ✓
-              </span>
-            </div>
+          <td class="px-4 py-4 text-center">
+            <span class="text-sm text-gray-700 dark:text-gray-300">
+              {{ getAttendance(partner.partnerId).checkOutTime || '--:--' }}
+            </span>
           </td>
         </tr>
 

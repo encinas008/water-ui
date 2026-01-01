@@ -865,3 +865,44 @@ pre[class*="language-"] {
 pre[class*="language-"].line-numbers {
   padding-left: 2.8em !important;
 }
+
+
+/* Defensive fixes for flatpickr in production */
+.flatpickr-months .flatpickr-prev-month svg,
+.flatpickr-months .flatpickr-next-month svg {
+  width: 14px !important;
+  height: 14px !important;
+  fill: currentColor !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+.flatpickr-day {
+  max-width: none !important;
+}
+
+.flatpickr-calendar {
+  width: 307.875px !important;
+}
+
+.flatpickr-days {
+  width: 307.875px !important;
+  display: flex !important;
+}
+
+.dayContainer {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: space-around !important;
+  width: 307.875px !important;
+  min-width: 307.875px !important;
+  max-width: 307.875px !important;
+}
+
+.flatpickr-day {
+  flex-basis: 14.2857143% !important;
+  max-width: 39px !important;
+  height: 39px !important;
+  line-height: 39px !important;
+  display: inline-block !important;
+}
