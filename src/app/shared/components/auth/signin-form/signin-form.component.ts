@@ -35,7 +35,7 @@ export class SigninFormComponent {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
@@ -53,7 +53,13 @@ export class SigninFormComponent {
     this.authService.signIn(this.username, this.password).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.router.navigate(['/water-bills']);
+
+        const userInfo = this.authService.getUserInfo();
+        if (userInfo?.role?.toUpperCase() === 'LECTOR DE MEDIDORES') {
+          this.router.navigate(['/water-readings']);
+        } else {
+          this.router.navigate(['/water-bills']);
+        }
       },
       error: (error) => {
         console.error('Error en login:', error);

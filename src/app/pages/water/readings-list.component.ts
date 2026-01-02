@@ -82,19 +82,12 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
               </svg>
             </div>
 
-            <!-- Acciones -->
             <div class="flex items-center gap-3">
               <app-button
                 size="sm"
                 variant="outline"
                 (btnClick)="resetAndLoadReadings()">
                 Actualizar
-              </app-button>
-              <app-button
-                size="sm"
-                variant="primary"
-                (btnClick)="navigateToAddReading()">
-                + Nueva Lectura
               </app-button>
             </div>
           </div>
@@ -235,15 +228,8 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
                       No se encontraron lecturas
                     </p>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                      {{ searchQuery ? 'Intenta con otro término de búsqueda' : 'Comienza registrando tu primera lectura' }}
+                      {{ searchQuery ? 'Intenta con otro término de búsqueda' : '' }}
                     </p>
-                    <app-button
-                      *ngIf="!searchQuery"
-                      size="sm"
-                      variant="primary"
-                      (btnClick)="navigateToAddReading()">
-                      + Agregar Lectura
-                    </app-button>
                   </div>
                 </td>
               </tr>
@@ -273,17 +259,17 @@ export class ReadingsListComponent implements OnInit {
 
   readings: WaterMeterReadingOutputDto[] = [];
   totalElements: number = 0;
-  
+
   // Búsqueda
   searchQuery: string = '';
   private searchSubject = new Subject<string>();
-  
+
   // Paginación
   currentPage: number = 0; // Backend pages are 0-indexed
   pageSize: number = 20;
   totalPages: number = 0;
   isLoadingMore: boolean = false;
-  
+
   // Estado
   isLoading: boolean = true;
   errorMessage: string = '';
@@ -292,7 +278,7 @@ export class ReadingsListComponent implements OnInit {
   constructor(
     private waterReadingService: WaterReadingService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.searchSubject.pipe(
@@ -404,7 +390,7 @@ export class ReadingsListComponent implements OnInit {
 
   getStatusColor(reading: WaterMeterReadingOutputDto): 'success' | 'warning' | 'error' | 'info' {
     const daysSinceReading = this.getDaysSinceReading(reading);
-    
+
     if (daysSinceReading <= 7) {
       return 'success';
     } else if (daysSinceReading <= 30) {
@@ -416,7 +402,7 @@ export class ReadingsListComponent implements OnInit {
 
   getStatusText(reading: WaterMeterReadingOutputDto): string {
     const daysSinceReading = this.getDaysSinceReading(reading);
-    
+
     if (daysSinceReading <= 7) {
       return 'Reciente';
     } else if (daysSinceReading <= 30) {
@@ -428,7 +414,7 @@ export class ReadingsListComponent implements OnInit {
 
   getReadingAge(reading: WaterMeterReadingOutputDto): string {
     const daysSinceReading = this.getDaysSinceReading(reading);
-    
+
     if (daysSinceReading === 0) {
       return 'Hoy';
     } else if (daysSinceReading === 1) {
@@ -449,7 +435,7 @@ export class ReadingsListComponent implements OnInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     readingDate.setHours(0, 0, 0, 0);
-    
+
     const diffTime = today.getTime() - readingDate.getTime();
     return Math.floor(diffTime / (1000 * 60 * 60 * 24));
   }
