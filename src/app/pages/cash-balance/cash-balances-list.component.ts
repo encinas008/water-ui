@@ -241,7 +241,11 @@ export class CashBalancesListComponent implements OnInit {
     this.hasMoreData = true;
     this.currentPage = 0; // Start from the first page
 
-    this.cashBalanceService.getCashBalancesPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+    const userInfo = this.authService.getUserInfo();
+    const userRole = userInfo?.role?.toUpperCase();
+    const userId = userRole === 'CAJERO' ? userInfo?.userId : undefined;
+
+    this.cashBalanceService.getCashBalancesPaginated(this.currentPage, this.pageSize, this.searchQuery, userId).subscribe({
       next: (response: PageResponse<CashBalanceOutputDto>) => {
         this.cashBalances = response.content;
         this.totalElements = response.totalElements;
@@ -265,7 +269,11 @@ export class CashBalancesListComponent implements OnInit {
     this.isLoadingMore = true;
     this.currentPage++;
 
-    this.cashBalanceService.getCashBalancesPaginated(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+    const userInfo = this.authService.getUserInfo();
+    const userRole = userInfo?.role?.toUpperCase();
+    const userId = userRole === 'CAJERO' ? userInfo?.userId : undefined;
+
+    this.cashBalanceService.getCashBalancesPaginated(this.currentPage, this.pageSize, this.searchQuery, userId).subscribe({
       next: (response: PageResponse<CashBalanceOutputDto>) => {
         this.cashBalances = [...this.cashBalances, ...response.content];
         this.totalElements = response.totalElements;

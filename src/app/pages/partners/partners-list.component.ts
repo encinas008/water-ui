@@ -8,6 +8,7 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { PartnerService } from '../../shared/services/partner.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { PartnerOutputDto, PageResponse } from '../../shared/models/water-system.models';
 
 @Component({
@@ -73,6 +74,7 @@ export class PartnersListComponent implements OnInit {
 
   constructor(
     private partnerService: PartnerService,
+    private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {
@@ -86,6 +88,11 @@ export class PartnersListComponent implements OnInit {
       this.hasMoreData = true;
       this.loadPartners();
     });
+  }
+
+  get isAdmin(): boolean {
+    const userInfo = this.authService.getUserInfo();
+    return userInfo?.role?.toUpperCase() === 'ADMINISTRADOR';
   }
 
   ngOnInit(): void {

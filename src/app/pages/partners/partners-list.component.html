@@ -46,7 +46,7 @@
           <app-button size="sm" variant="outline" (btnClick)="onDownload()">
             Descargar
           </app-button>
-          <app-button size="sm" variant="primary" (btnClick)="navigateToAddPartner()">
+          <app-button *ngIf="isAdmin" size="sm" variant="primary" (btnClick)="navigateToAddPartner()">
             + Nuevo Socio
           </app-button>
         </div>
@@ -178,7 +178,7 @@
                       </path>
                     </svg>
                   </button>
-                  <button (click)="onEdit(partner)"
+                  <button *ngIf="isAdmin" (click)="onEdit(partner)"
                     class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
                     title="Editar">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +187,7 @@
                       </path>
                     </svg>
                   </button>
-                  <button (click)="onDelete(partner)"
+                  <button *ngIf="isAdmin" (click)="onDelete(partner)"
                     class="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                     title="Eliminar">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,7 +216,8 @@
                   <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                     {{ searchQuery ? 'Intenta con otro término de búsqueda' : 'Comienza agregando tu primer socio' }}
                   </p>
-                  <app-button *ngIf="!searchQuery" size="sm" variant="primary" (btnClick)="navigateToAddPartner()">
+                  <app-button *ngIf="!searchQuery && isAdmin" size="sm" variant="primary"
+                    (btnClick)="navigateToAddPartner()">
                     + Agregar Socio
                   </app-button>
                 </div>

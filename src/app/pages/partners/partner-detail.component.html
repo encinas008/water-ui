@@ -49,10 +49,10 @@
             <app-button variant="outline" size="md" (btnClick)="onBack()">
               Volver
             </app-button>
-            <app-button variant="primary" size="md" (btnClick)="onEdit()">
+            <app-button *ngIf="isAdmin" variant="primary" size="md" (btnClick)="onEdit()">
               Editar
             </app-button>
-            <app-button variant="outline" size="md" (btnClick)="onDelete()">
+            <app-button *ngIf="isAdmin" variant="outline" size="md" (btnClick)="onDelete()">
               Eliminar
             </app-button>
           </div>

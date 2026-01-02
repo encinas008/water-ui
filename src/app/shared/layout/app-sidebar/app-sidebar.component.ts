@@ -3,6 +3,7 @@ import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef } fro
 import { SidebarService } from '../../services/sidebar.service';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
+import { AuthService } from '../../services/auth.service';
 
 import { combineLatest, Subscription } from 'rxjs';
 
@@ -12,6 +13,7 @@ type NavItem = {
   path?: string;
   new?: boolean;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  roles?: string[];
 };
 
 @Component({
@@ -52,6 +54,7 @@ export class AppSidebarComponent {
         { name: "Lista de Usuarios", path: "/users", pro: false },
         { name: "Nuevo Usuario", path: "/users/add", pro: false }
       ],
+      roles: ['ADMINISTRADOR']
     },
     {
       name: "Socios",
@@ -60,6 +63,7 @@ export class AppSidebarComponent {
         { name: "Lista de Socios", path: "/partners", pro: false },
         { name: "Crear Socio", path: "/add-partner", pro: false }
       ],
+      roles: ['ADMINISTRADOR', 'CAJERO']
     },
     {
       name: "Trabajos",
@@ -68,6 +72,7 @@ export class AppSidebarComponent {
         { name: "Lista de Trabajos", path: "/jobs", pro: false },
         { name: "Nuevo Trabajo", path: "/jobs/add", pro: false }
       ],
+      roles: ['ADMINISTRADOR']
     },
     {
       name: "Reuniones",
@@ -76,6 +81,7 @@ export class AppSidebarComponent {
         { name: "Lista de Reuniones", path: "/meetings", pro: false },
         { name: "Nueva Reunión", path: "/meetings/add", pro: false }
       ],
+      roles: ['ADMINISTRADOR']
     },
     {
       name: "Lecturas de Medidor",
@@ -84,6 +90,7 @@ export class AppSidebarComponent {
         { name: "Lista de Lecturas", path: "/water-readings", pro: false },
         { name: "Nueva Lectura", path: "/water-readings/add", pro: false }
       ],
+      roles: ['ADMINISTRADOR']
     },
     {
       name: "Facturas de Agua",
@@ -92,6 +99,7 @@ export class AppSidebarComponent {
         { name: "Lista de Facturas", path: "/water-bills", pro: false }
         // { name: "Generar Facturas", path: "/water-bills/generate", pro: false }
       ],
+      roles: ['ADMINISTRADOR', 'CAJERO']
     },
     // {
     //   name: "Pagos",
@@ -109,12 +117,25 @@ export class AppSidebarComponent {
         { name: "Registrar Retiro", path: "/cash-balances/withdrawal", pro: false },
         // { name: "Lista de Retiros", path: "/cash-balances/withdrawals", pro: false }
       ],
+      roles: ['ADMINISTRADOR', 'CAJERO']
     },
 
 
   ];
   // Others nav items
   othersItems: NavItem[] = [];
+
+  get filteredNavItems(): NavItem[] {
+    const userInfo = this.authService.getUserInfo();
+    const userRole = userInfo?.role;
+
+    if (!userRole) return this.navItems;
+
+    return this.navItems.filter(item => {
+      if (!item.roles) return true;
+      return item.roles.includes(userRole.toUpperCase());
+    });
+  }
 
   openSubmenu: string | null | number = null;
   subMenuHeights: { [key: string]: number } = {};
@@ -129,7 +150,8 @@ export class AppSidebarComponent {
   constructor(
     public sidebarService: SidebarService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
   ) {
     this.isExpanded$ = this.sidebarService.isExpanded$;
     this.isMobileOpen$ = this.sidebarService.isMobileOpen$;

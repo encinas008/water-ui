@@ -138,7 +138,7 @@ export class CashBalanceService {
    * Obtener balances de caja paginados
    * GET /cash-balances?page=0&size=20&search=...
    */
-  getCashBalancesPaginated(page: number = 0, size: number = 20, search?: string): Observable<PageResponse<CashBalanceOutputDto>> {
+  getCashBalancesPaginated(page: number = 0, size: number = 20, search?: string, userId?: string): Observable<PageResponse<CashBalanceOutputDto>> {
     const headers = this.getHeaders();
     let params = new HttpParams()
       .set('page', page.toString())
@@ -146,6 +146,10 @@ export class CashBalanceService {
 
     if (search && search.trim()) {
       params = params.set('search', search.trim());
+    }
+
+    if (userId) {
+      params = params.set('userId', userId);
     }
 
     return this.http.get<PageResponse<CashBalanceOutputDto>>(this.apiUrl, { headers, params }).pipe(

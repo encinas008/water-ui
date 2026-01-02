@@ -6,6 +6,7 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { PartnerService } from '../../shared/services/partner.service';
 import { WaterPaymentService } from '../../shared/services/water-payment.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { PartnerOutputDto } from '../../shared/models/water-system.models';
 
 @Component({
@@ -29,9 +30,15 @@ export class PartnerDetailComponent implements OnInit {
   constructor(
     private partnerService: PartnerService,
     private waterPaymentService: WaterPaymentService,
+    private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
+
+  get isAdmin(): boolean {
+    const userInfo = this.authService.getUserInfo();
+    return userInfo?.role?.toUpperCase() === 'ADMINISTRADOR';
+  }
 
   ngOnInit(): void {
     const partnerId = this.route.snapshot.paramMap.get('id');
