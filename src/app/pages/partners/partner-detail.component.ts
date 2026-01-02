@@ -5,6 +5,7 @@ import { PageBreadcrumbComponent } from '../../shared/components/common/page-bre
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { PartnerService } from '../../shared/services/partner.service';
+import { WaterPaymentService } from '../../shared/services/water-payment.service';
 import { PartnerOutputDto } from '../../shared/models/water-system.models';
 
 @Component({
@@ -21,14 +22,16 @@ import { PartnerOutputDto } from '../../shared/models/water-system.models';
 })
 export class PartnerDetailComponent implements OnInit {
   partner: PartnerOutputDto | null = null;
+  payments: any[] = [];
   isLoading: boolean = true;
   errorMessage: string = '';
 
   constructor(
     private partnerService: PartnerService,
+    private waterPaymentService: WaterPaymentService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const partnerId = this.route.snapshot.paramMap.get('id');
@@ -47,12 +50,13 @@ export class PartnerDetailComponent implements OnInit {
     this.partnerService.getPartnerById(id).subscribe({
       next: (data) => {
         this.partner = data;
-        this.isLoading = false;
+        this.partner = data;
+        this.loadPayments(id);
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error al cargar socio:', error);
-        
+
         if (error.status === 0) {
           this.errorMessage = 'No se puede conectar al servidor.';
         } else if (error.status === 401) {
@@ -124,12 +128,12 @@ export class PartnerDetailComponent implements OnInit {
 
   getInitials(fullName: string | undefined): string {
     if (!fullName) return '?';
-    
+
     const parts = fullName.trim().split(' ');
     if (parts.length === 1) {
       return parts[0].substring(0, 2).toUpperCase();
     }
-    
+
     const firstInitial = parts[0].charAt(0);
     const lastInitial = parts[parts.length - 1].charAt(0);
     return `${firstInitial}${lastInitial}`.toUpperCase();
@@ -146,21 +150,40 @@ export class PartnerDetailComponent implements OnInit {
     return colors[index];
   }
 
+  loadPayments(partnerId: string): void {
+    this.waterPaymentService.getPaymentsByPartner(partnerId).subscribe({
+      next: (data) => {
+        this.payments = data;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar pagos:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  onPrintReceipt(paymentId: string): void {
+    if (confirm('¿Deseas imprimir este recibo?')) {
+      this.waterPaymentService.downloadReceiptPdf(paymentId);
+    }
+  }
+
   formatDate(date: string | undefined): string {
     if (!date) return 'N/A';
-    
+
     const soloFecha = date.split(' ')[0]; // "2025-12-29"
     const [year, month, day] = soloFecha.split('-').map(Number);
-    
+
     const d = new Date(year, month - 1, day);
-    
+
     if (isNaN(d.getTime())) return 'N/A';
-    
+
     const months = [
       'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
       'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
     ];
-    
+
     return `${day} de ${months[month - 1]} ${year}`;
   }
 }

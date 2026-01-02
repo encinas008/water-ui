@@ -45,6 +45,7 @@ export interface PartnerOutputDto {
   active: boolean;
   createdAt: string;
   updatedAt: string;
+  lastPaymentId?: string;
 }
 
 export interface PageResponse<T> {
@@ -72,6 +73,12 @@ export interface PartnerInputDto {
   waterConnectionAddress?: string;
   isElderly?: boolean;
   notes?: string;
+
+  // Cobro de instalación
+  installationAmount?: number;
+  paymentTypeId?: string;
+  cashBalanceId?: string;
+  userId?: string;
 }
 
 export interface PartnerDebtSummaryDto {
@@ -263,7 +270,7 @@ export interface WaterBillDetailDto {
 }
 
 export interface WaterPaymentInputDto {
-  waterBillId: string;
+  waterBillId?: string;
   partnerId: string;
   paymentDate: string;
   amount: number;

@@ -8,8 +8,13 @@ import { InputFieldComponent } from '../../shared/components/form/input/input-fi
 import { SelectComponent, Option } from '../../shared/components/form/select/select.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { PartnerService } from '../../shared/services/partner.service';
+import { CashBalanceService } from '../../shared/services/cash-balance.service';
+import { WaterPaymentService } from '../../shared/services/water-payment.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { PartnerInputDto } from '../../shared/models/water-system.models';
 import { toast } from 'ngx-sonner';
+import { NumberLimitDirective } from '../../shared/directives/number-limit.directive';
+import { tap, map } from 'rxjs';
 
 @Component({
   selector: 'app-add-partner',
@@ -21,7 +26,8 @@ import { toast } from 'ngx-sonner';
     LabelComponent,
     InputFieldComponent,
     SelectComponent,
-    ButtonComponent
+    ButtonComponent,
+    NumberLimitDirective
   ],
   templateUrl: './add-partner.component.html',
   styles: ``
@@ -42,6 +48,12 @@ export class AddPartnerComponent implements OnInit {
   waterConnectionAddress: string = '';
   isElderly: boolean = false;
   notes: string = '';
+
+  // Cobro de instalación
+  installationAmount: string | number = '';
+  paymentTypeId: string = '';
+  paymentTypeOptions: Option[] = [];
+  openCashBalanceId: string | null = null;
 
   // Opciones de estado de conexión
   connectionStatusOptions: Option[] = [
@@ -112,11 +124,28 @@ export class AddPartnerComponent implements OnInit {
       return false;
     }
 
+    // Validar cobro de instalación (solo en modo creación)
+    if (!this.isEditMode) {
+      if (this.installationAmount === '') {
+        return false;
+      }
+      const amount = typeof this.installationAmount === 'string' ? parseFloat(this.installationAmount) : this.installationAmount;
+      if (isNaN(amount) || amount < 0) {
+        return false;
+      }
+      if (!this.paymentTypeId) {
+        return false;
+      }
+    }
+
     return true;
   }
 
   constructor(
     private partnerService: PartnerService,
+    private cashBalanceService: CashBalanceService,
+    private waterPaymentService: WaterPaymentService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -126,6 +155,11 @@ export class AddPartnerComponent implements OnInit {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     this.connectionDate = `${year}-${month}-${day}`;
+  }
+
+  // Getter para verificar si el usuario tiene permiso para guardar
+  get canSubmit(): boolean {
+    return this.isFormValid && !this.isLoading;
   }
 
   get formattedConnectionDate(): string {
@@ -167,6 +201,36 @@ export class AddPartnerComponent implements OnInit {
 
     if (this.isEditMode && this.partnerId) {
       this.loadPartner(this.partnerId);
+    } else {
+      this.loadPaymentTypes();
+      this.checkOpenCashBalance();
+    }
+  }
+
+  loadPaymentTypes(): void {
+    // Nota: Esto podría optimizarse en un servicio, por ahora usamos los comunes
+    this.paymentTypeOptions = [
+      { value: '7c6ce56e-827d-4b82-9907-73d1f3b39867', label: 'Efectivo' }, // Ejemplo de ID, idealmente se obtiene de la DB
+      { value: '8d7de67e-938e-5b93-0018-84e2a4c40978', label: 'Transferencia' }
+    ];
+    // Intentar obtener de verdad si hay un endpoint
+    this.cashBalanceService.getPaymentTypes().subscribe({
+      next: (types: any[]) => {
+        this.paymentTypeOptions = types.map((t: any) => ({ value: t.id, label: t.name }));
+      }
+    });
+  }
+
+  checkOpenCashBalance(): void {
+    const user = this.authService.getUserInfo();
+    if (user && user.userId) {
+      this.cashBalanceService.getOpenCashBalanceForUser(user.userId).subscribe({
+        next: (balance: any) => {
+          if (balance) {
+            this.openCashBalanceId = balance.id;
+          }
+        }
+      });
     }
   }
 
@@ -271,12 +335,22 @@ export class AddPartnerComponent implements OnInit {
       return false;
     }
 
-    // Validar notas (opcional, pero si se ingresa debe tener máximo 1000 caracteres)
-    if (this.notes && this.notes.trim().length > 1000) {
-      toast.error('Las notas no pueden exceder 1000 caracteres');
-      return false;
+    // Validar cobro de instalación (solo en modo creación)
+    if (!this.isEditMode) {
+      if (this.installationAmount === '') {
+        toast.error('El monto de instalación es obligatorio');
+        return false;
+      }
+      const amount = typeof this.installationAmount === 'string' ? parseFloat(this.installationAmount) : this.installationAmount;
+      if (isNaN(amount) || amount < 0) {
+        toast.error('El monto de instalación debe ser mayor o igual a 0');
+        return false;
+      }
+      if (!this.paymentTypeId) {
+        toast.error('El tipo de pago es obligatorio');
+        return false;
+      }
     }
-
 
     return true;
   }
@@ -300,7 +374,11 @@ export class AddPartnerComponent implements OnInit {
       connectionDate: this.connectionDate || undefined,
       waterConnectionAddress: this.waterConnectionAddress?.trim() || undefined,
       isElderly: this.isElderly,
-      notes: this.notes?.trim() || undefined
+      notes: this.notes?.trim() || undefined,
+      installationAmount: this.installationAmount !== '' ? (typeof this.installationAmount === 'string' ? parseFloat(this.installationAmount) : this.installationAmount) : 0,
+      paymentTypeId: this.paymentTypeId || undefined,
+      cashBalanceId: this.openCashBalanceId || undefined,
+      userId: this.authService.getUserInfo()?.userId || undefined
     };
 
     if (this.isEditMode && this.partnerId) {
@@ -343,9 +421,9 @@ export class AddPartnerComponent implements OnInit {
       this.partnerService.createPartner(partnerInput).subscribe({
         next: (response) => {
           this.isLoading = false;
+
           toast.success('Socio creado exitosamente');
 
-          // Redirigir a la lista después de 2 segundos
           this.router.navigate(['/partners']);
         },
         error: (error) => {
@@ -500,6 +578,10 @@ export class AddPartnerComponent implements OnInit {
     // Actualizar el modelo y el input
     this.fullName = value;
     event.target.value = value;
+  }
+
+  onInstallationAmountChange(value: any): void {
+    this.installationAmount = value;
   }
 
 }

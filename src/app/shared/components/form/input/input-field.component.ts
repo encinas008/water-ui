@@ -51,8 +51,8 @@ export class InputFieldComponent implements ControlValueAccessor {
   @Input() name?: string = '';
   @Input() placeholder?: string = '';
   @Input() value: string | number = '';
-  @Input() min?: string;
-  @Input() max?: string;
+  @Input() min?: string | number;
+  @Input() max?: string | number;
   @Input() step?: number;
   @Input() disabled: boolean = false;
   @Input() readonly: boolean = false;
@@ -65,8 +65,8 @@ export class InputFieldComponent implements ControlValueAccessor {
   @Output() keydownEnter = new EventEmitter<KeyboardEvent>();
 
   // ControlValueAccessor implementation
-  private onChange: (value: any) => void = () => {};
-  onTouched: () => void = () => {};
+  private onChange: (value: any) => void = () => { };
+  onTouched: () => void = () => { };
 
   writeValue(value: any): void {
     this.value = value || '';

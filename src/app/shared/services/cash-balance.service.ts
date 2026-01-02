@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, catchError } from 'rxjs';
-import { 
+import { Observable, catchError, map } from 'rxjs';
+import {
   CashBalanceInputDto,
   CashBalanceOutputDto,
   CashBalanceDetailsOutputDto,
@@ -36,13 +36,13 @@ export class CashBalanceService {
    * GET /cash-balances/users/{userId}?fromDate={timestamp}&toDate={timestamp}
    */
   getCashBalancesByUser(
-    userId: string, 
-    fromDate?: number, 
+    userId: string,
+    fromDate?: number,
     toDate?: number
   ): Observable<CashBalanceOutputDto[]> {
     const headers = this.getHeaders();
     let params = new HttpParams();
-    
+
     if (fromDate) {
       params = params.set('fromDate', fromDate.toString());
     }
@@ -51,7 +51,7 @@ export class CashBalanceService {
     }
 
     return this.http.get<CashBalanceOutputDto[]>(
-      `${this.apiUrl}/users/${userId}`, 
+      `${this.apiUrl}/users/${userId}`,
       { headers, params }
     ).pipe(
       catchError(error => {
@@ -68,7 +68,7 @@ export class CashBalanceService {
   getLastOpenCashBalanceByUser(userId: string): Observable<CashBalanceOutputDto[]> {
     const headers = this.getHeaders();
     return this.http.get<CashBalanceOutputDto[]>(
-      `${this.apiUrl}/users/${userId}/last-open`, 
+      `${this.apiUrl}/users/${userId}/last-open`,
       { headers }
     ).pipe(
       catchError(error => {
@@ -143,16 +143,39 @@ export class CashBalanceService {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
+
     if (search && search.trim()) {
       params = params.set('search', search.trim());
     }
-    
+
     return this.http.get<PageResponse<CashBalanceOutputDto>>(this.apiUrl, { headers, params }).pipe(
       catchError(error => {
         console.error('❌ Error al cargar balances de caja paginados:', error);
         throw error;
       })
+    );
+  }
+
+  /**
+   * Obtener tipos de pago
+   */
+  getPaymentTypes(): Observable<any[]> {
+    const headers = this.getHeaders();
+    return this.http.get<any>(`${environment.apiUrl}/commons`, { headers }).pipe(
+      map((res: any) => res.paymentTypes || []),
+      catchError(error => {
+        console.error('❌ Error al obtener tipos de pago:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener balance abierto para un usuario
+   */
+  getOpenCashBalanceForUser(userId: string): Observable<CashBalanceOutputDto | null> {
+    return this.getLastOpenCashBalanceByUser(userId).pipe(
+      map((balances: CashBalanceOutputDto[]) => balances.length > 0 ? balances[0] : null)
     );
   }
 }

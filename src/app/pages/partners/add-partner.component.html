@@ -44,8 +44,8 @@
               Celular <span class="text-red-500">*</span>
             </app-label>
             <app-input-field type="tel" name="phoneNumber" [ngModel]="phoneNumber"
-              (ngModelChange)="onPhoneNumberChange($event)" placeholder="70000000" [maxlength]="20"
-              pattern="[0-9]*" required></app-input-field>
+              (ngModelChange)="onPhoneNumberChange($event)" placeholder="70000000" [maxlength]="20" pattern="[0-9]*"
+              required></app-input-field>
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Solo números, máximo 20 caracteres</p>
           </div>
 
@@ -121,7 +121,7 @@
           </div>
 
           <!-- Tercera Edad -->
-          <div>
+          <div class="flex items-center">
             <label class="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" name="isElderly" [(ngModel)]="isElderly"
                 class="h-5 w-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900" />
@@ -130,6 +130,28 @@
               </span>
             </label>
           </div>
+
+          <!-- Cobro de Instalación (Solo en modo creación) -->
+          <ng-container *ngIf="!isEditMode">
+            <div class="col-span-full border-t border-gray-200 pt-5 dark:border-gray-800">
+              <h3 class="text-md font-medium text-gray-800 dark:text-white mb-4">
+                Cobro de Instalación <span class="text-error-500">*</span>
+              </h3>
+              <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div>
+                  <app-label>Monto de Instalación (BOB) <span class="text-error-500">*</span></app-label>
+                  <app-input-field type="text" name="installationAmount" [value]="installationAmount"
+                    (valueChange)="onInstallationAmountChange($event)" appNumberLimit [maxLimit]="9999999.99"
+                    [minLimit]="0" placeholder="0.00" required></app-input-field>
+                </div>
+                <div>
+                  <app-label>Tipo de Pago <span class="text-error-500">*</span></app-label>
+                  <app-select [options]="paymentTypeOptions" placeholder="Seleccione tipo de pago"
+                    [(value)]="paymentTypeId" required></app-select>
+                </div>
+              </div>
+            </div>
+          </ng-container>
 
           <!-- Dirección de Conexión -->
           <div class="col-span-full">
@@ -163,7 +185,7 @@
           <app-button variant="outline" size="md" (btnClick)="resetForm()" [disabled]="isLoading">
             Limpiar Formulario
           </app-button>
-          <app-button variant="primary" size="md" (btnClick)="onSubmit()" [disabled]="isLoading || !isFormValid">
+          <app-button variant="primary" size="md" (btnClick)="onSubmit()" [disabled]="!canSubmit">
             <span *ngIf="!isLoading">{{ isEditMode ? 'Actualizar Socio' : 'Crear Socio' }}</span>
             <span *ngIf="isLoading">
               <svg class="animate-spin h-5 w-5 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
