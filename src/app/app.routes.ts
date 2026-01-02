@@ -245,6 +245,22 @@ export const routes: Routes = [
         component: CashBalanceDetailsComponent,
         title: 'Detalles del Balance | Sistema'
       },
+      // Users
+      {
+        path: 'users',
+        loadComponent: () => import('./pages/users/users-list.component').then(m => m.UsersListComponent),
+        title: 'Usuarios | Sistema'
+      },
+      {
+        path: 'users/add',
+        loadComponent: () => import('./pages/users/add-user.component').then(m => m.AddUserComponent),
+        title: 'Nuevo Usuario | Sistema'
+      },
+      {
+        path: 'users/edit/:id',
+        loadComponent: () => import('./pages/users/add-user.component').then(m => m.AddUserComponent),
+        title: 'Editar Usuario | Sistema'
+      },
     ]
   },
   // auth pages

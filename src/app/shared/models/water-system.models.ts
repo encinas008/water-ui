@@ -570,6 +570,88 @@ export interface JobPartnerOutputDto {
   createdAt: string;
 }
 
+// ============================================
+// ROLES
+// ============================================
+export interface RoleOutputDto {
+  id: string;
+  name: string;
+  description?: string;
+  code: string;
+}
+
+export interface UserOutputDto {
+  username: string;
+  profileId: string;
+  roleId: string;
+}
+
+// Ensure Profile interface matches backend
+export interface ProfileDto {
+  dni: string;
+  name: string;
+  lastname: string;
+  email?: string;
+  cellphone?: string;
+  telephone?: string;
+  cellphoneReferences?: string;
+  address?: string;
+  birthDate?: string;
+  country: string;
+  city: string;
+  gender: string;
+  civilStatus: string;
+  photoUrl?: string;
+  occupation?: string;
+}
+
+export interface UserDetailsOutputDto {
+  id: string;
+  username: string;
+  profile: ProfileDto;
+  role?: RoleOutputDto;
+}
+
+export type UserDetails = UserDetailsOutputDto; // Alias for convenience
+
+export interface UniqueFieldsDto {
+  isUsernameUpdated?: boolean;
+  isDniUpdated?: boolean;
+}
+
+export interface ProfileInputDto {
+  dni: string;
+  name: string;
+  lastname: string;
+  email?: string;
+  cellphone?: string;
+  telephone?: string;
+  cellphoneReferences?: string;
+  address?: string;
+  birthDate?: string;
+  countryId: string;
+  cityId: string;
+  genderTypeId: string;
+  civilStatusTypeId: string;
+  imageId?: string;
+}
+
+export interface UserInputDto {
+  username: string;
+  password?: string;
+  profile: ProfileInputDto;
+  role?: string; // Role Name
+  checkUniqueFields: UniqueFieldsDto;
+}
+
+export interface UpdateUserInputDto {
+  username: string;
+  password?: string;
+  profile: ProfileInputDto;
+  role?: string; // Role Name
+  checkUniqueFields: UniqueFieldsDto;
+}
+
 export interface AssignPartnersToJobDto {
   partnerIds: string[];
 }
