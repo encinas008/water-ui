@@ -208,6 +208,9 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
     // Fecha obligatoria
     if (!this.meetingDateBackend) return false;
 
+    // Tipo de reunión obligatorio
+    if (!this.meetingTypeCode) return false;
+
     // Multa obligatoria y válida (mínimo 1, máximo 9999999.99)
     if (this.fine === null || this.fine === undefined || this.fine.toString().trim() === '') return false;
     const fineValue = typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine;
@@ -227,6 +230,11 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
 
     if (!this.meetingDateBackend) {
       toast.error('Por favor seleccione la fecha de la reunión');
+      return false;
+    }
+
+    if (!this.meetingTypeCode) {
+      toast.error('Por favor seleccione el tipo de reunión');
       return false;
     }
 
