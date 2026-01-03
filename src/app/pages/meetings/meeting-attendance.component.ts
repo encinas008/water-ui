@@ -74,6 +74,14 @@ export class MeetingAttendanceComponent implements OnInit {
     this.meetingService.getMeetingById(this.meetingId).subscribe({
       next: (meeting) => {
         this.meeting = meeting;
+        // Si la reunión tiene fecha, usarla como fecha seleccionada por defecto
+        if (this.meeting.meetingDate) {
+          this.selectedDateStr = this.meeting.meetingDate;
+          // Crear fecha en zona horaria local para el date picker
+          this.selectedDate = new Date(this.meeting.meetingDate + 'T00:00:00');
+          // Recargar asistencia para la fecha correcta
+          this.loadAttendanceForDate();
+        }
       },
       error: (error) => {
         console.error('Error al cargar reunión:', error);
@@ -133,10 +141,12 @@ export class MeetingAttendanceComponent implements OnInit {
 
   initializeAttendanceMap(): void {
     this.partnerAttendanceMap.clear();
+
     this.assignedPartners.forEach(partner => {
       // Buscar si ya existe un registro de asistencia para este socio y fecha
+      // Usar comparación insensible a mayúsculas/minúsculas para UUIDs
       const existingRecord = this.attendanceRecords.find(
-        a => a.partnerId === partner.partnerId
+        a => a.partnerId.toLowerCase() === partner.partnerId.toLowerCase()
       );
 
       this.partnerAttendanceMap.set(partner.partnerId, {
@@ -295,10 +305,14 @@ export class MeetingAttendanceComponent implements OnInit {
   }
 
   formatTime(isoString: string): string {
-    const date = new Date(isoString);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+    if (!isoString) return '';
+    // If it contains T, split and take the time part
+    if (isoString.includes('T')) {
+      const timePart = isoString.split('T')[1];
+      // Keep only HH:mm
+      return timePart.substring(0, 5);
+    }
+    return '';
   }
 
 
