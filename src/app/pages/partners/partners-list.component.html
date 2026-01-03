@@ -76,10 +76,7 @@
               <th class="col-socio px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                 Socio
               </th>
-              <!-- Identificador de Medidor -->
-              <th class="col-medidor px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                Identificador de Medidor
-              </th>
+
               <!-- Estado -->
               <th class="col-estado px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
                 Estado
@@ -137,12 +134,7 @@
                 </div>
               </td>
 
-              <!-- Medidor -->
-              <td class="col-medidor px-4 py-4">
-                <span class="text-sm text-gray-700 dark:text-gray-300">
-                  {{ partner.waterMeterNumber || 'N/A' }}
-                </span>
-              </td>
+
 
               <!-- Estado -->
               <td class="col-estado px-4 py-4">
@@ -202,7 +194,7 @@
 
             <!-- Empty State -->
             <tr *ngIf="!isLoading && (!partners || partners.length === 0)">
-              <td colspan="6" class="px-4 py-12 text-center">
+              <td colspan="4" class="px-4 py-12 text-center">
                 <div class="flex flex-col items-center justify-center">
                   <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">

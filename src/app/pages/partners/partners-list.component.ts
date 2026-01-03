@@ -40,11 +40,10 @@ import { PartnerOutputDto, PageResponse } from '../../shared/models/water-system
       text-overflow: ellipsis;
     }
     .col-checkbox { width: 60px; }
-    .col-socio { width: 30%; }
-    .col-medidor { width: 15%; }
-    .col-estado { width: 12%; }
-    .col-deuda { width: 15%; }
-    .col-acciones { width: 15%; }
+    .col-socio { width: 40%; }
+    .col-estado { width: 20%; }
+    .col-deuda { width: 20%; }
+    .col-acciones { width: 20%; }
   `
 })
 export class PartnersListComponent implements OnInit {
