@@ -262,5 +262,15 @@ export class AppSidebarComponent {
     }).unsubscribe();
   }
 
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/signin']);
+    this.isMobileOpen$.subscribe(isMobile => {
+      if (isMobile) {
+        this.sidebarService.setMobileOpen(false);
+      }
+    }).unsubscribe();
+  }
+
 
 }

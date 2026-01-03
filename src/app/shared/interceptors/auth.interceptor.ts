@@ -25,7 +25,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                 // Si ya estamos intentando refrescar el token o es una peticion de refresh que fallo, hacer logout
                 if (req.url.includes('refresh-token') || req.url.includes('sign-in')) {
                     authService.logout();
-                    router.navigate(['/auth/sign-in']);
+                    router.navigate(['/signin']);
                     return throwError(() => error);
                 }
 
@@ -42,7 +42,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                     }),
                     catchError((refreshError) => {
                         authService.logout();
-                        router.navigate(['/auth/sign-in']);
+                        router.navigate(['/signin']);
                         return throwError(() => refreshError);
                     })
                 );
