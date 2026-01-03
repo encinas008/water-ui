@@ -89,16 +89,7 @@ export class AddWithdrawalComponent implements OnInit {
   loadPaymentTypes(): void {
     this.waterPaymentService.getPaymentTypes().subscribe({
       next: (types) => {
-        // Filtrar solo tipos de pago en efectivo para retiros
-        this.cashPaymentTypes = types.filter(type =>
-          type.name.toUpperCase() === 'EFECTIVO' ||
-          type.name.toUpperCase() === 'CASH'
-        );
-
-        // Si no hay tipos filtrados, usar todos (por si acaso)
-        if (this.cashPaymentTypes.length === 0) {
-          this.cashPaymentTypes = types;
-        }
+        this.cashPaymentTypes = types;
 
         // Seleccionar el primero por defecto si hay solo uno
         if (this.cashPaymentTypes.length === 1) {

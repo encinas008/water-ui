@@ -160,9 +160,10 @@ export class WaterReadingService {
      * Eliminar lectura de medidor
      * DELETE /water-readings/{id}
      */
-  deleteReading(id: string): Observable<void> {
+  deleteReading(id: string, userId: string): Observable<void> {
     const headers = this.getHeaders();
-    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers }).pipe(
+    const params = new HttpParams().set('userId', userId);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers, params }).pipe(
       catchError(error => {
         console.error('❌ Error al eliminar lectura:', error);
         throw error;

@@ -6,6 +6,7 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
 import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.models';
 import { toast } from 'ngx-sonner';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cash-balance-details',
@@ -56,10 +57,27 @@ export class CashBalanceDetailsComponent implements OnInit {
   }
 
   closeBalance(): void {
-    if (!confirm('¿Está seguro de que desea cerrar este balance de caja?')) {
-      return;
-    }
+    Swal.fire({
+      title: '¿Cerrar Balance de Caja?',
+      text: 'Una vez cerrado, no podrá registrar más movimientos en este balance.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f43f5e', // rose-500
+      cancelButtonColor: '#64748b', // slate-500
+      confirmButtonText: 'Sí, cerrar balance',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      customClass: {
+        container: 'my-swal'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.executeCloseBalance();
+      }
+    });
+  }
 
+  private executeCloseBalance(): void {
     this.cashBalanceService.closeCashBalance({ cashBalanceId: this.balanceId }).subscribe({
       next: (success) => {
         if (success) {

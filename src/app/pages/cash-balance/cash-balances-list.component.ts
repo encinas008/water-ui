@@ -10,6 +10,7 @@ import { CashBalanceOutputDto, PageResponse } from '../../shared/models/water-sy
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { toast } from 'ngx-sonner';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cash-balances-list',
@@ -42,6 +43,7 @@ export class CashBalancesListComponent implements OnInit {
   // Estados
   isLoading: boolean = false;
   hasMoreData: boolean = true;
+  openBalancesCount: number = 0;
 
   constructor(
     private cashBalanceService: CashBalanceService,
@@ -57,6 +59,16 @@ export class CashBalancesListComponent implements OnInit {
       this.resetAndLoadCashBalances();
     });
     this.loadCashBalances();
+    this.loadOpenBalancesCount();
+  }
+
+  loadOpenBalancesCount(): void {
+    this.cashBalanceService.getAllOpenCashBalances().subscribe({
+      next: (balances) => {
+        this.openBalancesCount = balances.length;
+      },
+      error: (err) => console.error('Error fetching open balances count:', err)
+    });
   }
 
   loadCashBalances(): void {
@@ -143,10 +155,27 @@ export class CashBalancesListComponent implements OnInit {
   }
 
   closeBalance(id: string): void {
-    if (!confirm('¿Está seguro de que desea cerrar este balance de caja?')) {
-      return;
-    }
+    Swal.fire({
+      title: '¿Cerrar Balance de Caja?',
+      text: 'Una vez cerrado, no podrá registrar más movimientos en este balance.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f43f5e', // rose-500
+      cancelButtonColor: '#64748b', // slate-500
+      confirmButtonText: 'Sí, cerrar balance',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      customClass: {
+        container: 'my-swal'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.executeCloseBalance(id);
+      }
+    });
+  }
 
+  private executeCloseBalance(id: string): void {
     this.cashBalanceService.closeCashBalance({ cashBalanceId: id }).subscribe({
       next: (success) => {
         if (success) {
@@ -165,6 +194,10 @@ export class CashBalancesListComponent implements OnInit {
 
   navigateTo(path: string): void {
     this.router.navigate([path]);
+  }
+
+  goBack(): void {
+    this.router.navigate(['/']);
   }
 
 

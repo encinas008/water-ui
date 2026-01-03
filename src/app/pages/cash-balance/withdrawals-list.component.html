@@ -1,170 +1,182 @@
-    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-      <app-page-breadcrumb [pageTitle]="'Lista de Retiros'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
+  <app-page-breadcrumb [pageTitle]="'Historial de Egresos'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-
-
-      <!-- Filtros -->
-      <div class="mb-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-          <h3 class="font-medium text-black dark:text-white">Filtros</h3>
-        </div>
-        <div class="p-6.5">
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label class="mb-2.5 block text-black dark:text-white">Balance de Caja</label>
-              <select [(ngModel)]="selectedCashBalanceId" name="cashBalanceId" 
-                (change)="onCashBalanceChange()"
-                class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input">
-                <option value="">Todos los balances</option>
-                <option *ngFor="let balance of cashBalances" [value]="balance.id">
-                  {{ balance.description || 'Balance sin descripción' }} - {{ balance.openTime | date:'dd/MM/yyyy HH:mm' }}
-                </option>
-              </select>
-            </div>
-            <div class="flex items-end">
-              <app-button (click)="loadWithdrawals()" [variant]="'primary'">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                Buscar
-              </app-button>
-            </div>
-          </div>
-        </div>
+  <!-- Filter & Actions Bar -->
+  <div class="mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+    <div
+      class="bg-white dark:bg-boxdark p-4 rounded-2xl border border-slate-100 dark:border-strokedark shadow-sm flex-1 flex flex-col md:flex-row items-center gap-4 w-full">
+      <div class="relative flex-1 w-full">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+        </span>
+        <select [(ngModel)]="selectedCashBalanceId" name="cashBalanceId" (change)="onCashBalanceChange()"
+          class="w-full rounded-xl border-2 border-slate-50 bg-slate-50/50 py-3 pl-12 pr-4 font-bold text-slate-700 outline-none transition-all focus:border-primary focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white">
+          <option value="">Todos los balances de caja</option>
+          <option *ngFor="let balance of cashBalances" [value]="balance.id">
+            {{ balance.description || 'Balance sin descripción' }} ({{ balance.openTime | date:'dd MMM' }})
+          </option>
+        </select>
       </div>
 
-      <!-- Resumen -->
-      <div *ngIf="withdrawals.length > 0" class="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-danger/10">
-            <svg class="fill-danger" width="22" height="22" viewBox="0 0 22 22">
-              <path d="M11 0C4.9 0 0 4.9 0 11s4.9 11 11 11 11-4.9 11-11S17.1 0 11 0zm0 20c-5 0-9-4-9-9s4-9 9-9 9 4 9 9-4 9-9 9z"/>
-              <path d="M11 5v6l4 2"/>
-            </svg>
-          </div>
-          <div class="mt-4">
-            <h4 class="text-title-md font-bold text-black dark:text-white">
-              {{ withdrawals.length }}
-            </h4>
-            <span class="text-sm font-medium text-bodydark">Total de Retiros</span>
-          </div>
+      <app-button (click)="loadWithdrawals()" [variant]="'secondary'"
+        [className]="'bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:bg-slate-50 transition-all font-bold px-6 py-3 rounded-xl shadow-sm text-slate-600 dark:text-slate-300 w-full md:w-auto'">
+        Refrescar
+      </app-button>
+    </div>
+
+    <app-button (click)="navigateTo('/cash-balances/withdrawal')" [variant]="'primary'"
+      [className]="'bg-primary hover:bg-primary/90 text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 flex items-center gap-2 w-full md:w-auto justify-center'">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Registrar Egreso
+    </app-button>
+  </div>
+
+  <!-- Summary Cards -->
+  <div *ngIf="withdrawals.length > 0" class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-boxdark dark:border-strokedark">
+      <div class="flex items-center gap-4">
+        <div
+          class="h-12 w-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
         </div>
-
-        <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-danger/10">
-            <svg class="fill-danger" width="22" height="22" viewBox="0 0 22 22">
-              <path d="M11 0a11 11 0 100 22 11 11 0 000-22zm5 13l-6 6-4-4 1.5-1.5L10 16l4.5-4.5L16 13z"/>
-            </svg>
-          </div>
-          <div class="mt-4">
-            <h4 class="text-title-md font-bold text-black dark:text-white">
-              BOB {{ getTotalAmount() | number:'1.2-2' }}
-            </h4>
-            <span class="text-sm font-medium text-bodydark">Monto Total</span>
-          </div>
-        </div>
-
-        <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-primary/10">
-            <svg class="fill-primary" width="22" height="22" viewBox="0 0 22 22">
-              <path d="M3 3h16v16H3z"/>
-            </svg>
-          </div>
-          <div class="mt-4">
-            <h4 class="text-title-md font-bold text-black dark:text-white">
-              BOB {{ getAverageAmount() | number:'1.2-2' }}
-            </h4>
-            <span class="text-sm font-medium text-bodydark">Promedio por Retiro</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tabla de retiros -->
-      <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-          <div class="flex items-center justify-between">
-            <h3 class="font-medium text-black dark:text-white">Lista de Retiros</h3>
-            <app-button (click)="navigateTo('/cash-balances/withdrawal')" [variant]="'primary'">
-              <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-              </svg>
-              Registrar Retiro
-            </app-button>
-          </div>
-        </div>
-        <div class="p-6.5">
-          <div *ngIf="isLoading" class="flex justify-center py-10">
-            <div class="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
-          </div>
-
-          <div *ngIf="!isLoading && withdrawals.length === 0" class="px-4 py-12 text-center">
-            <div class="flex flex-col items-center justify-center">
-              <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-              </svg>
-              <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
-                No se encontraron retiros
-              </p>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                {{ selectedCashBalanceId ? 'No hay retiros registrados para el balance de caja seleccionado' : 'Comienza registrando tu primer retiro' }}
-              </p>
-              <app-button
-                *ngIf="!selectedCashBalanceId"
-                size="sm"
-                variant="primary"
-                (btnClick)="navigateTo('/cash-balances/withdrawal')">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Registrar Retiro
-              </app-button>
-            </div>
-          </div>
-
-          <div *ngIf="!isLoading && withdrawals.length > 0" class="overflow-x-auto">
-            <table class="w-full table-auto">
-              <thead>
-                <tr class="bg-gray-2 text-left dark:bg-meta-4">
-                  <th class="py-4 px-4 font-medium text-black dark:text-white">Fecha</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white">Descripción</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white">Balance de Caja</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white">Asignado a</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white text-right">Monto</th>
-                  <th class="py-4 px-4 font-medium text-black dark:text-white text-center">Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let withdrawal of withdrawals" class="border-b border-[#eee] dark:border-strokedark">
-                  <td class="py-5 px-4">
-                    <p class="text-black dark:text-white">{{ withdrawal.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
-                  </td>
-                  <td class="py-5 px-4">
-                    <p class="text-black dark:text-white font-medium">{{ withdrawal.description || 'Sin descripción' }}</p>
-                  </td>
-                  <td class="py-5 px-4">
-                    <p class="text-black dark:text-white">{{ withdrawal.box }}</p>
-                  </td>
-                  <td class="py-5 px-4">
-                    <p class="text-black dark:text-white">{{ withdrawal.assignee }}</p>
-                  </td>
-                  <td class="py-5 px-4 text-right">
-                    <p class="text-danger dark:text-danger font-bold">
-                      BOB {{ withdrawal.amount | number:'1.2-2' }}
-                    </p>
-                  </td>
-                  <td class="py-5 px-4 text-center">
-                    <span [ngClass]="{
-                      'px-3 py-1 rounded-full text-xs font-medium': true,
-                      'bg-success/10 text-success': withdrawal.active,
-                      'bg-meta-3/10 text-meta-3': !withdrawal.active
-                    }">
-                      {{ withdrawal.active ? 'ACTIVO' : 'INACTIVO' }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Egresos</p>
+          <p class="text-2xl font-black text-slate-800 dark:text-white">{{ withdrawals.length }}</p>
         </div>
       </div>
     </div>
+
+    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-boxdark dark:border-strokedark">
+      <div class="flex items-center gap-4">
+        <div
+          class="h-12 w-12 rounded-2xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-500">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Monto Total Retirado</p>
+          <p class="text-2xl font-black text-rose-500">BOB {{ getTotalAmount() | number:'1.2-2' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-boxdark dark:border-strokedark">
+      <div class="flex items-center gap-4">
+        <div
+          class="h-12 w-12 rounded-2xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-500">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">Promedio por Retiro</p>
+          <p class="text-2xl font-black text-slate-800 dark:text-white">BOB {{ getAverageAmount() | number:'1.2-2' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Table Card -->
+  <div
+    class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden dark:bg-boxdark dark:border-strokedark">
+    <div class="px-8 py-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-boxdark">
+      <h3 class="text-lg font-black text-slate-800 dark:text-white">Registros Contables</h3>
+    </div>
+
+    <div class="p-0">
+      <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-24">
+        <div class="h-10 w-10 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent mb-4">
+        </div>
+        <p class="text-slate-500 font-bold">Cargando movimientos...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && withdrawals.length === 0"
+        class="flex flex-col items-center justify-center py-24 px-4 text-center">
+        <div
+          class="h-20 w-20 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-200 dark:text-slate-700 mb-6">
+          <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">No se encontraron egresos</h3>
+        <p class="text-slate-500 max-w-sm mb-8">
+          {{ selectedCashBalanceId ? 'Este balance de caja no registra egresos manuales.' : 'Aún no se han registrado
+          salidas de dinero manuales en el sistema.' }}
+        </p>
+      </div>
+
+      <!-- Content Table -->
+      <div *ngIf="!isLoading && withdrawals.length > 0" class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/50 dark:bg-meta-4/20 border-b border-slate-50 dark:border-slate-800">
+              <th class="py-5 px-8 text-xs font-black text-slate-400 uppercase tracking-widest uppercase">Fecha y Hora
+              </th>
+              <th class="py-5 px-6 text-xs font-black text-slate-400 uppercase tracking-widest uppercase">Descripción
+                del Egreso</th>
+              <th class="py-5 px-6 text-xs font-black text-slate-400 uppercase tracking-widest uppercase">Caja / Origen
+              </th>
+              <th class="py-5 px-6 text-xs font-black text-slate-400 uppercase tracking-widest uppercase text-right">
+                Monto</th>
+              <th class="py-5 px-8 text-xs font-black text-slate-400 uppercase tracking-widest uppercase text-center">
+                Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let withdrawal of withdrawals"
+              class="border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-all">
+              <td class="py-6 px-8">
+                <p class="font-bold text-slate-700 dark:text-slate-300">{{ withdrawal.createdAt | date:'dd MMM, yyyy' }}
+                </p>
+                <p class="text-[10px] font-black text-slate-400">{{ withdrawal.createdAt | date:'HH:mm' }}</p>
+              </td>
+              <td class="py-6 px-6">
+                <p class="font-bold text-slate-800 dark:text-white mb-0.5 truncate max-w-xs">{{ withdrawal.description
+                  || 'Sin descripción' }}</p>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">REF: {{
+                  withdrawal.id.substring(0,8) }}</p>
+              </td>
+              <td class="py-6 px-6">
+                <p class="text-sm font-bold text-slate-600 dark:text-slate-400 mb-0.5">{{ withdrawal.box }}</p>
+                <div class="flex items-center gap-2">
+                  <div
+                    class="h-4 w-4 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[8px] font-black text-slate-500">
+                    {{ withdrawal.assignee.substring(0,1) }}
+                  </div>
+                  <p class="text-[10px] font-medium text-slate-400">{{ withdrawal.assignee }}</p>
+                </div>
+              </td>
+              <td class="py-6 px-6 text-right">
+                <p class="text-lg font-black text-rose-500">BOB {{ withdrawal.amount | number:'1.2-2' }}</p>
+              </td>
+              <td class="py-6 px-8 text-center">
+                <span [ngClass]="{
+                  'px-3 py-1.5 rounded-xl text-[10px] font-black tracking-widest uppercase flex items-center justify-center gap-2': true,
+                  'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20': withdrawal.active,
+                  'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20': !withdrawal.active
+                }">
+                  <span class="h-2 w-2 rounded-full"
+                    [ngClass]="withdrawal.active ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                  {{ withdrawal.active ? 'Validado' : 'Reversado' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

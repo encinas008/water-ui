@@ -194,10 +194,6 @@ export class JobsListComponent implements OnInit {
     return id ? this.selectedJobs.has(id) : false;
   }
 
-  navigateToAddJob(): void {
-    this.router.navigate(['/jobs/add']);
-  }
-
   onView(job: JobOutputDto): void {
     this.router.navigate(['/jobs', job.id, 'attendance']);
   }
@@ -219,12 +215,6 @@ export class JobsListComponent implements OnInit {
         }
       });
     }
-  }
-
-  onDownload(): void {
-    console.log('Descargando lista de trabajos...');
-    // TODO: Implementar descarga a Excel/PDF
-    toast.info('Función de descarga en desarrollo');
   }
 
   // Formatear fecha a formato español "Jun 15, 2015"

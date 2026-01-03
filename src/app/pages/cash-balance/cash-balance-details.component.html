@@ -1,218 +1,300 @@
-    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-      <app-page-breadcrumb [pageTitle]="'Detalles del Balance de Caja'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+  <app-page-breadcrumb [pageTitle]="'Detalles del Balance de Caja'"
+    [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
+  <div *ngIf="isLoading" class="flex justify-center py-20">
+    <div class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+  </div>
 
+  <div *ngIf="!isLoading && cashBalanceDetails" class="space-y-8 animate-fade-in">
 
-      <div *ngIf="isLoading" class="flex justify-center py-10">
-        <div class="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
-      </div>
-
-      <div *ngIf="!isLoading && cashBalanceDetails" class="space-y-6">
-        <!-- Información general -->
-        <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-            <div class="flex items-center justify-between">
-              <h3 class="font-medium text-black dark:text-white">Información General</h3>
-              <div class="flex gap-2">
-                <app-button 
-                  *ngIf="cashBalanceDetails.active && !cashBalanceDetails.closeTime"
-                  (click)="closeBalance()" 
-                  [variant]="'secondary'"
-                  [className]="'bg-danger text-white hover:bg-danger/90'"
-                >
-                  Cerrar Balance
-                </app-button>
-                <app-button (click)="goBack()" [variant]="'secondary'">
-                  Volver
-                </app-button>
-              </div>
-            </div>
+    <!-- Top Header Card -->
+    <div
+      class="relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm border border-slate-100 dark:bg-boxdark dark:border-strokedark">
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="flex h-15 w-15 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
           </div>
-          <div class="p-6.5">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <div>
-                <p class="text-sm text-bodydark mb-1">Descripción</p>
-                <p class="font-medium text-black dark:text-white">{{ cashBalanceDetails.description || 'Sin descripción' }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-bodydark mb-1">Asignado a</p>
-                <p class="font-medium text-black dark:text-white">{{ cashBalanceDetails.assignee }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-bodydark mb-1">Caja</p>
-                <p class="font-medium text-black dark:text-white">{{ cashBalanceDetails.boxName }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-bodydark mb-1">Fecha de Apertura</p>
-                <p class="font-medium text-black dark:text-white">{{ cashBalanceDetails.openTime | date:'dd/MM/yyyy HH:mm' }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-bodydark mb-1">Fecha de Cierre</p>
-                <p class="font-medium text-black dark:text-white">
-                  {{ cashBalanceDetails.closeTime ? (cashBalanceDetails.closeTime | date:'dd/MM/yyyy HH:mm') : 'Abierto' }}
-                </p>
-              </div>
-              <div>
-                <p class="text-sm text-bodydark mb-1">Estado</p>
-                <span [ngClass]="{
-                  'px-3 py-1 rounded-full text-xs font-medium': true,
-                  'bg-success/10 text-success': cashBalanceDetails.active && !cashBalanceDetails.closeTime,
-                  'bg-meta-3/10 text-meta-3': !cashBalanceDetails.active || cashBalanceDetails.closeTime
+          <div>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white">{{ cashBalanceDetails.boxName }}</h2>
+            <p class="text-slate-500 dark:text-slate-400 font-medium">Asignado a: {{ cashBalanceDetails.assignee }}</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <span [ngClass]="{
+                  'inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide shadow-sm': true,
+                  'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:border-emerald-800': cashBalanceDetails.active && !cashBalanceDetails.closeTime,
+                  'bg-slate-50 text-slate-600 border border-slate-200 dark:bg-slate-800/50 dark:border-slate-700': !cashBalanceDetails.active || cashBalanceDetails.closeTime
                 }">
-                  {{ cashBalanceDetails.active && !cashBalanceDetails.closeTime ? 'Abierto' : 'Cerrado' }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+            <span class="mr-2 h-2 w-2 rounded-full"
+              [ngClass]="cashBalanceDetails.active && !cashBalanceDetails.closeTime ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'"></span>
+            {{ cashBalanceDetails.active && !cashBalanceDetails.closeTime ? 'Balance en Curso' : 'Balance Cerrado' }}
+          </span>
 
-        <!-- Resumen financiero -->
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <!-- Dinero inicial -->
-          <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
-              <svg class="fill-primary dark:fill-white" width="22" height="22" viewBox="0 0 22 22">
-                <path d="M11 0C4.9 0 0 4.9 0 11s4.9 11 11 11 11-4.9 11-11S17.1 0 11 0zm0 20c-5 0-9-4-9-9s4-9 9-9 9 4 9 9-4 9-9 9z"/>
-                <path d="M11 5v6l4 2"/>
-              </svg>
-            </div>
-            <div class="mt-4">
-              <h4 class="text-title-md font-bold text-black dark:text-white">
-                BOB {{ cashBalanceDetails.initialMoney | number:'1.2-2' }}
-              </h4>
-              <span class="text-sm font-medium text-bodydark">Dinero Inicial</span>
-            </div>
-          </div>
-
-          <!-- Total en caja -->
-          <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-success/10">
-              <svg class="fill-success" width="22" height="22" viewBox="0 0 22 22">
-                <path d="M11 0a11 11 0 100 22 11 11 0 000-22zm5 13l-6 6-4-4 1.5-1.5L10 16l4.5-4.5L16 13z"/>
-              </svg>
-            </div>
-            <div class="mt-4">
-              <h4 class="text-title-md font-bold text-black dark:text-white">
-                BOB {{ cashBalanceDetails.cashBalanceDetails.totalCashInBox | number:'1.2-2' }}
-              </h4>
-              <span class="text-sm font-medium text-bodydark">Total en Caja</span>
-            </div>
-          </div>
-
-          <!-- Total de ventas -->
-          <div class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-3/10">
-              <svg class="fill-meta-3" width="22" height="22" viewBox="0 0 22 22">
-                <path d="M3 3h16v16H3z"/>
-              </svg>
-            </div>
-            <div class="mt-4">
-              <h4 class="text-title-md font-bold text-black dark:text-white">
-                BOB {{ cashBalanceDetails.cashBalanceDetails.totalCashFromSales | number:'1.2-2' }}
-              </h4>
-              <span class="text-sm font-medium text-bodydark">Total</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Detalles de ventas -->
-        <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-            <h3 class="font-medium text-black dark:text-white">Detalles de Ventas</h3>
-          </div>
-          <div class="p-6.5">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div class="p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">Efectivo</p>
-                <p class="text-xl font-bold text-black dark:text-white">
-                  BOB {{ cashBalanceDetails.cashFromSalesDetails.cash | number:'1.2-2' }}
-                </p>
-              </div>
-              <div class="p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">QR</p>
-                <p class="text-xl font-bold text-black dark:text-white">
-                  BOB {{ cashBalanceDetails.cashFromSalesDetails.qr | number:'1.2-2' }}
-                </p>
-              </div>
-              <div class="p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">Transferencia</p>
-                <p class="text-xl font-bold text-black dark:text-white">
-                  BOB {{ cashBalanceDetails.cashFromSalesDetails.transference | number:'1.2-2' }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Detalles de flujos de caja -->
-        <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-            <h3 class="font-medium text-black dark:text-white">Flujos de Caja</h3>
-          </div>
-          <div class="p-6.5">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <div class="p-4 bg-success/10 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">Entradas en Efectivo</p>
-                <p class="text-xl font-bold text-success">
-                  BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashIn | number:'1.2-2' }}
-                </p>
-              </div>
-              <div class="p-4 bg-success/10 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">Entradas QR</p>
-                <p class="text-xl font-bold text-success">
-                  BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashQrIn | number:'1.2-2' }}
-                </p>
-              </div>
-              <div class="p-4 bg-success/10 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">Entradas Transferencia</p>
-                <p class="text-xl font-bold text-success">
-                  BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashTransferIn | number:'1.2-2' }}
-                </p>
-              </div>
-              <div class="p-4 bg-danger/10 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">Salidas</p>
-                <p class="text-xl font-bold text-danger">
-                  BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashOut | number:'1.2-2' }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Resumen final -->
-        <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-            <h3 class="font-medium text-black dark:text-white">Resumen Final</h3>
-          </div>
-          <div class="p-6.5">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div class="p-4 bg-primary/10 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">Total Efectivo</p>
-                <p class="text-xl font-bold text-primary">
-                  BOB {{ cashBalanceDetails.cashBalanceDetails.totalCash | number:'1.2-2' }}
-                </p>
-              </div>
-              <div class="p-4 bg-meta-3/10 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">Total Otros (QR + Transferencia)</p>
-                <p class="text-xl font-bold text-meta-3">
-                  BOB {{ cashBalanceDetails.cashBalanceDetails.totalOthers | number:'1.2-2' }}
-                </p>
-              </div>
-              <div class="p-4 bg-success/10 rounded-lg">
-                <p class="text-sm text-bodydark mb-2">Total en Caja</p>
-                <p class="text-2xl font-bold text-success">
-                  BOB {{ cashBalanceDetails.cashBalanceDetails.totalCashInBox | number:'1.2-2' }}
-                </p>
-              </div>
-            </div>
+          <div class="flex gap-2">
+            <app-button *ngIf="cashBalanceDetails.active && !cashBalanceDetails.closeTime" (click)="closeBalance()"
+              [variant]="'secondary'"
+              [className]="'bg-rose-500 text-white hover:bg-rose-600 border-none shadow-md shadow-rose-200 transition-all active:scale-95'">
+              Cerrar Balance
+            </app-button>
+            <app-button (click)="goBack()" [variant]="'secondary'"
+              [className]="'bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-lg font-bold px-8 py-2 rounded-xl border-none'">
+              Volver
+            </app-button>
           </div>
         </div>
       </div>
 
-      <div *ngIf="!isLoading && !cashBalanceDetails" class="rounded-sm border border-stroke bg-white p-10 text-center shadow-default dark:border-strokedark dark:bg-boxdark">
-        <p class="text-bodydark">No se pudo cargar la información del balance de caja</p>
-        <app-button (click)="goBack()" [variant]="'secondary'" class="mt-4">
-          Volver
-        </app-button>
+      <!-- Decorative background glow -->
+      <div class="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-primary/5 blur-3xl"></div>
+    </div>
+
+    <!-- Main Summary Grid -->
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <!-- Dinero Inicial -->
+      <div
+        class="group relative bg-white overflow-hidden rounded-2xl p-6 shadow-sm border border-slate-100 dark:bg-boxdark dark:border-strokedark transition-all hover:shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <div
+            class="h-12 w-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500 dark:bg-amber-500/10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Fondos Iniciales</span>
+        </div>
+        <div class="space-y-1">
+          <p class="text-3xl font-black text-slate-800 dark:text-white leading-none">
+            BOB {{ cashBalanceDetails.initialMoney | number:'1.2-2' }}
+          </p>
+          <p class="text-sm font-medium text-slate-600">Saldo de apertura</p>
+        </div>
+      </div>
+
+      <!-- Total Cobranza -->
+      <div
+        class="group relative bg-white overflow-hidden rounded-2xl p-6 shadow-sm border border-slate-100 dark:bg-boxdark dark:border-strokedark transition-all hover:shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <div
+            class="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500 dark:bg-blue-500/10 font-bold">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+          </div>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Totales Cobranza</span>
+        </div>
+        <div class="space-y-1">
+          <p class="text-3xl font-black text-slate-800 dark:text-white leading-none">
+            BOB {{ cashBalanceDetails.cashBalanceDetails.totalCashFromSales | number:'1.2-2' }}
+          </p>
+          <p class="text-sm font-medium text-slate-600">Ingresos por cobranza</p>
+        </div>
+      </div>
+
+      <!-- Total Neto en Caja -->
+      <div
+        class="group relative overflow-hidden rounded-2xl p-6 shadow-lg border-none bg-gradient-to-br from-emerald-500 to-emerald-600 transition-all hover:scale-[1.02] transform transition-transform">
+        <div class="flex items-center justify-between mb-4 text-emerald-100/80">
+          <div class="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-100/70">Saldo Final Real</span>
+        </div>
+        <div class="space-y-1 text-white">
+          <p class="text-3xl font-black leading-none">
+            BOB {{ cashBalanceDetails.cashBalanceDetails.totalCashInBox | number:'1.2-2' }}
+          </p>
+          <p class="text-sm font-medium text-emerald-50">Efectivo + Otros medios</p>
+        </div>
+
+        <!-- Subtle icon background -->
+        <svg class="absolute -bottom-4 -right-4 w-28 h-28 text-white/10 opacity-50" fill="currentColor"
+          viewBox="0 0 20 20">
+          <path fill-rule="evenodd"
+            d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+            clip-rule="evenodd" />
+        </svg>
       </div>
     </div>
+
+    <!-- Secondary Info Sections -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- Detalle de Ingresos/Cobranza -->
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden dark:bg-boxdark dark:border-strokedark">
+        <div class="px-6 py-5 border-b border-slate-50 dark:border-slate-800 flex items-center gap-3">
+          <div class="w-2 h-6 bg-blue-500 rounded-full"></div>
+          <h3 class="font-bold text-slate-800 dark:text-white">Desglose de Cobranza</h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-2 gap-4">
+            <div
+              class="group p-5 bg-slate-50 rounded-2xl dark:bg-slate-800/40 border border-transparent transition-all hover:bg-white hover:shadow-md hover:border-blue-100">
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Cobro Efectivo</p>
+              <p class="text-2xl font-black text-slate-700 dark:text-blue-400">
+                BOB {{ cashBalanceDetails.cashFromSalesDetails.cash | number:'1.2-2' }}
+              </p>
+            </div>
+            <div
+              class="group p-5 bg-slate-50 rounded-2xl dark:bg-slate-800/40 border border-transparent transition-all hover:bg-white hover:shadow-md hover:border-blue-100">
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Cobro QR</p>
+              <p class="text-2xl font-black text-slate-700 dark:text-blue-400">
+                BOB {{ cashBalanceDetails.cashFromSalesDetails.qr | number:'1.2-2' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detalle de Flujos -->
+      <div
+        class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden dark:bg-boxdark dark:border-strokedark">
+        <div class="px-6 py-5 border-b border-slate-50 dark:border-slate-800 flex items-center gap-3">
+          <div class="w-2 h-6 bg-slate-400 rounded-full"></div>
+          <h3 class="font-bold text-slate-800 dark:text-white">Flujos y Movimientos</h3>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              class="p-5 bg-emerald-50/50 rounded-2xl dark:bg-emerald-900/10 border border-emerald-50 dark:border-emerald-900/20">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                <p class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Entradas (Manual)</p>
+              </div>
+              <p class="text-2xl font-black text-emerald-700 dark:text-emerald-400">
+                BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashIn | number:'1.2-2' }}
+              </p>
+            </div>
+            <div
+              class="p-5 bg-rose-50/50 rounded-2xl dark:bg-rose-900/10 border border-rose-50 dark:border-rose-900/20">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+                <p class="text-xs font-bold text-rose-600 uppercase tracking-widest">Salidas (Efectivo)</p>
+              </div>
+              <p class="text-2xl font-black text-rose-700 dark:text-rose-400">
+                BOB {{ cashBalanceDetails.cashFromCashFlowsDetails.cashOut | number:'1.2-2' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Reconciliation (Resumen Final) -->
+    <div class="bg-slate-800 rounded-3xl p-8 shadow-2xl dark:bg-slate-900/50 relative overflow-hidden">
+      <!-- Decorator -->
+      <div class="absolute top-0 right-0 w-64 h-64 bg-slate-700/30 rounded-full -mr-20 -mt-20 blur-2xl"></div>
+      <div class="absolute bottom-0 left-0 w-32 h-32 bg-primary/10 rounded-full -ml-16 -mb-16 blur-2xl"></div>
+
+      <div class="relative z-10">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+          <div>
+            <h3 class="text-2xl font-black text-white mb-1">Cierre de Caja Sugerido</h3>
+            <p class="text-slate-400 font-medium tracking-wide">Conciliación final de todos los canales</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10">
+            <p class="text-xs font-bold text-slate-300 uppercase tracking-widest mb-1 leading-none text-center">Fondo
+              Total</p>
+            <p class="text-2xl font-black text-white leading-none">BOB {{
+              cashBalanceDetails.cashBalanceDetails.totalCashInBox | number:'1.2-2' }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-6 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors text-center">
+            <div class="flex flex-col items-center gap-3 mb-4">
+              <div class="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary-light">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <span class="text-xs font-bold text-slate-300 uppercase tracking-widest">En Efectivo (Físico)</span>
+            </div>
+            <p class="text-3xl font-black text-white leading-tight mb-2">
+              BOB {{ cashBalanceDetails.cashBalanceDetails.totalCash | number:'1.2-2' }}
+            </p>
+            <span class="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Saldo neto manual +
+              cobranza</span>
+          </div>
+
+          <div class="p-6 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors text-center">
+            <div class="flex flex-col items-center gap-3 mb-4">
+              <div class="h-10 w-10 rounded-xl bg-meta-3/20 flex items-center justify-center text-meta-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+              </div>
+              <span class="text-xs font-bold text-slate-300 uppercase tracking-widest">Otros Medios (QR)</span>
+            </div>
+            <p class="text-3xl font-black text-white leading-tight mb-2">
+              BOB {{ cashBalanceDetails.cashBalanceDetails.totalOthers | number:'1.2-2' }}
+            </p>
+            <span class="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">Digital / Bancario</span>
+          </div>
+
+          <div class="flex flex-col justify-center px-4">
+            <div class="p-1 bg-gradient-to-r from-slate-700 to-slate-800 rounded-2xl shadow-inner">
+              <div class="bg-slate-800/80 p-5 rounded-xl border border-white/5 text-center">
+                <p class="text-slate-400 text-sm mb-3">Auditoría de Registro</p>
+                <div class="grid grid-cols-2 gap-4 text-xs font-bold text-slate-200">
+                  <div>
+                    <p class="text-slate-500 mb-1">Apertura</p>
+                    <p>{{ cashBalanceDetails.openTime | date:'dd/MM/yyyy HH:mm' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-slate-500 mb-1">Cierre</p>
+                    <p>{{ cashBalanceDetails.closeTime ? (cashBalanceDetails.closeTime | date:'dd/MM/yyyy HH:mm') :
+                      '--:--' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && !cashBalanceDetails"
+      class="rounded-3xl border border-slate-100 bg-white p-20 text-center shadow-sm dark:border-slate-800 dark:bg-boxdark animate-fade-in">
+      <div class="mb-6 flex justify-center">
+        <div class="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center text-slate-300">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+      </div>
+      <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Sin información disponible</h3>
+      <p class="text-slate-500 max-w-xs mx-auto mb-8">No se pudo cargar la información del balance de caja. Intente
+        nuevamente.</p>
+      <app-button (click)="goBack()" [variant]="'primary'" class="px-10">
+        Volver al Listado
+      </app-button>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="flex justify-center pt-8 pb-4">
+      <app-button (click)="goBack()" [variant]="'primary'"
+        [className]="'bg-blue-600 hover:bg-blue-700 text-white transition-all px-12 py-4 rounded-xl shadow-xl font-bold border-none'">
+        <div class="flex items-center gap-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span class="text-lg">Volver al Listado de Balances</span>
+        </div>
+      </app-button>
+    </div>
+  </div>

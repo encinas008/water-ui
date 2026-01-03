@@ -11,6 +11,7 @@ import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrollin
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { toast } from 'ngx-sonner';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-readings-list',
@@ -49,7 +50,8 @@ export class ReadingsListComponent implements OnInit {
 
   constructor(
     private waterReadingService: WaterReadingService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -140,9 +142,17 @@ export class ReadingsListComponent implements OnInit {
   }
 
   onDelete(reading: WaterMeterReadingOutputDto): void {
+    const userInfo = this.authService.getUserInfo();
+    const userId = userInfo?.userId;
+
+    if (!userId) {
+      toast.error('No se pudo identificar al usuario para realizar esta acción');
+      return;
+    }
+
     Swal.fire({
       title: '¿Estás seguro?',
-      text: `Deseas eliminar la lectura de ${reading.partnerName} (${reading.readingDate})? Esta acción también eliminará la factura asociada si está pendiente.`,
+      text: `Deseas eliminar la lectura de ${reading.partnerName} (${reading.readingDate})? Si tiene una factura asociada (pagada o pendiente), esta será ANULADA.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -153,9 +163,9 @@ export class ReadingsListComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.isLoading = true;
-        this.waterReadingService.deleteReading(reading.id).subscribe({
+        this.waterReadingService.deleteReading(reading.id, userId).subscribe({
           next: () => {
-            toast.success('Lectura eliminada exitosamente');
+            toast.success('Lectura eliminada y factura anulada exitosamente');
             this.resetAndLoadReadings();
           },
           error: (error) => {

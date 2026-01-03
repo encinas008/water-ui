@@ -88,15 +88,7 @@ export class AddIncomeComponent implements OnInit {
     loadPaymentTypes(): void {
         this.waterPaymentService.getPaymentTypes().subscribe({
             next: (types) => {
-                // Filtrar solo tipos de pago en efectivo
-                this.cashPaymentTypes = types.filter(type =>
-                    type.name.toUpperCase() === 'EFECTIVO' ||
-                    type.name.toUpperCase() === 'CASH'
-                );
-
-                if (this.cashPaymentTypes.length === 0) {
-                    this.cashPaymentTypes = types;
-                }
+                this.cashPaymentTypes = types;
 
                 if (this.cashPaymentTypes.length === 1) {
                     this.paymentTypeId = this.cashPaymentTypes[0].id;

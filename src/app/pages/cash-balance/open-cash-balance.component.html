@@ -1,48 +1,88 @@
-    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-      <app-page-breadcrumb [pageTitle]="'Abrir Balance de Caja'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
+  <app-page-breadcrumb [pageTitle]="'Apertura de Caja'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
-
-
-      <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-          <h3 class="font-medium text-black dark:text-white">Información del Balance de Caja</h3>
+  <div class="max-w-2xl mx-auto">
+    <!-- Main Card -->
+    <div
+      class="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden dark:bg-boxdark dark:border-strokedark transition-all">
+      <!-- Header Gradient -->
+      <div class="bg-gradient-to-r from-primary to-blue-600 px-8 py-10 text-white relative overflow-hidden">
+        <div class="relative z-10 text-center">
+          <div
+            class="h-16 w-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-4 animate-bounce">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <h3 class="text-3xl font-black mb-1">Nueva Apertura</h3>
+          <p class="text-white/80 font-medium">Configure los fondos iniciales para comenzar el día</p>
         </div>
+        <!-- Decorative bubbles -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full translate-x-10 -translate-y-10"></div>
+        <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -translate-x-10 translate-y-10"></div>
+      </div>
 
-        <form (ngSubmit)="onSubmit()" class="p-6.5">
-          <!-- Información del usuario -->
-          <div *ngIf="userInfo" class="mb-6 p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
-            <h4 class="font-medium text-black dark:text-white mb-2">Usuario</h4>
-            <p class="text-sm text-bodydark">{{ userInfo.name }} {{ userInfo.lastname }}</p>
+      <div class="p-8 md:p-10">
+        <form (ngSubmit)="onSubmit()" class="space-y-8">
+
+          <!-- Asignación de Usuario (Read-only status) -->
+          <div *ngIf="userInfo"
+            class="flex items-center gap-4 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+            <div
+              class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg">
+              {{ userInfo.name.substring(0,1) }}{{ userInfo.lastname.substring(0,1) }}
+            </div>
+            <div>
+              <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Responsable Asignado</p>
+              <p class="text-lg font-bold text-slate-800 dark:text-white">{{ userInfo.name }} {{ userInfo.lastname }}
+              </p>
+            </div>
           </div>
 
-          <!-- Dinero inicial -->
-          <div class="mb-4.5">
-            <label class="mb-2.5 block text-black dark:text-white">
-              Dinero Inicial para Abrir Caja <span class="text-meta-1">*</span>
+          <!-- Input Monto Inicial -->
+          <div class="space-y-3">
+            <label class="block text-sm font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">
+              Fondos Iniciales (Efectivo) <span class="text-rose-500">*</span>
             </label>
-            <input 
-              type="number" 
-              step="0.01" 
-              min="0"
-              [(ngModel)]="moneyToOpenCashBalance" 
-              name="moneyToOpenCashBalance" 
-              required
-              placeholder="0.00"
-              class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input" 
-            />
-            <p class="mt-1 text-sm text-bodydark">Ingrese el monto inicial con el que se abrirá la caja</p>
+            <div class="relative group">
+              <span
+                class="absolute left-5 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300 group-focus-within:text-primary transition-colors">
+                BOB
+              </span>
+              <input type="number" step="0.01" min="0" [(ngModel)]="moneyToOpenCashBalance"
+                name="moneyToOpenCashBalance" required placeholder="0.00"
+                class="w-full rounded-2xl border-2 border-slate-100 bg-slate-50 py-5 pl-20 pr-6 text-2xl font-black text-slate-800 outline-none transition-all focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/5 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-primary" />
+            </div>
+            <div class="flex items-center gap-2 px-1">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p class="text-xs font-semibold text-slate-400">Este monto representa el dinero físico disponible al
+                momento de abrir la caja.</p>
+            </div>
           </div>
 
-          <!-- Botones -->
-          <div class="flex gap-4">
-            <app-button type="submit" [variant]="'primary'" [disabled]="isLoading || !isFormValid()">
-              <span *ngIf="!isLoading">Abrir Balance de Caja</span>
-              <span *ngIf="isLoading">Abriendo...</span>
+          <!-- Botones de Acción -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-4">
+            <app-button type="submit" [variant]="'primary'" [disabled]="isLoading || !isFormValid()"
+              [className]="'flex-1 bg-primary hover:bg-primary/90 text-white font-black text-lg py-5 rounded-2xl shadow-xl shadow-primary/20 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale'">
+              <span class="flex items-center justify-center gap-2">
+                <svg *ngIf="!isLoading" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                {{ isLoading ? 'Procesando...' : 'Iniciar Jornada' }}
+              </span>
             </app-button>
-            <app-button type="button" [variant]="'secondary'" (click)="onCancel()" [disabled]="isLoading">
+
+            <app-button type="button" [variant]="'secondary'" (click)="onCancel()" [disabled]="isLoading"
+              [className]="'bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg py-5 px-8 rounded-2xl transition-all shadow-lg border-none active:scale-95'">
               Cancelar
             </app-button>
           </div>
         </form>
       </div>
     </div>
+  </div>
+</div>

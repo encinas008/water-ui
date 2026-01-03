@@ -471,6 +471,8 @@ export interface CashFromCashFlowsDetails {
   cashQrIn: number;       // BigDecimal en backend
   cashTransferIn: number; // BigDecimal en backend
   cashOut: number;        // BigDecimal en backend
+  cashQrOut: number;       // BigDecimal en backend
+  cashTransferOut: number; // BigDecimal en backend
 }
 
 export interface CashBalanceDetails {

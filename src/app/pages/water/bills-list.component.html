@@ -79,6 +79,7 @@
         <option value="">Todos los estados</option>
         <option value="PENDING">Pendientes</option>
         <option value="PAID">Pagadas</option>
+        <option value="CANCELLED">Anuladas</option>
       </select>
     </div>
 
@@ -227,13 +228,13 @@
                   {{ searchQuery || filterStatus ? 'Intenta con otro término de búsqueda o filtro' : 'Comienza generando
                   tu primera factura' }}
                 </p>
-                <app-button *ngIf="!searchQuery && !filterStatus" size="sm" variant="primary"
+                <!-- <app-button *ngIf="!searchQuery && !filterStatus" size="sm" variant="primary"
                   (btnClick)="navigateToGenerateBills()">
                   <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                   </svg>
                   Generar Facturas
-                </app-button>
+                </app-button> -->
               </div>
             </td>
           </tr>
