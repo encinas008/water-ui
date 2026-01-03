@@ -182,8 +182,8 @@
     <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div class="p-4 sm:p-6">
         <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <app-button variant="outline" size="md" (btnClick)="resetForm()" [disabled]="isLoading">
-            Limpiar Formulario
+          <app-button variant="outline" size="md" (btnClick)="goBack()">
+            Cancelar
           </app-button>
           <app-button variant="primary" size="md" (btnClick)="onSubmit()" [disabled]="!canSubmit">
             <span *ngIf="!isLoading">{{ isEditMode ? 'Actualizar Socio' : 'Crear Socio' }}</span>

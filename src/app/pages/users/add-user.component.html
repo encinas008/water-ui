@@ -1,103 +1,119 @@
-    <div>
-      <app-page-breadcrumb [pageTitle]="isEditMode ? 'Editar Usuario' : 'Crear Usuario'" />
+<div>
+  <app-page-breadcrumb [pageTitle]="isEditMode ? 'Editar Usuario' : 'Crear Usuario'" />
 
-      <div class="space-y-6">
-        <!-- Información Personal -->
-        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-          <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-            <h2 class="text-lg font-medium text-gray-800 dark:text-white">
-              Información Personal
-            </h2>
+  <div class="space-y-6">
+    <!-- Información Personal -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+        <h2 class="text-lg font-medium text-gray-800 dark:text-white">
+          Información Personal
+        </h2>
+      </div>
+      <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div>
+            <app-label>DNI <span class="text-error-500">*</span></app-label>
+            <app-input-field [(ngModel)]="user.profile.dni" placeholder="Cédula de Identidad"
+              required></app-input-field>
           </div>
-          <div class="p-4 sm:p-6">
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <div>
-                <app-label>DNI <span class="text-error-500">*</span></app-label>
-                <app-input-field [(ngModel)]="user.profile.dni" placeholder="Cédula de Identidad" required></app-input-field>
-              </div>
-              <div>
-                <app-label>Nombre <span class="text-error-500">*</span></app-label>
-                <app-input-field [(ngModel)]="user.profile.name" placeholder="Nombres" required></app-input-field>
-              </div>
-              <div>
-                <app-label>Apellido <span class="text-error-500">*</span></app-label>
-                <app-input-field [(ngModel)]="user.profile.lastname" placeholder="Apellidos" required></app-input-field>
-              </div>
-              <div>
-                <app-label>Email</app-label>
-                <app-input-field [(ngModel)]="user.profile.email" placeholder="Correo Electrónico"></app-input-field>
-              </div>
-              <div>
-                <app-label>Celular</app-label>
-                <app-input-field [(ngModel)]="user.profile.cellphone" placeholder="Celular"></app-input-field>
-              </div>
-               <div>
-                <app-label>Dirección</app-label>
-                <app-input-field [(ngModel)]="user.profile.address" placeholder="Dirección"></app-input-field>
-              </div>
-               <div>
-                <app-label>Fecha de Nacimiento</app-label>
-                <app-input-field type="date" [(ngModel)]="user.profile.birthDate"></app-input-field>
-              </div>
-              
-              <!-- Selects from Common Data -->
-              <div>
-                  <app-label>País <span class="text-error-500">*</span></app-label>
-                  <app-select [options]="countryOptions" [(value)]="user.profile.countryId" (valueChange)="onCountryChange($event)" placeholder="Seleccionar País"></app-select>
-              </div>
-              <div>
-                  <app-label>Ciudad <span class="text-error-500">*</span></app-label>
-                  <app-select [options]="cityOptions" [(value)]="user.profile.cityId" placeholder="Seleccionar Ciudad"></app-select>
-              </div>
-              <div>
-                  <app-label>Género <span class="text-error-500">*</span></app-label>
-                  <app-select [options]="genderOptions" [(value)]="user.profile.genderTypeId" placeholder="Seleccionar Género"></app-select>
-              </div>
-               <div>
-                  <app-label>Estado Civil <span class="text-error-500">*</span></app-label>
-                  <app-select [options]="civilStatusOptions" [(value)]="user.profile.civilStatusTypeId" placeholder="Seleccionar Estado Civil"></app-select>
-              </div>
-
-            </div>
+          <div>
+            <app-label>Nombre <span class="text-error-500">*</span></app-label>
+            <app-input-field [(ngModel)]="user.profile.name" placeholder="Nombres" className="uppercase"
+              required></app-input-field>
           </div>
-        </div>
-
-        <!-- Información de Cuenta -->
-        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-          <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-            <h2 class="text-lg font-medium text-gray-800 dark:text-white">
-              Cuenta de Usuario
-            </h2>
+          <div>
+            <app-label>Apellido <span class="text-error-500">*</span></app-label>
+            <app-input-field [(ngModel)]="user.profile.lastname" placeholder="Apellidos" className="uppercase"
+              required></app-input-field>
           </div>
-          <div class="p-4 sm:p-6">
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <div>
-                <app-label>Usuario (Login) <span class="text-error-500">*</span></app-label>
-                <app-input-field [(ngModel)]="user.username" placeholder="Nombre de usuario" [disabled]="isEditMode" required></app-input-field>
-                <p *ngIf="isEditMode" class="text-xs text-gray-500 mt-1">El nombre de usuario no se puede cambiar.</p>
-              </div>
-              
-              <div *ngIf="!isEditMode">
-                <app-label>Contraseña <span class="text-error-500">*</span></app-label>
-                <app-input-field type="password" [(ngModel)]="user.password" placeholder="Contraseña" required></app-input-field>
-              </div>
-
-              <div>
-                <app-label>Rol <span class="text-error-500">*</span></app-label>
-                <app-select [options]="roleOptions" [(value)]="user.role" placeholder="Seleccionar Rol" required></app-select>
-              </div>
-            </div>
+          <div>
+            <app-label>Email</app-label>
+            <app-input-field [(ngModel)]="user.profile.email" placeholder="Correo Electrónico"></app-input-field>
           </div>
-        </div>
+          <div>
+            <app-label>Celular</app-label>
+            <app-input-field [(ngModel)]="user.profile.cellphone" placeholder="Celular"></app-input-field>
+          </div>
+          <div>
+            <app-label>Dirección</app-label>
+            <app-input-field [(ngModel)]="user.profile.address" placeholder="Dirección"></app-input-field>
+          </div>
+          <div>
+            <app-label>Fecha de Nacimiento</app-label>
+            <app-input-field type="date" [(ngModel)]="user.profile.birthDate"></app-input-field>
+          </div>
 
-        <!-- Botones -->
-        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-            <div class="p-4 sm:p-6 flex justify-end gap-3">
-                 <app-button variant="outline" (btnClick)="cancel()">Cancelar</app-button>
-                 <app-button variant="primary" (btnClick)="save()" [disabled]="isLoading">
-                    {{ isEditMode ? 'Actualizar' : 'Guardar' }}
-                 </app-button>
-            </div>
+          <!-- Selects from Common Data -->
+          <div>
+            <app-label>País <span class="text-error-500">*</span></app-label>
+            <app-select [options]="countryOptions" [(value)]="user.profile.countryId"
+              (valueChange)="onCountryChange($event)" placeholder="Seleccionar País"></app-select>
+          </div>
+          <div>
+            <app-label>Ciudad <span class="text-error-500">*</span></app-label>
+            <app-select [options]="cityOptions" [(value)]="user.profile.cityId"
+              placeholder="Seleccionar Ciudad"></app-select>
+          </div>
+          <div>
+            <app-label>Género <span class="text-error-500">*</span></app-label>
+            <app-select [options]="genderOptions" [(value)]="user.profile.genderTypeId"
+              placeholder="Seleccionar Género"></app-select>
+          </div>
+          <div>
+            <app-label>Estado Civil <span class="text-error-500">*</span></app-label>
+            <app-select [options]="civilStatusOptions" [(value)]="user.profile.civilStatusTypeId"
+              placeholder="Seleccionar Estado Civil"></app-select>
+          </div>
+
         </div>
       </div>
     </div>
+
+    <!-- Información de Cuenta -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+        <h2 class="text-lg font-medium text-gray-800 dark:text-white">
+          Cuenta de Usuario
+        </h2>
+      </div>
+      <div class="p-4 sm:p-6">
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div>
+            <app-label>Usuario (Login) <span class="text-error-500">*</span></app-label>
+            <app-input-field [(ngModel)]="user.username" placeholder="Nombre de usuario" [disabled]="isEditMode"
+              required></app-input-field>
+            <p *ngIf="isEditMode" class="text-xs text-gray-500 mt-1">El nombre de usuario no se puede cambiar.</p>
+          </div>
+
+          <div>
+            <app-label>Rol <span class="text-error-500">*</span></app-label>
+            <app-select [options]="roleOptions" [(value)]="user.role" placeholder="Seleccionar Rol"
+              required></app-select>
+          </div>
+
+          <div *ngIf="!isEditMode">
+            <app-label>Contraseña <span class="text-error-500">*</span></app-label>
+            <app-input-field type="password" [(ngModel)]="user.password" placeholder="Contraseña"
+              [allowPasswordToggle]="true" required></app-input-field>
+          </div>
+
+          <div *ngIf="!isEditMode">
+            <app-label>Confirmar Contraseña <span class="text-error-500">*</span></app-label>
+            <app-input-field type="password" [(ngModel)]="confirmPassword" placeholder="Repita la contraseña"
+              [allowPasswordToggle]="true" required></app-input-field>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="p-4 sm:p-6 flex justify-end gap-3">
+        <app-button variant="outline" (btnClick)="cancel()">Cancelar</app-button>
+        <app-button variant="primary" (btnClick)="save()" [disabled]="isLoading">
+          {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+        </app-button>
+      </div>
+    </div>
+  </div>
+</div>

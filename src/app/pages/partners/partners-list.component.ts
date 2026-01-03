@@ -276,10 +276,4 @@ export class PartnersListComponent implements OnInit {
       });
     }
   }
-
-  onDownload(): void {
-    console.log('Descargando lista de socios...');
-    // TODO: Implementar descarga a Excel/PDF
-    alert('Función de descarga en desarrollo');
-  }
 }

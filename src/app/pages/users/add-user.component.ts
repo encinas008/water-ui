@@ -60,6 +60,7 @@ export class AddUserComponent implements OnInit {
       isDniUpdated: true
     }
   };
+  confirmPassword = '';
 
   // Options for selects
   countryOptions: Option[] = [];
@@ -184,6 +185,20 @@ export class AddUserComponent implements OnInit {
       toast.error('Complete los campos obligatorios');
       return;
     }
+
+    if (!this.isEditMode && (!this.user.password || !this.confirmPassword)) {
+      toast.error('La contraseña y su confirmación son obligatorias');
+      return;
+    }
+
+    if (!this.isEditMode && (this.user.password !== this.confirmPassword)) {
+      toast.error('Las contraseñas no coinciden');
+      return;
+    }
+
+    // Enforce Uppercase
+    this.user.profile.name = this.user.profile.name?.toUpperCase();
+    this.user.profile.lastname = this.user.profile.lastname?.toUpperCase();
 
     this.isLoading = true;
     if (this.isEditMode) {

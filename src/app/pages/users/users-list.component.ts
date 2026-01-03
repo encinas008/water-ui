@@ -4,11 +4,12 @@ import { Router, RouterLink } from '@angular/router';
 import { UserService } from '../../shared/services/user.service';
 import { UserDetails } from '../../shared/models/water-system.models';
 import { toast } from 'ngx-sonner';
+import { SwitchComponent } from '../../shared/components/form/input/switch.component';
 
 @Component({
   selector: 'app-users-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, SwitchComponent],
   templateUrl: './users-list.component.html',
   styles: ``
 })
@@ -59,5 +60,23 @@ export class UsersListComponent implements OnInit {
     ];
     const index = name.charCodeAt(0) % colors.length;
     return colors[index];
+  }
+
+  toggleStatus(user: UserDetails): void {
+    const newStatus = !user.active;
+    const action = newStatus ? 'activar' : 'desactivar';
+
+    if (confirm(`¿Estás seguro de que deseas ${action} al usuario ${user.username}?`)) {
+      this.userService.updateStatus(user.id, newStatus).subscribe({
+        next: () => {
+          toast.success(`Usuario ${newStatus ? 'activado' : 'desactivado'} correctamente`);
+          user.active = newStatus;
+        },
+        error: (err) => {
+          console.error(err);
+          toast.error(`Error al ${action} el usuario`);
+        }
+      });
+    }
   }
 }

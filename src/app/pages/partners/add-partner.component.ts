@@ -481,6 +481,10 @@ export class AddPartnerComponent implements OnInit {
     this.notes = '';
   }
 
+  goBack(): void {
+    this.router.navigate(['/partners']);
+  }
+
   onWaterMeterNumberChange(value: string | number): void {
     // Permitir letras y números, convertir a mayúsculas
     let stringValue = String(value || '');

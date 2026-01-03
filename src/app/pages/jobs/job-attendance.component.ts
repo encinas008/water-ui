@@ -254,22 +254,33 @@ export class JobAttendanceComponent implements OnInit {
 
   formatDate(dateString: string): string {
     if (!dateString) return '';
-    const date = new Date(dateString);
+    // Extraer solo la fecha (YYYY-MM-DD)
+    const soloFecha = dateString.split(/[T ]/)[0];
+    const parts = soloFecha.split('-');
+    if (parts.length !== 3) return dateString;
+
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]);
+    const day = parseInt(parts[2]);
+
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-    const month = months[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
-    return `${day} ${month}, ${year}`;
+    return `${day} ${months[month - 1]}, ${year}`;
   }
 
   formatDateForDisplay(dateStr: string): string {
     if (!dateStr) return '';
-    const date = new Date(dateStr + 'T00:00:00');
+    // Extraer solo la fecha (YYYY-MM-DD)
+    const soloFecha = dateStr.split(/[T ]/)[0];
+    const parts = soloFecha.split('-');
+    if (parts.length !== 3) return dateStr;
+
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]);
+    const day = parseInt(parts[2]);
+
     const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    const month = months[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
-    return `${day} de ${month} de ${year}`;
+    const monthName = months[month - 1];
+    return `${day} de ${monthName} de ${year}`;
   }
 }
 

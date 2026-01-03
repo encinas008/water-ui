@@ -610,6 +610,7 @@ export interface UserDetailsOutputDto {
   username: string;
   profile: ProfileDto;
   role?: RoleOutputDto;
+  active: boolean;
 }
 
 export type UserDetails = UserDetailsOutputDto; // Alias for convenience

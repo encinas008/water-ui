@@ -43,9 +43,6 @@
 
         <!-- Acciones -->
         <div class="flex items-center gap-3">
-          <app-button size="sm" variant="outline" (btnClick)="onDownload()">
-            Descargar
-          </app-button>
           <app-button *ngIf="isAdmin" size="sm" variant="primary" (btnClick)="navigateToAddPartner()">
             + Nuevo Socio
           </app-button>
