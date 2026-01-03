@@ -1,0 +1,41 @@
+.cdk-virtual-scroll-viewport {
+    height: 600px;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+}
+
+.cdk-virtual-scroll-content-wrapper {
+    min-width: 100%;
+}
+
+.table-fixed {
+    table-layout: fixed;
+}
+
+.col-numero {
+    width: 12%;
+}
+
+.col-socio {
+    width: 25%;
+}
+
+.col-mes {
+    width: 15%;
+}
+
+.col-consumo {
+    width: 12%;
+}
+
+.col-total {
+    width: 15%;
+}
+
+.col-estado {
+    width: 12%;
+}
+
+.col-acciones {
+    width: 9%;
+}

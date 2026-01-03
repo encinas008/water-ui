@@ -52,7 +52,7 @@
                 </app-label>
                 <div class="relative">
                   <app-date-picker id="meetingDate" placeholder="Seleccione una fecha" [dateFormat]="'Y-m-d'"
-                    [defaultDate]="meetingDateObject" [minDate]="minDate" [locale]="'es'" [firstDayOfWeek]="1"
+                    [defaultDate]="meetingDateObject" [locale]="'es'" [firstDayOfWeek]="1"
                     (dateChange)="onDateChange($event)"></app-date-picker>
                   @if (meetingDateDisplay) {
                   <div

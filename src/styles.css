@@ -881,10 +881,6 @@ pre[class*="language-"].line-numbers {
   max-width: none !important;
 }
 
-.flatpickr-calendar {
-  width: 307.875px !important;
-}
-
 .flatpickr-days {
   width: 307.875px !important;
   display: flex !important;

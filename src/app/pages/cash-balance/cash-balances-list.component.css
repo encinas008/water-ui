@@ -1,0 +1,18 @@
+      .cdk-virtual-scroll-viewport {
+        height: 600px;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+      }
+      .cdk-virtual-scroll-content-wrapper {
+        min-width: 100%;
+      }
+      .table-fixed {
+        table-layout: fixed;
+      }
+      .col-descripcion { width: 20%; }
+      .col-asignado { width: 18%; }
+      .col-apertura { width: 15%; }
+      .col-cierre { width: 15%; }
+      .col-dinero { width: 12%; }
+      .col-estado { width: 10%; }
+      .col-acciones { width: 10%; }

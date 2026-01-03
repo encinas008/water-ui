@@ -1,0 +1,48 @@
+    <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+      <app-page-breadcrumb [pageTitle]="'Abrir Balance de Caja'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+
+
+
+      <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+          <h3 class="font-medium text-black dark:text-white">Información del Balance de Caja</h3>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" class="p-6.5">
+          <!-- Información del usuario -->
+          <div *ngIf="userInfo" class="mb-6 p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
+            <h4 class="font-medium text-black dark:text-white mb-2">Usuario</h4>
+            <p class="text-sm text-bodydark">{{ userInfo.name }} {{ userInfo.lastname }}</p>
+          </div>
+
+          <!-- Dinero inicial -->
+          <div class="mb-4.5">
+            <label class="mb-2.5 block text-black dark:text-white">
+              Dinero Inicial para Abrir Caja <span class="text-meta-1">*</span>
+            </label>
+            <input 
+              type="number" 
+              step="0.01" 
+              min="0"
+              [(ngModel)]="moneyToOpenCashBalance" 
+              name="moneyToOpenCashBalance" 
+              required
+              placeholder="0.00"
+              class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input" 
+            />
+            <p class="mt-1 text-sm text-bodydark">Ingrese el monto inicial con el que se abrirá la caja</p>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex gap-4">
+            <app-button type="submit" [variant]="'primary'" [disabled]="isLoading || !isFormValid()">
+              <span *ngIf="!isLoading">Abrir Balance de Caja</span>
+              <span *ngIf="isLoading">Abriendo...</span>
+            </app-button>
+            <app-button type="button" [variant]="'secondary'" (click)="onCancel()" [disabled]="isLoading">
+              Cancelar
+            </app-button>
+          </div>
+        </form>
+      </div>
+    </div>
