@@ -11,6 +11,9 @@ import { WaterBillOutputDto, WaterBillDetailDto, BillStatus, PageResponse } from
 import { ModalComponent } from '../../shared/components/ui/modal/modal.component';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import Swal from 'sweetalert2';
+import { toast } from 'ngx-sonner';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-bills-list',
@@ -72,6 +75,7 @@ export class BillsListComponent implements OnInit {
   constructor(
     private waterBillService: WaterBillService,
     private waterPaymentService: WaterPaymentService,
+    private authService: AuthService,
     private router: Router
   ) { }
 
@@ -190,6 +194,8 @@ export class BillsListComponent implements OnInit {
         return 'error';
       case 'PARTIAL_PAID':
         return 'info';
+      case 'CANCELLED':
+        return 'error';
       default:
         return 'info';
     }
@@ -308,6 +314,53 @@ export class BillsListComponent implements OnInit {
         console.error('Error al cargar pagos para reimpresión:', error);
         this.showAlertMessage('Error al cargar los pagos', 'error');
         this.isLoadingReprint = false;
+      }
+    });
+  }
+
+  onCancelBill(bill: WaterBillOutputDto): void {
+    const userInfo = this.authService.getUserInfo();
+    const userId = userInfo ? userInfo.userId || userInfo.id : null;
+
+    if (!userId) {
+      toast.error('Sesión no válida. Por favor inicia sesión nuevamente.');
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas anular la factura ${bill.billNumber}? Si está pagada, se registrará un retiro en caja. Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, anular factura',
+      cancelButtonText: 'Cancelar',
+      heightAuto: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.isLoading = true;
+        this.waterBillService.cancelBill(bill.id, userId).subscribe({
+          next: () => {
+            toast.success('Factura anulada exitosamente');
+            this.resetAndLoadBills();
+          },
+          error: (error) => {
+            this.isLoading = false;
+            console.error('❌ Error al anular factura:', error);
+
+            let message = 'Error al anular la factura';
+            if (error.error) {
+              if (typeof error.error === 'string') {
+                message = error.error;
+              } else if (error.error.message) {
+                message = error.error.message;
+              }
+            }
+
+            toast.error(message);
+          }
+        });
       }
     });
   }

@@ -189,6 +189,21 @@ export class WaterBillService {
       })
     );
   }
+
+  /**
+   * Anular una factura
+   * POST /water-bills/{id}/cancel?userId={userId}
+   */
+  cancelBill(id: string, userId: string): Observable<WaterBillOutputDto> {
+    const headers = this.getHeaders();
+    const params = new HttpParams().set('userId', userId);
+    return this.http.post<WaterBillOutputDto>(`${this.apiUrl}/${id}/cancel`, {}, { headers, params }).pipe(
+      catchError(error => {
+        console.error('❌ Error al anular factura:', error);
+        throw error;
+      })
+    );
+  }
 }
 
 

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, catchError, map, of } from 'rxjs';
-import { 
-  WaterMeterReadingOutputDto, 
+import {
+  WaterMeterReadingOutputDto,
   WaterMeterReadingInputDto,
   PageResponse
 } from '../models/water-system.models';
@@ -50,7 +50,7 @@ export class WaterReadingService {
   getReadingsByPartner(partnerId: string): Observable<WaterMeterReadingOutputDto[]> {
     const headers = this.getHeaders();
     return this.http.get<WaterMeterReadingOutputDto[]>(
-      `${this.apiUrl}/partner/${partnerId}`, 
+      `${this.apiUrl}/partner/${partnerId}`,
       { headers }
     ).pipe(
       catchError(error => {
@@ -99,7 +99,7 @@ export class WaterReadingService {
       .set('endDate', endDate);
 
     return this.http.get<WaterMeterReadingOutputDto[]>(
-      `${this.apiUrl}/period`, 
+      `${this.apiUrl}/period`,
       { headers, params }
     ).pipe(
       catchError(error => {
@@ -118,11 +118,11 @@ export class WaterReadingService {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
+
     if (search && search.trim()) {
       params = params.set('search', search.trim());
     }
-    
+
     return this.http.get<PageResponse<WaterMeterReadingOutputDto>>(this.apiUrl, { headers, params }).pipe(
       catchError(error => {
         console.error('❌ Error al cargar lecturas paginadas:', error);
@@ -141,17 +141,31 @@ export class WaterReadingService {
         const date = new Date(readingDate);
         const year = date.getFullYear();
         const month = date.getMonth() + 1; // getMonth() retorna 0-11
-        
+
         return readings.some(reading => {
           const readingDateObj = new Date(reading.readingDate);
-          return readingDateObj.getFullYear() === year && 
-                 readingDateObj.getMonth() + 1 === month;
+          return readingDateObj.getFullYear() === year &&
+            readingDateObj.getMonth() + 1 === month;
         });
       }),
       catchError(error => {
         console.error('❌ Error al verificar lecturas:', error);
         // En caso de error, retornar false para permitir que el backend valide
         return of(false);
+      })
+    );
+  }
+
+  /**
+     * Eliminar lectura de medidor
+     * DELETE /water-readings/{id}
+     */
+  deleteReading(id: string): Observable<void> {
+    const headers = this.getHeaders();
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al eliminar lectura:', error);
+        throw error;
       })
     );
   }

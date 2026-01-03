@@ -77,6 +77,22 @@ export class CashBalanceService {
       })
     );
   }
+  /**
+   * Obtener todos los balances de caja abiertos (para administradores)
+   * GET /cash-balances/all-open
+   */
+  getAllOpenCashBalances(): Observable<CashBalanceOutputDto[]> {
+    const headers = this.getHeaders();
+    return this.http.get<CashBalanceOutputDto[]>(
+      `${this.apiUrl}/all-open`,
+      { headers }
+    ).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener todos los balances abiertos:', error);
+        throw error;
+      })
+    );
+  }
 
   /**
    * Crear un nuevo balance de caja

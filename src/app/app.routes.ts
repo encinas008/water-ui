@@ -40,6 +40,7 @@ import { CashBalancesListComponent } from './pages/cash-balance/cash-balances-li
 import { OpenCashBalanceComponent } from './pages/cash-balance/open-cash-balance.component';
 import { CashBalanceDetailsComponent } from './pages/cash-balance/cash-balance-details.component';
 import { AddWithdrawalComponent } from './pages/cash-balance/add-withdrawal.component';
+import { AddIncomeComponent } from './pages/cash-balance/add-income.component';
 import { WithdrawalsListComponent } from './pages/cash-balance/withdrawals-list.component';
 
 export const routes: Routes = [
@@ -234,6 +235,11 @@ export const routes: Routes = [
         path: 'cash-balances/withdrawal',
         component: AddWithdrawalComponent,
         title: 'Registrar Retiro | Sistema'
+      },
+      {
+        path: 'cash-balances/income',
+        component: AddIncomeComponent,
+        title: 'Registrar Ingreso | Sistema'
       },
       {
         path: 'cash-balances/withdrawals',

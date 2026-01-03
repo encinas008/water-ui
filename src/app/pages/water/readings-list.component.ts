@@ -9,6 +9,8 @@ import { WaterReadingService } from '../../shared/services/water-reading.service
 import { WaterMeterReadingOutputDto, PageResponse } from '../../shared/models/water-system.models';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { toast } from 'ngx-sonner';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-readings-list',
@@ -135,6 +137,45 @@ export class ReadingsListComponent implements OnInit {
 
   editReading(reading: WaterMeterReadingOutputDto): void {
     this.router.navigate(['/water-readings/edit', reading.id]);
+  }
+
+  onDelete(reading: WaterMeterReadingOutputDto): void {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `Deseas eliminar la lectura de ${reading.partnerName} (${reading.readingDate})? Esta acción también eliminará la factura asociada si está pendiente.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      heightAuto: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.isLoading = true;
+        this.waterReadingService.deleteReading(reading.id).subscribe({
+          next: () => {
+            toast.success('Lectura eliminada exitosamente');
+            this.resetAndLoadReadings();
+          },
+          error: (error) => {
+            this.isLoading = false;
+            console.error('Error al eliminar lectura:', error);
+
+            let message = 'Error al eliminar la lectura';
+            if (error.error) {
+              if (typeof error.error === 'string') {
+                message = error.error;
+              } else if (error.error.message) {
+                message = error.error.message;
+              }
+            }
+
+            toast.error(message);
+          }
+        });
+      }
+    });
   }
 
   getErrorMessage(error: any): string {

@@ -495,6 +495,7 @@ export interface CashFlowInputDto {
   amount: number;             // BigDecimal en backend
   description: string;
   userId: string;             // UUID en backend
+  cashBalanceId?: string;     // UUID opcional
 }
 
 export interface CashFlowOutputDto {

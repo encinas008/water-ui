@@ -113,6 +113,7 @@ export class AppSidebarComponent {
       subItems: [
         { name: "Lista de Balances", path: "/cash-balances", pro: false },
         { name: "Abrir Balance", path: "/cash-balances/open", pro: false },
+        { name: "Registrar Ingreso", path: "/cash-balances/income", pro: false },
         { name: "Registrar Retiro", path: "/cash-balances/withdrawal", pro: false },
         // { name: "Lista de Retiros", path: "/cash-balances/withdrawals", pro: false }
       ],

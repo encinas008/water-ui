@@ -39,6 +39,7 @@ export class AddWithdrawalComponent implements OnInit {
   isLoadingDetails = false;
 
   isLoading = false;
+  isAdmin = false;
 
   constructor(
     private cashFlowService: CashFlowService,
@@ -50,6 +51,9 @@ export class AddWithdrawalComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const userInfo = this.authService.getUserInfo();
+    this.isAdmin = userInfo?.role?.toUpperCase() === 'ADMINISTRADOR';
+
     this.loadOpenCashBalances();
     this.loadPaymentTypes();
     this.loadCashFlowTypes();
@@ -62,17 +66,21 @@ export class AddWithdrawalComponent implements OnInit {
       return;
     }
 
-    this.cashBalanceService.getLastOpenCashBalanceByUser(userInfo.userId).subscribe({
+    const obs = this.isAdmin
+      ? this.cashBalanceService.getAllOpenCashBalances()
+      : this.cashBalanceService.getLastOpenCashBalanceByUser(userInfo.userId);
+
+    obs.subscribe({
       next: (balances) => {
         this.openCashBalances = balances;
-        // Si hay un balance abierto, seleccionarlo automáticamente
-        if (balances.length > 0) {
+        // Si hay un solo balance, seleccionarlo automáticamente
+        if (balances.length === 1) {
           this.cashBalanceId = balances[0].id;
           this.selectCashBalance();
         }
       },
       error: (error) => {
-        console.error('Error al cargar balance de caja abierto:', error);
+        console.error('Error al cargar balances de caja abiertos:', error);
         toast.error('Error al cargar balances de caja abiertos');
       }
     });
@@ -217,7 +225,8 @@ export class AddWithdrawalComponent implements OnInit {
       cashFlowTypeId: this.cashFlowTypeId,
       amount: this.amount!,
       description: this.description.trim(),
-      userId: userInfo.userId
+      userId: userInfo.userId,
+      cashBalanceId: this.cashBalanceId
     };
 
     this.cashFlowService.createCashFlow(withdrawal).subscribe({

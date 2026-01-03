@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import Swal from 'sweetalert2';
+import { toast } from 'ngx-sonner';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
@@ -260,20 +262,34 @@ export class PartnersListComponent implements OnInit {
   }
 
   onDelete(partner: PartnerOutputDto): void {
-    if (confirm(`¿Estás seguro de que deseas eliminar a ${partner.fullName}?`)) {
-      this.partnerService.deletePartner(partner.id).subscribe({
-        next: () => {
-          console.log('Socio eliminado:', partner);
-          // Recargar desde el inicio
-          this.currentPage = 0;
-          this.partners = [];
-          this.loadPartners();
-        },
-        error: (error) => {
-          console.error('Error al eliminar socio:', error);
-          alert('Error al eliminar el socio. Por favor intenta de nuevo.');
-        }
-      });
-    }
+    if (!partner.id) return;
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Deseas eliminar a ${partner.fullName}? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      heightAuto: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.partnerService.deletePartner(partner.id!).subscribe({
+          next: () => {
+            toast.success('Socio eliminado exitosamente');
+            // Recargar desde el inicio
+            this.currentPage = 0;
+            this.partners = [];
+            this.loadPartners();
+          },
+          error: (error) => {
+            console.error('Error al eliminar socio:', error);
+            toast.error('Error al eliminar el socio. Por favor intenta de nuevo.');
+          }
+        });
+      }
+    });
   }
 }

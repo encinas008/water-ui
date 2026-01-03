@@ -1,0 +1,99 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
+    <app-page-breadcrumb [pageTitle]="'Registrar Ingreso'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+
+    <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+            <h3 class="font-medium text-black dark:text-white">Información del Ingreso</h3>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" class="p-6.5">
+            <!-- Información del Balance de Caja -->
+            <div *ngIf="selectedCashBalance" class="mb-6 p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
+                <h4 class="font-medium text-black dark:text-white mb-3">Balance de Caja Seleccionado</h4>
+                <div *ngIf="isLoadingDetails" class="text-sm text-bodydark">
+                    Cargando información del balance...
+                </div>
+                <div *ngIf="!isLoadingDetails" class="grid grid-cols-2 gap-3 text-sm">
+                    <div><strong>Asignado a:</strong> {{ selectedCashBalance.assignee }}</div>
+                    <div><strong>Fecha Apertura:</strong> {{ selectedCashBalance.openTime | date:'dd/MM/yyyy HH:mm' }}
+                    </div>
+                    <div><strong>Dinero Inicial:</strong> BOB {{ selectedCashBalance.initialMoney | number:'1.2-2' }}
+                    </div>
+                    <div><strong>Estado:</strong> <span class="text-success font-medium"> ABIERTO</span></div>
+                    <div *ngIf="cashBalanceDetails"
+                        class="col-span-2 pt-2 border-t border-stroke dark:border-strokedark">
+                        <strong>Total en Caja Actual:</strong>
+                        <span class="text-lg font-bold text-success"> BOB {{
+                            (cashBalanceDetails.cashBalanceDetails?.totalCashInBox || 0) | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seleccionar Balance de Caja -->
+            <div *ngIf="isAdmin || !selectedCashBalance" class="mb-4.5">
+                <label class="mb-2.5 block text-black dark:text-white">Balance de Caja <span
+                        class="text-meta-1">*</span></label>
+                <select [(ngModel)]="cashBalanceId" name="cashBalanceId" required (change)="selectCashBalance()"
+                    class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input">
+                    <option value="">Seleccione un balance de caja</option>
+                    <option *ngFor="let balance of openCashBalances" [value]="balance.id">
+                        {{ balance.description || 'Balance sin descripción' }} - Abierto: {{ balance.openTime |
+                        date:'dd/MM/yyyy HH:mm' }}
+                    </option>
+                </select>
+                <p class="mt-1 text-sm text-bodydark">
+                    <span *ngIf="openCashBalances.length === 0" class="text-warning">
+                        ⚠️ No hay balances de caja abiertos. Es necesario abrir un balance de caja antes de registrar un
+                        ingreso.
+                    </span>
+                </p>
+            </div>
+
+            <div *ngIf="selectedCashBalance">
+                <!-- Monto del Ingreso -->
+                <div class="mb-4.5">
+                    <label class="mb-2.5 block text-black dark:text-white">
+                        Monto a Ingresar <span class="text-meta-1">*</span>
+                    </label>
+                    <input type="number" step="0.01" min="0.01" [(ngModel)]="amount" name="amount" required
+                        placeholder="0.00"
+                        class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input" />
+                </div>
+
+                <!-- Tipo de Pago (restringido a efectivo) -->
+                <div class="mb-4.5">
+                    <label class="mb-2.5 block text-black dark:text-white">Tipo de Pago <span
+                            class="text-meta-1">*</span></label>
+                    <select [(ngModel)]="paymentTypeId" name="paymentType" required
+                        class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input bg-gray-100 cursor-not-allowed"
+                        disabled>
+                        <option value="">Seleccione un tipo</option>
+                        <option *ngFor="let type of cashPaymentTypes" [value]="type.id">{{ type.name }}</option>
+                    </select>
+                    <p class="mt-1 text-sm text-bodydark">Los ingresos manuales se realizan únicamente en efectivo para
+                        reposición</p>
+                </div>
+
+                <!-- Descripción -->
+                <div class="mb-6">
+                    <label class="mb-2.5 block text-black dark:text-white">Descripción / Motivo <span
+                            class="text-meta-1">*</span></label>
+                    <textarea [(ngModel)]="description" name="description" rows="3" required
+                        placeholder="Descripción del ingreso (ej: Reposición de efectivo para devoluciones, etc.)"
+                        class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input"></textarea>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex gap-4">
+                    <app-button type="submit" [variant]="'primary'" [disabled]="isLoading || !isFormValid()">
+                        <span *ngIf="!isLoading">Registrar Ingreso</span>
+                        <span *ngIf="isLoading">Registrando...</span>
+                    </app-button>
+                    <app-button type="button" [variant]="'secondary'" (click)="onCancel()" [disabled]="isLoading">
+                        Cancelar
+                    </app-button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
