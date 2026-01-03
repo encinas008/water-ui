@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, OnDestroy, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import flatpickr from 'flatpickr';
 import { LabelComponent } from '../label/label.component';
 
@@ -31,7 +31,7 @@ const SpanishLocale: flatpickr.CustomLocale = {
   templateUrl: './date-picker.component.html',
   styles: ``
 })
-export class DatePickerComponent implements AfterViewInit, OnDestroy {
+export class DatePickerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   @Input() id!: string;
   @Input() mode: 'single' | 'multiple' | 'range' | 'time' = 'single';
@@ -102,6 +102,12 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy {
     }
 
     this.flatpickrInstance = flatpickr(this.dateInput.nativeElement, options);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['defaultDate'] && this.flatpickrInstance && !changes['defaultDate'].firstChange) {
+      this.setDate(changes['defaultDate'].currentValue);
+    }
   }
 
   ngOnDestroy() {

@@ -32,8 +32,8 @@
               <app-label>
                 Tipo de Reunión <span class="text-error-500">*</span>
               </app-label>
-              <select [(ngModel)]="meetingTypeCode" name="meetingTypeCode"
-                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+              <select [(ngModel)]="meetingTypeCode" name="meetingTypeCode" [disabled]="isEditMode"
+                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed">
                 <option [value]="''">Seleccione un tipo</option>
                 <option *ngFor="let type of meetingTypes" [value]="type.code">
                   {{ type.name }}

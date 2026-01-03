@@ -239,12 +239,6 @@ export class MeetingsListComponent implements OnInit {
     }
   }
 
-  onDownload(): void {
-    console.log('Descargando lista de reuniones...');
-    // TODO: Implementar descarga a Excel/PDF
-    toast.info('Función de descarga en desarrollo');
-  }
-
   // Formatear fecha a formato español "Jun 15, 2015"
   formatDateSpanish(dateString: string): string {
     if (!dateString) return '';

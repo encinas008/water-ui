@@ -168,16 +168,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
         const dateParts = meeting.meetingDate.split('-');
         const meetingDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
 
-        // Si la fecha de la reunión es pasada, usar la fecha actual como mínimo
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (meetingDate < today) {
-          this.meetingDateObject = today;
-          this.meetingDateBackend = this.formatDateToYYYYMMDDFromDate(today);
-        } else {
-          this.meetingDateObject = meetingDate;
-        }
-
+        this.meetingDateObject = meetingDate;
         this.meetingDate = this.formatDateToDDMMYYYY(this.meetingDateObject);
         this.meetingDateDisplay = this.formatDateToMMMDYYYY(this.meetingDateObject);
         this.hour = meeting.hour;
