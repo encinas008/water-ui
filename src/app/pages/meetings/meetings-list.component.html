@@ -1,248 +1,268 @@
-<div>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
   <app-page-breadcrumb pageTitle="Administración de Reuniones" />
-
-  <!-- Loading State -->
-  <div *ngIf="isLoading"
-    class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-10">
-    <div class="flex flex-col items-center justify-center">
-      <svg class="animate-spin h-10 w-10 text-brand-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-        </path>
-      </svg>
-      <p class="text-gray-600 dark:text-gray-400">Cargando reuniones...</p>
-    </div>
-  </div>
 
   <!-- Error State -->
   <div *ngIf="errorMessage && !isLoading"
-    class="rounded-2xl border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 p-4 mb-6">
-    <p class="text-red-800 dark:text-red-400">{{ errorMessage }}</p>
+    class="mb-6 rounded-2xl border border-rose-100 bg-rose-50 p-4 flex items-center gap-3 shadow-sm dark:border-rose-900/30 dark:bg-rose-900/20">
+    <svg class="h-6 w-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <p class="text-rose-800 dark:text-rose-200 font-medium">{{ errorMessage }}</p>
   </div>
 
-  <!-- Table -->
-  <div *ngIf="!isLoading && !errorMessage"
-    class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-
-    <!-- Header con búsqueda y filtros -->
-    <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-800 sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <!-- Búsqueda -->
-        <div class="relative w-full sm:max-w-xs">
-          <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Buscar reuniones..."
-            class="h-10 w-full rounded-lg border border-gray-300 bg-transparent pl-10 pr-4 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-          <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
+  <!-- Actions & Filters Bar -->
+  <div class="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between animate-fade-in">
+    <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
+      <!-- Search -->
+      <div class="relative group max-w-md w-full">
+        <span
+          class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-brand-500">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
+        </span>
+        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Buscar reuniones..."
+          class="w-full rounded-xl border-2 border-slate-100 bg-white py-3.5 pl-12 pr-4 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white" />
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+      <app-button (click)="resetAndLoadMeetings()" [variant]="'secondary'"
+        [className]="'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600 transition-all font-bold px-4 py-3 rounded-xl shadow-lg border-none active:scale-95 flex items-center justify-center'">
+        <svg [ngClass]="{'animate-spin': isLoading}" class="h-5 w-5" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span class="ml-2 hidden sm:inline">Actualizar</span>
+      </app-button>
+
+      <app-button (click)="navigateToAddMeeting()" [variant]="'primary'"
+        [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-6 py-3 rounded-xl border-none active:scale-95 flex items-center justify-center'">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span class="ml-2 hidden sm:inline">Nueva Reunión</span>
+      </app-button>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div
+    class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden dark:bg-boxdark dark:border-strokedark animate-fade-in"
+    style="animation-delay: 100ms;">
+    <!-- Table Header Summary -->
+    <div
+      class="px-7 py-5 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-boxdark">
+      <div class="flex items-center gap-3">
+        <div class="h-8 w-1.5 bg-brand-500 rounded-full"></div>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Registros de Reuniones</h3>
+      </div>
+      <div class="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total: {{ totalElements }}</span>
+      </div>
+    </div>
+
+    <!-- Static Column Headers -->
+    <div class="bg-slate-100/30 dark:bg-meta-4/20 px-7 py-4 hidden md:block">
+      <div class="grid grid-cols-12 gap-4 items-center text-xs font-black text-slate-500 uppercase tracking-widest">
+
+        <div class="col-span-4 pl-7">Nombre</div>
+        <div class="col-span-2">Tipo</div>
+        <div class="col-span-2">Fecha y Hora</div>
+        <div class="col-span-2">Descripción</div>
+        <div class="col-span-1">Multa</div>
+        <div class="col-span-1 text-center">Acciones</div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-24">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-solid border-brand-500 border-t-transparent mb-4">
+      </div>
+      <p class="text-slate-500 font-medium">Cargando reuniones...</p>
+    </div>
+
+    <!-- Virtual Scroll List -->
+    <cdk-virtual-scroll-viewport *ngIf="!isLoading && !errorMessage" itemSize="88"
+      class="cdk-virtual-scroll-viewport border-none bg-white dark:bg-boxdark"
+      (scrolledIndexChange)="onScrolledIndexChange($event)">
+
+      <div *cdkVirtualFor="let meeting of (meetings || [])"
+        class="group relative px-7 py-5 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/20 transition-all">
+        <!-- Desktop Grid Layout -->
+        <div class="hidden md:grid grid-cols-12 gap-4 items-center">
+          <!-- Checkbox -->
+
+
+          <!-- Nombre -->
+          <div class="col-span-4 pl-7">
+            <p class="font-bold text-slate-800 dark:text-white truncate" title="{{ meeting.name }}">{{ meeting.name }}
+            </p>
+          </div>
+
+          <!-- Tipo -->
+          <div class="col-span-2">
+            <span *ngIf="meeting.meetingTypeName" [ngClass]="{
+                  'px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase shadow-sm border': true,
+                  'bg-blue-50 text-blue-600 border-blue-100': meeting.meetingTypeCode === 'AULL',
+                  'bg-purple-50 text-purple-600 border-purple-100': meeting.meetingTypeCode === 'CLASSIC',
+                  'bg-gray-50 text-gray-600 border-gray-100': !['AULL', 'CLASSIC'].includes(meeting.meetingTypeCode!)
+                }">
+              {{ meeting.meetingTypeName }}
+            </span>
+          </div>
+
+          <!-- Fecha -->
+          <div class="col-span-2">
+            <p class="font-bold text-slate-700 dark:text-white text-sm">{{ formatDateSpanish(meeting.meetingDate) }}</p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{{ formatTime(meeting.hour,
+              meeting.minute, meeting.amPm) }}</p>
+          </div>
+
+          <!-- Descripción -->
+          <div class="col-span-2">
+            <p class="text-sm text-slate-600 dark:text-slate-400 truncate" title="{{ meeting.description }}">
+              {{ meeting.description || 'Sin descripción' }}</p>
+          </div>
+
+          <!-- Multa -->
+          <div class="col-span-1">
+            <span *ngIf="meeting.fine" class="font-bold text-rose-500 text-sm">
+              {{ formatCurrency(meeting.fine) }}
+            </span>
+            <span *ngIf="!meeting.fine" class="text-xs text-slate-400 font-medium">
+              -
+            </span>
+          </div>
+
+          <!-- Actions -->
+          <div class="col-span-1 flex justify-center gap-1">
+            <button *ngIf="meeting.meetingTypeCode !== 'CLASSIC'" (click)="onAssignPartners(meeting)"
+              class="h-8 w-8 flex items-center justify-center rounded-lg text-purple-600 hover:text-white hover:bg-purple-500 transition-colors"
+              title="Asignar socios">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                </path>
+              </svg>
+            </button>
+            <button (click)="onView(meeting)"
+              class="h-8 w-8 flex items-center justify-center rounded-lg text-emerald-600 hover:text-white hover:bg-emerald-500 transition-colors"
+              title="Ver asistencia">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                </path>
+              </svg>
+            </button>
+            <button (click)="onEdit(meeting)"
+              class="h-8 w-8 flex items-center justify-center rounded-lg text-blue-600 hover:text-white hover:bg-blue-500 transition-colors"
+              title="Editar">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                </path>
+              </svg>
+            </button>
+            <button (click)="onDelete(meeting)"
+              class="h-8 w-8 flex items-center justify-center rounded-lg text-rose-600 hover:text-white hover:bg-rose-500 transition-colors"
+              title="Eliminar">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                </path>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <!-- Acciones -->
-        <div class="flex items-center gap-3">
-          <app-button size="sm" variant="primary" (btnClick)="navigateToAddMeeting()">
-            + Nueva Reunión
-          </app-button>
+        <!-- Mobile Layout -->
+        <div class="md:hidden flex flex-col gap-3">
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-3">
+              <!-- Checkbox for mobile? Maybe too cluttered. Let's keep it simple or add if needed. -->
+              <!-- <input type="checkbox" [checked]="isSelected(meeting.id)" (change)="toggleSelectMeeting(meeting.id)"
+              class="h-5 w-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500" /> -->
+
+              <div>
+                <p class="font-bold text-slate-800 dark:text-white">{{ meeting.name }}</p>
+                <p class="text-xs text-slate-500">{{ formatDateSpanish(meeting.meetingDate) }} • {{
+                  formatTime(meeting.hour, meeting.minute, meeting.amPm) }}</p>
+              </div>
+            </div>
+            <span *ngIf="meeting.meetingTypeName" [ngClass]="{
+                  'px-2 py-0.5 rounded text-[10px] font-black uppercase': true,
+                  'bg-blue-50 text-blue-600': meeting.meetingTypeCode === 'AULL',
+                  'bg-purple-50 text-purple-600': meeting.meetingTypeCode === 'CLASSIC',
+                  'bg-gray-50 text-gray-600': !['AULL', 'CLASSIC'].includes(meeting.meetingTypeCode!)
+                }">
+              {{ meeting.meetingTypeName }}
+            </span>
+          </div>
+
+          <div class="text-sm text-slate-600 dark:text-slate-300 line-clamp-2" *ngIf="meeting.description">
+            {{ meeting.description }}
+          </div>
+
+          <div class="flex justify-between items-end border-t border-slate-50 dark:border-slate-800 pt-3 mt-1">
+            <div>
+              <p class="text-xs text-slate-400 font-bold uppercase">Multa</p>
+              <p class="text-base font-black text-rose-500" *ngIf="meeting.fine">{{ formatCurrency(meeting.fine) }}</p>
+              <p class="text-sm font-medium text-slate-400" *ngIf="!meeting.fine">Sin multa</p>
+            </div>
+            <div class="flex gap-2">
+              <button (click)="onView(meeting)"
+                class="px-3 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-sm font-bold">
+                Asistencia
+              </button>
+              <button *ngIf="meeting.meetingTypeCode !== 'CLASSIC'" (click)="onAssignPartners(meeting)"
+                class="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg text-sm font-bold">
+                Socios
+              </button>
+            </div>
+          </div>
         </div>
+
       </div>
 
-    </div>
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && (!meetings || meetings.length === 0)"
+        class="flex flex-col items-center justify-center py-20 px-4">
+        <div
+          class="h-24 w-24 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-200 dark:text-slate-700 mb-6">
+          <svg class="h-14 w-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">No hay reuniones registradas</h3>
+        <p class="text-slate-500 text-center max-w-sm">
+          {{ searchQuery ? 'No encontramos resultados para "' + searchQuery + '"' : 'Comienza agregando tu primera
+          reunión.' }}
+        </p>
+        <app-button *ngIf="!searchQuery" (click)="navigateToAddMeeting()" [variant]="'primary'"
+          [className]="'mt-6 bg-brand-500 text-white px-6 py-2 rounded-xl font-bold'">
+          + Nueva Reunión
+        </app-button>
+      </div>
 
-    <!-- Tabla -->
-    <div class="overflow-x-auto">
-      <table class="w-full table-fixed">
-        <thead>
-          <tr>
-            <!-- Checkbox -->
-            <th class="col-checkbox px-4 py-4 text-left sm:px-6 lg:px-8">
-              <input type="checkbox" [checked]="selectAll" (change)="toggleSelectAll()"
-                class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-            </th>
-            <!-- Nombre -->
-            <th class="col-nombre px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-              Nombre
-            </th>
-            <!-- Tipo -->
-            <th class="col-tipo px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-              Tipo
-            </th>
-            <!-- Fecha -->
-            <th class="col-fecha px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-              Fecha
-            </th>
-            <!-- Hora -->
-            <th class="col-hora px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-              Hora
-            </th>
-            <!-- Descripción -->
-            <th class="col-descripcion px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-              Descripción
-            </th>
-            <!-- Multa -->
-            <th class="col-multa px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-              Multa
-            </th>
-            <!-- Acciones -->
-            <th class="col-acciones px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
-              Acciones
-            </th>
-          </tr>
-        </thead>
-      </table>
-    </div>
-
-    <cdk-virtual-scroll-viewport itemSize="80" class="cdk-virtual-scroll-viewport"
-      (scrolledIndexChange)="onScrolledIndexChange($event)">
-      <table class="w-full table-fixed">
-        <tbody>
-          <tr *cdkVirtualFor="let meeting of (meetings || [])"
-            class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors border-b border-gray-200 dark:border-gray-800">
-            <!-- Checkbox -->
-            <td class="col-checkbox px-4 py-4 sm:px-6 lg:px-8">
-              <input type="checkbox" [checked]="isSelected(meeting.id)" (change)="toggleSelectMeeting(meeting.id)"
-                class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-            </td>
-
-            <!-- Nombre -->
-            <td class="col-nombre px-4 py-4">
-              <p class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ meeting.name }}
-              </p>
-            </td>
-
-            <!-- Tipo -->
-            <td class="col-tipo px-4 py-4">
-              <span *ngIf="meeting.meetingTypeName"
-                class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" [ngClass]="{
-                      'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400': meeting.meetingTypeCode === 'AULL',
-                      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400': meeting.meetingTypeCode === 'CLASSIC'
-                    }">
-                {{ meeting.meetingTypeName }}
-              </span>
-              <span *ngIf="!meeting.meetingTypeName" class="text-sm text-gray-400 dark:text-gray-500">
-                Sin tipo
-              </span>
-            </td>
-
-            <!-- Fecha -->
-            <td class="col-fecha px-4 py-4">
-              <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ formatDateSpanish(meeting.meetingDate) }}
-              </span>
-            </td>
-
-            <!-- Hora -->
-            <td class="col-hora px-4 py-4">
-              <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ formatTime(meeting.hour, meeting.minute, meeting.amPm) }}
-              </span>
-            </td>
-
-            <!-- Descripción -->
-            <td class="col-descripcion px-4 py-4">
-              <p class="text-sm text-gray-700 dark:text-gray-300 max-w-md truncate">
-                {{ meeting.description || 'Sin descripción' }}
-              </p>
-            </td>
-
-            <!-- Multa -->
-            <td class="col-multa px-4 py-4">
-              <span *ngIf="meeting.fine" class="text-sm font-medium text-gray-900 dark:text-white">
-                {{ formatCurrency(meeting.fine) }}
-              </span>
-              <span *ngIf="!meeting.fine" class="text-sm text-gray-400 dark:text-gray-500">
-                Sin multa
-              </span>
-            </td>
-
-            <!-- Acciones -->
-            <td class="col-acciones px-4 py-4">
-              <div class="flex items-center justify-center gap-2">
-                <button *ngIf="meeting.meetingTypeCode !== 'CLASSIC'" (click)="onAssignPartners(meeting)"
-                  class="rounded-lg p-2 text-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20"
-                  title="Asignar socios">
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                    </path>
-                  </svg>
-                </button>
-                <button (click)="onView(meeting)"
-                  class="rounded-lg p-2 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20"
-                  title="Ver asistencia">
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                    </path>
-                  </svg>
-                </button>
-                <button (click)="onEdit(meeting)"
-                  class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
-                  title="Editar">
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                    </path>
-                  </svg>
-                </button>
-                <button (click)="onDelete(meeting)"
-                  class="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                  title="Eliminar">
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                    </path>
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          <!-- Empty State -->
-          <tr *ngIf="!isLoading && (!meetings || meetings.length === 0)">
-            <td colspan="8" class="px-4 py-12 text-center">
-              <div class="flex flex-col items-center justify-center">
-                <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor"
-                  viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  No se encontraron reuniones
-                </p>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  {{ searchQuery ? 'Intenta con otro término de búsqueda' : 'Comienza agregando tu primera reunión' }}
-                </p>
-                <app-button *ngIf="!searchQuery" size="sm" variant="primary" (btnClick)="navigateToAddMeeting()">
-                  + Agregar Reunión
-                </app-button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </cdk-virtual-scroll-viewport>
 
-    <div *ngIf="isLoadingMore" class="flex justify-center py-4">
-      <svg class="animate-spin h-5 w-5 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-        </path>
-      </svg>
-    </div>
-
-    <!-- Info de total -->
-    <div *ngIf="!isLoading && totalElements > 0"
-      class="border-t border-gray-200 px-4 py-4 dark:border-gray-800 sm:px-6 lg:px-8">
-      <p class="text-sm text-gray-700 dark:text-gray-300">
-        Total de reuniones: <span class="font-medium">{{ totalElements }}</span>
-      </p>
+    <!-- Pagination / Load More Loader -->
+    <div *ngIf="isLoadingMore"
+      class="flex justify-center py-6 bg-slate-50/30 border-t border-slate-50 dark:bg-boxdark dark:border-slate-800">
+      <div
+        class="flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-100 dark:border-slate-700">
+        <div class="h-4 w-4 animate-spin rounded-full border-2 border-solid border-brand-500 border-t-transparent">
+        </div>
+        <span class="text-xs font-bold text-slate-500 tracking-wide">Cargando más registros...</span>
+      </div>
     </div>
   </div>
 

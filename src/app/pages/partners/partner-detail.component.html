@@ -1,9 +1,9 @@
-<div>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
   <app-page-breadcrumb pageTitle="Detalles del Socio" />
 
   <!-- Loading State -->
   <div *ngIf="isLoading"
-    class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-10">
+    class="rounded-3xl border border-slate-100 bg-white dark:border-slate-800 dark:bg-boxdark p-10 shadow-sm">
     <div class="flex flex-col items-center justify-center">
       <svg class="animate-spin h-10 w-10 text-brand-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 24 24">
@@ -12,47 +12,52 @@
           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
         </path>
       </svg>
-      <p class="text-gray-600 dark:text-gray-400">Cargando detalles del socio...</p>
+      <p class="text-slate-600 dark:text-slate-400 font-medium">Cargando detalles del socio...</p>
     </div>
   </div>
 
   <!-- Error State -->
   <div *ngIf="errorMessage && !isLoading"
-    class="rounded-2xl border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 p-4 mb-6">
-    <p class="text-red-800 dark:text-red-400">{{ errorMessage }}</p>
+    class="rounded-3xl border border-rose-200 bg-rose-50 dark:border-rose-800 dark:bg-rose-900/20 p-6 mb-6">
+    <p class="text-rose-800 dark:text-rose-400 font-bold">{{ errorMessage }}</p>
   </div>
 
   <!-- Partner Details -->
   <div *ngIf="partner && !isLoading" class="space-y-6">
     <!-- Header con acciones -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <div class="flex items-center justify-between">
+    <div
+      class="rounded-3xl border border-slate-100 bg-white dark:border-strokedark dark:bg-boxdark shadow-sm animate-fade-in"
+      style="animation-delay: 100ms;">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="flex items-center gap-4">
             <!-- Avatar -->
             <div [ngClass]="getAvatarColor(partner.fullName)"
-              class="h-16 w-16 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold text-xl">
+              class="h-16 w-16 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-md">
               {{ getInitials(partner.fullName) }}
             </div>
 
             <div>
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+              <h2 class="text-2xl font-bold text-slate-800 dark:text-white">
                 {{ partner.fullName }}
               </h2>
-              <p *ngIf="partner.partnerNumber" class="text-sm text-gray-500 dark:text-gray-400">
-                Socio #{{ partner.partnerNumber }}
+              <p *ngIf="partner.partnerNumber" class="text-sm font-medium text-slate-500 dark:text-slate-400">
+                Socio <span class="font-bold text-brand-500">#{{ partner.partnerNumber }}</span>
               </p>
             </div>
           </div>
 
           <div class="flex items-center gap-3">
-            <app-button variant="outline" size="md" (btnClick)="onBack()">
+            <app-button variant="outline" size="md" (btnClick)="onBack()"
+              [className]="'font-bold rounded-xl border-2 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-all'">
               Volver
             </app-button>
-            <app-button *ngIf="isAdmin" variant="primary" size="md" (btnClick)="onEdit()">
+            <app-button *ngIf="isAdmin" variant="primary" size="md" (btnClick)="onEdit()"
+              [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold rounded-xl border-none'">
               Editar
             </app-button>
-            <app-button *ngIf="isAdmin" variant="outline" size="md" (btnClick)="onDelete()">
+            <app-button *ngIf="isAdmin" variant="outline" size="md" (btnClick)="onDelete()"
+              [className]="'font-bold rounded-xl border-2 border-rose-100 text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition-all'">
               Eliminar
             </app-button>
           </div>
@@ -61,44 +66,47 @@
     </div>
 
     <!-- Información Personal -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <h3 class="text-lg font-medium text-gray-800 dark:text-white">
+    <div
+      class="rounded-3xl border border-slate-100 bg-white dark:border-strokedark dark:bg-boxdark shadow-sm animate-fade-in"
+      style="animation-delay: 200ms;">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white">
           Información Personal
         </h3>
       </div>
-      <div class="p-6">
+      <div class="p-7">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Nombre Completo</p>
-            <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.fullName }}</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Nombre Completo</p>
+            <p class="text-base font-medium text-slate-800 dark:text-white">{{ partner.fullName }}</p>
           </div>
 
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Documento de Identificación</p>
-            <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.partnerIdentificationNumber || 'N/A' }}
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Documento de Identificación</p>
+            <p class="text-base font-medium text-slate-800 dark:text-white">{{ partner.partnerIdentificationNumber ||
+              'N/A' }}
             </p>
           </div>
 
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Celular</p>
-            <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.phoneNumber || 'N/A' }}</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Celular</p>
+            <p class="text-base font-medium text-slate-800 dark:text-white">{{ partner.phoneNumber || 'N/A' }}</p>
           </div>
 
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Dirección</p>
-            <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.address || 'N/A' }}</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Dirección</p>
+            <p class="text-base font-medium text-slate-800 dark:text-white">{{ partner.address || 'N/A' }}</p>
           </div>
 
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tercera Edad</p>
-            <p class="mt-1 text-base text-gray-900 dark:text-white">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Tercera Edad</p>
+            <p class="mt-1">
               <span *ngIf="partner.isElderly"
-                class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                class="inline-flex items-center rounded-lg bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-100">
                 Sí
               </span>
               <span *ngIf="!partner.isElderly"
-                class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-900/30 dark:text-gray-400">
+                class="inline-flex items-center rounded-lg bg-slate-50 px-3 py-1 text-xs font-bold text-slate-600 border border-slate-100">
                 No
               </span>
             </p>
@@ -108,46 +116,59 @@
     </div>
 
     <!-- Información de Conexión de Agua -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <h3 class="text-lg font-medium text-gray-800 dark:text-white">
+    <div
+      class="rounded-3xl border border-slate-100 bg-white dark:border-strokedark dark:bg-boxdark shadow-sm animate-fade-in"
+      style="animation-delay: 300ms;">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white">
           Conexión de Agua
         </h3>
       </div>
-      <div class="p-6">
+      <div class="p-7">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Identificador de Medidor</p>
-            <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.waterMeterNumber || 'N/A' }}</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Identificador de Medidor</p>
+            <div class="flex items-center gap-2">
+              <div class="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <p class="text-base font-bold text-slate-800 dark:text-white">{{ partner.waterMeterNumber || 'N/A' }}</p>
+            </div>
           </div>
 
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Estado de Conexión</p>
-            <p class="mt-1">
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Estado de Conexión</p>
+            <div class="mt-1">
               <app-badge [variant]="'light'" [color]="getStatusColor(partner.connectionStatusCode)">
                 {{ getStatusLabel(partner.connectionStatusCode) }}
               </app-badge>
-            </p>
+            </div>
           </div>
 
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Instalación</p>
-            <p class="mt-1 text-base text-gray-900 dark:text-white">{{ formatDate(partner.connectionDate) }}</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Fecha de Instalación</p>
+            <p class="text-base font-medium text-slate-800 dark:text-white">{{ formatDate(partner.connectionDate) }}</p>
           </div>
 
           <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Dirección de Conexión</p>
-            <p class="mt-1 text-base text-gray-900 dark:text-white">{{ partner.waterConnectionAddress || 'N/A' }}</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Dirección de Conexión</p>
+            <p class="text-base font-medium text-slate-800 dark:text-white">{{ partner.waterConnectionAddress || 'N/A'
+              }}</p>
           </div>
 
           <div *ngIf="partner.currentDebt !== undefined && partner.currentDebt !== null" class="md:col-span-2">
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Deuda Actual</p>
-            <p class="mt-1 text-lg font-semibold" [ngClass]="{
-              'text-red-600 dark:text-red-400': partner.currentDebt > 0,
-              'text-green-600 dark:text-green-400': partner.currentDebt === 0
-            }">
-              BOB {{ partner.currentDebt | number:'1.2-2' }}
-            </p>
+            <div class="rounded-2xl bg-slate-50 p-4 border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+              <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Deuda Actual</p>
+              <p class="text-2xl font-black" [ngClass]="{
+                'text-rose-500': partner.currentDebt > 0,
+                'text-emerald-500': partner.currentDebt === 0
+                }">
+                BOB {{ partner.currentDebt | number:'1.2-2' }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -155,51 +176,58 @@
 
     <!-- Notas -->
     <div *ngIf="partner.notes"
-      class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <h3 class="text-lg font-medium text-gray-800 dark:text-white">
+      class="rounded-3xl border border-slate-100 bg-white dark:border-strokedark dark:bg-boxdark shadow-sm animate-fade-in">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white">
           Notas / Observaciones
         </h3>
       </div>
-      <div class="p-6">
-        <p class="text-base text-gray-900 dark:text-white whitespace-pre-wrap">{{ partner.notes }}</p>
+      <div class="p-7">
+        <p class="text-base text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{{ partner.notes }}
+        </p>
       </div>
     </div>
+
     <!-- Historial de Pagos -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <h3 class="text-lg font-medium text-gray-800 dark:text-white">
+    <div
+      class="rounded-3xl border border-slate-100 bg-white dark:border-strokedark dark:bg-boxdark shadow-sm animate-fade-in"
+      style="animation-delay: 400ms;">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white">
           Historial de Pagos
         </h3>
       </div>
-      <div class="p-6">
-        <div *ngIf="payments.length === 0" class="text-center py-4 text-gray-500">
+      <div class="p-0">
+        <div *ngIf="payments.length === 0" class="text-center py-10 text-slate-500 font-medium">
           No hay pagos registrados.
         </div>
 
         <div *ngIf="payments.length > 0" class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-            <thead class="text-xs uppercase text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <table class="w-full text-left text-sm text-slate-500 dark:text-slate-400">
+            <thead
+              class="text-xs font-bold uppercase text-slate-500 bg-slate-50/50 dark:bg-slate-800 dark:text-slate-400">
               <tr>
-                <th scope="col" class="px-6 py-3">Fecha</th>
-                <th scope="col" class="px-6 py-3">Concepto / Tipo</th>
-                <th scope="col" class="px-6 py-3">Monto</th>
-                <th scope="col" class="px-6 py-3">Acciones</th>
+                <th scope="col" class="px-7 py-4">Fecha</th>
+                <th scope="col" class="px-7 py-4">Concepto / Tipo</th>
+                <th scope="col" class="px-7 py-4">Monto</th>
+                <th scope="col" class="px-7 py-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let payment of payments"
-                class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                <td class="px-6 py-4">{{ formatDate(payment.paymentDate) }}</td>
-                <td class="px-6 py-4">
-                  <div class="font-medium text-gray-900 dark:text-white">{{ payment.paymentTypeName }}</div>
-                  <div class="text-xs">{{ payment.observation || payment.receiptNumber }}</div>
+                class="bg-white border-b border-slate-50 dark:bg-boxdark dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                <td class="px-7 py-4 font-medium">{{ formatDate(payment.paymentDate) }}</td>
+                <td class="px-7 py-4">
+                  <div class="font-bold text-slate-800 dark:text-white">{{ payment.paymentTypeName }}</div>
+                  <div class="text-xs font-medium text-slate-400 mt-0.5">{{ payment.observation || payment.receiptNumber
+                    }}</div>
                 </td>
-                <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                <td class="px-7 py-4 font-bold text-emerald-600">
                   BOB {{ payment.amount | number:'1.2-2' }}
                 </td>
-                <td class="px-6 py-4">
-                  <app-button variant="outline" size="sm" (btnClick)="onPrintReceipt(payment.id)">
+                <td class="px-7 py-4 text-right">
+                  <app-button variant="outline" size="sm" (btnClick)="onPrintReceipt(payment.id)"
+                    [className]="'rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 py-1.5 px-3'">
                     <span class="flex items-center gap-2">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">

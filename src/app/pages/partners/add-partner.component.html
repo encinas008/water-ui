@@ -1,90 +1,87 @@
-<div>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
   <app-page-breadcrumb [pageTitle]="isEditMode ? 'Editar Socio' : 'Crear Socio'" />
-
-
 
   <div class="space-y-6">
     <!-- Información Personal -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <h2 class="text-lg font-medium text-gray-800 dark:text-white">
+    <div
+      class="rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-strokedark dark:bg-boxdark animate-fade-in"
+      style="animation-delay: 100ms;">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white">
           Información del Socio
         </h2>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
           Datos personales y de contacto
         </p>
       </div>
-      <div class="p-4 sm:p-6">
-        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+      <div class="p-7">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <!-- Nombre Completo -->
           <div>
-            <app-label>
-              Nombre Completo <span class="text-red-500">*</span>
-            </app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Nombre Completo</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field type="text" name="fullName" [(ngModel)]="fullName" (input)="onFullNameInput($event)"
               placeholder="Ingrese el nombre completo" [maxlength]="200" required></app-input-field>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Solo letras, mínimo 2 caracteres, máximo 200. Un
-              espacio entre palabras</p>
+            <p class="mt-2 text-xs font-medium text-slate-400">Solo letras, mínimo 2 caracteres, máximo 200. Un espacio
+              entre palabras</p>
           </div>
 
           <!-- Documento de Identificación -->
           <div>
-            <app-label>
-              Documento de Identificación <span class="text-red-500">*</span>
-            </app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Documento de Identificación</span>
+              <span class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field type="text" name="partnerIdentificationNumber" [(ngModel)]="partnerIdentificationNumber"
               (input)="onPartnerIdentificationNumberInput($event)" (blur)="onPartnerIdentificationNumberBlur()"
               placeholder="CI" [maxlength]="50" required></app-input-field>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 50 caracteres</p>
+            <p class="mt-2 text-xs font-medium text-slate-400">Máximo 50 caracteres</p>
           </div>
 
           <!-- Celular -->
           <div>
-            <app-label>
-              Celular <span class="text-red-500">*</span>
-            </app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Celular</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field type="tel" name="phoneNumber" [ngModel]="phoneNumber"
               (ngModelChange)="onPhoneNumberChange($event)" placeholder="70000000" [maxlength]="20" pattern="[0-9]*"
               required></app-input-field>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Solo números, máximo 20 caracteres</p>
+            <p class="mt-2 text-xs font-medium text-slate-400">Solo números, máximo 20 caracteres</p>
           </div>
 
           <!-- Dirección -->
           <div class="col-span-full">
-            <app-label>
-              Dirección <span class="text-red-500">*</span>
-            </app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Dirección</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field type="text" name="address" [(ngModel)]="address"
               placeholder="Ingrese la dirección completa" [maxlength]="500" required></app-input-field>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 500 caracteres</p>
+            <p class="mt-2 text-xs font-medium text-slate-400">Máximo 500 caracteres</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Información de Conexión de Agua -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <h2 class="text-lg font-medium text-gray-800 dark:text-white">
+    <div
+      class="rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-strokedark dark:bg-boxdark animate-fade-in"
+      style="animation-delay: 200ms;">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white">
           Conexión de Agua
         </h2>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
           Información de la conexión y medidor de agua
         </p>
       </div>
-      <div class="p-4 sm:p-6">
-        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+      <div class="p-7">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <!-- Identificador de Medidor -->
           <div>
-            <app-label>
-              Identificador de Medidor
-            </app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Identificador de
+                Medidor</span></app-label>
             <div class="relative">
               <app-input-field type="text" name="waterMeterNumber" [ngModel]="waterMeterNumber"
                 (ngModelChange)="onWaterMeterNumberChange($event)" placeholder="Ej: ABC123" [maxlength]="50"
                 [error]="meterNumberExists"></app-input-field>
               <div *ngIf="isCheckingMeterNumber" class="absolute right-3 top-1/2 -translate-y-1/2">
-                <svg class="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+                <svg class="animate-spin h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none"
                   viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor"
@@ -93,39 +90,36 @@
                 </svg>
               </div>
             </div>
-            <p *ngIf="meterNumberExists" class="mt-1 text-xs text-red-600 dark:text-red-400">
+            <p *ngIf="meterNumberExists" class="mt-2 text-xs font-bold text-rose-500">
               Este identificador de medidor ya está registrado para otro socio
             </p>
-            <p *ngIf="!meterNumberExists && !isCheckingMeterNumber"
-              class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p *ngIf="!meterNumberExists && !isCheckingMeterNumber" class="mt-2 text-xs font-medium text-slate-400">
               Letras y números, opcional, máximo 50 caracteres
             </p>
           </div>
 
           <!-- Estado de Conexión -->
           <div>
-            <app-label>
-              Estado de Conexión
-            </app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Estado de Conexión</span></app-label>
             <app-select [options]="connectionStatusOptions" placeholder="Seleccione un estado"
               [(value)]="connectionStatusCode" (valueChange)="onConnectionStatusChange($event)"></app-select>
           </div>
 
           <!-- Fecha de Conexión -->
           <div>
-            <app-label>
-              Fecha de Instalación
-            </app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Fecha de
+                Instalación</span></app-label>
             <app-input-field type="text" name="connectionDate" [ngModel]="formattedConnectionDate" [readonly]="true"
               placeholder="Fecha de instalación"></app-input-field>
           </div>
 
           <!-- Tercera Edad -->
-          <div class="flex items-center">
-            <label class="flex items-center gap-3 cursor-pointer">
+          <div class="flex items-center pt-8">
+            <label class="flex items-center gap-3 cursor-pointer group">
               <input type="checkbox" name="isElderly" [(ngModel)]="isElderly"
-                class="h-5 w-5 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                class="h-5 w-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-700 dark:bg-boxdark transition-all" />
+              <span
+                class="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-brand-600 transition-colors">
                 Es de la tercera edad
               </span>
             </label>
@@ -133,19 +127,22 @@
 
           <!-- Cobro de Instalación (Solo en modo creación) -->
           <ng-container *ngIf="!isEditMode">
-            <div class="col-span-full border-t border-gray-200 pt-5 dark:border-gray-800">
-              <h3 class="text-md font-medium text-gray-800 dark:text-white mb-4">
-                Cobro de Instalación <span class="text-error-500">*</span>
+            <div class="col-span-full border-t border-slate-100 pt-6 mt-2 dark:border-slate-800">
+              <h3 class="text-md font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
+                <div class="h-6 w-1 bg-brand-500 rounded-full"></div>
+                Cobro de Instalación
               </h3>
-              <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                  <app-label>Monto de Instalación (BOB) <span class="text-error-500">*</span></app-label>
+                  <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Monto de Instalación
+                      (BOB)</span> <span class="text-rose-500 ml-1">*</span></app-label>
                   <app-input-field type="text" name="installationAmount" [value]="installationAmount"
                     (valueChange)="onInstallationAmountChange($event)" appNumberLimit [maxLimit]="9999999.99"
                     [minLimit]="0" placeholder="0.00" required></app-input-field>
                 </div>
                 <div>
-                  <app-label>Tipo de Pago <span class="text-error-500">*</span></app-label>
+                  <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Tipo de Pago</span> <span
+                      class="text-rose-500 ml-1">*</span></app-label>
                   <app-select [options]="paymentTypeOptions" placeholder="Seleccione tipo de pago"
                     [(value)]="paymentTypeId" required></app-select>
                 </div>
@@ -155,51 +152,46 @@
 
           <!-- Dirección de Conexión -->
           <div class="col-span-full">
-            <app-label>
-              Dirección de Conexión de Agua
-            </app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Dirección de Conexión de
+                Agua</span></app-label>
             <app-input-field type="text" name="waterConnectionAddress" [(ngModel)]="waterConnectionAddress"
               placeholder="Dirección donde está instalado el medidor (si es diferente)"
               [maxlength]="500"></app-input-field>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 500 caracteres</p>
+            <p class="mt-2 text-xs font-medium text-slate-400">Máximo 500 caracteres</p>
           </div>
 
           <!-- Notas -->
           <div class="col-span-full">
-            <app-label>
-              Notas / Observaciones
-            </app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Notas /
+                Observaciones</span></app-label>
             <textarea name="notes" [(ngModel)]="notes" rows="3"
               placeholder="Observaciones adicionales sobre el socio o la conexión..." [maxlength]="1000"
-              class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-3 outline-none focus:border-primary dark:border-gray-700 dark:bg-gray-800 dark:text-white"></textarea>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Máximo 1000 caracteres</p>
+              class="w-full rounded-xl border border-slate-300 bg-transparent px-5 py-3 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-boxdark dark:text-white transition-all"></textarea>
+            <p class="mt-2 text-xs font-medium text-slate-400">Máximo 1000 caracteres</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Botones de Acción -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="p-4 sm:p-6">
-        <div class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <app-button variant="outline" size="md" (btnClick)="goBack()">
-            Cancelar
-          </app-button>
-          <app-button variant="primary" size="md" (btnClick)="onSubmit()" [disabled]="!canSubmit">
-            <span *ngIf="!isLoading">{{ isEditMode ? 'Actualizar Socio' : 'Crear Socio' }}</span>
-            <span *ngIf="isLoading">
-              <svg class="animate-spin h-5 w-5 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
-              </svg>
-              {{ isEditMode ? 'Actualizando...' : 'Creando...' }}
-            </span>
-          </app-button>
-        </div>
-      </div>
+    <div class="flex flex-col gap-4 sm:flex-row sm:justify-end py-4">
+      <app-button variant="outline" size="md" (btnClick)="goBack()"
+        [className]="'font-bold rounded-xl border-2 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-all px-6 py-3'">
+        Cancelar
+      </app-button>
+      <app-button variant="primary" size="md" (btnClick)="onSubmit()" [disabled]="!canSubmit"
+        [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-8 py-3 rounded-xl border-none active:scale-95'">
+        <span *ngIf="!isLoading">{{ isEditMode ? 'Actualizar Socio' : 'Crear Socio' }}</span>
+        <span *ngIf="isLoading" class="flex items-center">
+          <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          {{ isEditMode ? 'Actualizando...' : 'Creando...' }}
+        </span>
+      </app-button>
     </div>
   </div>
 </div>

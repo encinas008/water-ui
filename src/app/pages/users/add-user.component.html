@@ -1,66 +1,78 @@
-<div>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
   <app-page-breadcrumb [pageTitle]="isEditMode ? 'Editar Usuario' : 'Crear Usuario'" />
 
   <div class="space-y-6">
     <!-- Información Personal -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <h2 class="text-lg font-medium text-gray-800 dark:text-white">
+    <div
+      class="rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-strokedark dark:bg-boxdark animate-fade-in"
+      style="animation-delay: 100ms;">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white">
           Información Personal
         </h2>
+        <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+          Datos personales del usuario
+        </p>
       </div>
-      <div class="p-4 sm:p-6">
-        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+      <div class="p-7">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <app-label>DNI <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">DNI</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field [(ngModel)]="user.profile.dni" placeholder="Cédula de Identidad"
               required></app-input-field>
           </div>
           <div>
-            <app-label>Nombre <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Nombre</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field [(ngModel)]="user.profile.name" placeholder="Nombres" className="uppercase"
               required></app-input-field>
           </div>
           <div>
-            <app-label>Apellido <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Apellido</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field [(ngModel)]="user.profile.lastname" placeholder="Apellidos" className="uppercase"
               required></app-input-field>
           </div>
           <div>
-            <app-label>Email</app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Email</span></app-label>
             <app-input-field [(ngModel)]="user.profile.email" placeholder="Correo Electrónico"></app-input-field>
           </div>
           <div>
-            <app-label>Celular</app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Celular</span></app-label>
             <app-input-field [(ngModel)]="user.profile.cellphone" placeholder="Celular"></app-input-field>
           </div>
           <div>
-            <app-label>Dirección</app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Dirección</span></app-label>
             <app-input-field [(ngModel)]="user.profile.address" placeholder="Dirección"></app-input-field>
           </div>
           <div>
-            <app-label>Fecha de Nacimiento</app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Fecha de Nacimiento</span></app-label>
             <app-input-field type="date" [(ngModel)]="user.profile.birthDate"></app-input-field>
           </div>
 
           <!-- Selects from Common Data -->
           <div>
-            <app-label>País <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">País</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-select [options]="countryOptions" [(value)]="user.profile.countryId"
               (valueChange)="onCountryChange($event)" placeholder="Seleccionar País"></app-select>
           </div>
           <div>
-            <app-label>Ciudad <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Ciudad</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-select [options]="cityOptions" [(value)]="user.profile.cityId"
               placeholder="Seleccionar Ciudad"></app-select>
           </div>
           <div>
-            <app-label>Género <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Género</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-select [options]="genderOptions" [(value)]="user.profile.genderTypeId"
               placeholder="Seleccionar Género"></app-select>
           </div>
           <div>
-            <app-label>Estado Civil <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Estado Civil</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-select [options]="civilStatusOptions" [(value)]="user.profile.civilStatusTypeId"
               placeholder="Seleccionar Estado Civil"></app-select>
           </div>
@@ -70,35 +82,50 @@
     </div>
 
     <!-- Información de Cuenta -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <h2 class="text-lg font-medium text-gray-800 dark:text-white">
+    <div
+      class="rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-strokedark dark:bg-boxdark animate-fade-in"
+      style="animation-delay: 200ms;">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white">
           Cuenta de Usuario
         </h2>
+        <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+          Credenciales de acceso y permisos
+        </p>
       </div>
-      <div class="p-4 sm:p-6">
-        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+      <div class="p-7">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <app-label>Usuario (Login) <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Usuario (Login)</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field [(ngModel)]="user.username" placeholder="Nombre de usuario" [disabled]="isEditMode"
               required></app-input-field>
-            <p *ngIf="isEditMode" class="text-xs text-gray-500 mt-1">El nombre de usuario no se puede cambiar.</p>
+            <p *ngIf="isEditMode" class="text-xs font-medium text-slate-400 mt-2 flex items-center gap-1">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              El nombre de usuario no se puede cambiar.
+            </p>
           </div>
 
           <div>
-            <app-label>Rol <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Rol</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-select [options]="roleOptions" [(value)]="user.role" placeholder="Seleccionar Rol"
               required></app-select>
           </div>
 
           <div *ngIf="!isEditMode">
-            <app-label>Contraseña <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Contraseña</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field type="password" [(ngModel)]="user.password" placeholder="Contraseña"
               [allowPasswordToggle]="true" required></app-input-field>
           </div>
 
           <div *ngIf="!isEditMode">
-            <app-label>Confirmar Contraseña <span class="text-error-500">*</span></app-label>
+            <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Confirmar Contraseña</span> <span
+                class="text-rose-500 ml-1">*</span></app-label>
             <app-input-field type="password" [(ngModel)]="confirmPassword" placeholder="Repita la contraseña"
               [allowPasswordToggle]="true" required></app-input-field>
           </div>
@@ -107,13 +134,24 @@
     </div>
 
     <!-- Botones -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="p-4 sm:p-6 flex justify-end gap-3">
-        <app-button variant="outline" (btnClick)="cancel()">Cancelar</app-button>
-        <app-button variant="primary" (btnClick)="save()" [disabled]="isLoading">
-          {{ isEditMode ? 'Actualizar' : 'Guardar' }}
-        </app-button>
-      </div>
+    <div class="flex flex-col gap-4 sm:flex-row sm:justify-end py-4">
+      <app-button variant="outline" (btnClick)="cancel()"
+        [className]="'font-bold rounded-xl border-2 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-all px-6 py-3'">
+        Cancelar
+      </app-button>
+      <app-button variant="primary" (btnClick)="save()" [disabled]="isLoading"
+        [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-8 py-3 rounded-xl border-none active:scale-95'">
+        <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar Cambios' : 'Crear Usuario' }}</span>
+        <span *ngIf="isLoading" class="flex items-center">
+          <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          Guardando...
+        </span>
+      </app-button>
     </div>
   </div>
 </div>

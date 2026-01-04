@@ -32,20 +32,6 @@ import { PartnerOutputDto, PageResponse } from '../../shared/models/water-system
     .cdk-virtual-scroll-content-wrapper {
       min-width: 100%;
     }
-    .partners-table {
-      table-layout: fixed;
-      width: 100%;
-    }
-    .partners-table th,
-    .partners-table td {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .col-checkbox { width: 60px; }
-    .col-socio { width: 40%; }
-    .col-estado { width: 20%; }
-    .col-deuda { width: 20%; }
-    .col-acciones { width: 20%; }
   `
 })
 export class PartnersListComponent implements OnInit {

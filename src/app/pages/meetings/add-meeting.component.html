@@ -1,27 +1,28 @@
-<div>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
   <app-page-breadcrumb [pageTitle]="isEditMode ? 'Editar Reunión' : 'Nueva Reunión'" />
-
-
 
   <div class="space-y-6">
     <!-- Formulario -->
-    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-      <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-        <h2 class="text-lg font-medium text-gray-800 dark:text-white">
+    <div
+      class="rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-strokedark dark:bg-boxdark animate-fade-in"
+      style="animation-delay: 100ms;">
+      <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+        <h2 class="text-lg font-bold text-slate-800 dark:text-white">
           Información de la Reunión
         </h2>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
           Complete los datos de la reunión
         </p>
       </div>
-      <div class="p-4 sm:p-6">
+      <div class="p-7">
         <form (ngSubmit)="onSubmit()" class="space-y-6">
           <!-- Sección: Identificación -->
-          <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <!-- Nombre -->
             <div>
               <app-label>
-                Nombre <span class="text-error-500">*</span>
+                <span class="font-bold text-slate-700 dark:text-slate-300">Nombre</span> <span
+                  class="text-rose-500 ml-1">*</span>
               </app-label>
               <app-input-field type="text" name="name" [value]="name" (valueChange)="onNameInput($event)"
                 placeholder="Ingrese el nombre de la reunión" required (keydownEnter)="onSubmit()"></app-input-field>
@@ -30,25 +31,34 @@
             <!-- Tipo de Reunión -->
             <div>
               <app-label>
-                Tipo de Reunión <span class="text-error-500">*</span>
+                <span class="font-bold text-slate-700 dark:text-slate-300">Tipo de Reunión</span> <span
+                  class="text-rose-500 ml-1">*</span>
               </app-label>
-              <select [(ngModel)]="meetingTypeCode" name="meetingTypeCode" [disabled]="isEditMode"
-                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed">
-                <option [value]="''">Seleccione un tipo</option>
-                <option *ngFor="let type of meetingTypes" [value]="type.code">
-                  {{ type.name }}
-                </option>
-              </select>
+              <div class="relative">
+                <select [(ngModel)]="meetingTypeCode" name="meetingTypeCode" [disabled]="isEditMode"
+                  class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-5 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:cursor-not-allowed">
+                  <option [value]="''">Seleccione un tipo</option>
+                  <option *ngFor="let type of meetingTypes" [value]="type.code">
+                    {{ type.name }}
+                  </option>
+                </select>
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </div>
             </div>
           </div>
 
           <!-- Sección: Agenda (Fecha y Hora) -->
           <div class="space-y-6 pt-2">
-            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
               <!-- Fecha -->
               <div>
                 <app-label>
-                  Fecha <span class="text-error-500">*</span>
+                  <span class="font-bold text-slate-700 dark:text-slate-300">Fecha</span> <span
+                    class="text-rose-500 ml-1">*</span>
                 </app-label>
                 <div class="relative">
                   <app-date-picker id="meetingDate" placeholder="Seleccione una fecha" [dateFormat]="'Y-m-d'"
@@ -56,10 +66,9 @@
                     (dateChange)="onDateChange($event)"></app-date-picker>
                   @if (meetingDateDisplay) {
                   <div
-                    class="mt-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                      Fecha seleccionada: <span class="font-medium text-gray-800 dark:text-gray-200">{{
-                        meetingDateDisplay }}</span>
+                    class="mt-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                    <p class="text-sm text-indigo-700 dark:text-indigo-300">
+                      Fecha seleccionada: <span class="font-bold">{{ meetingDateDisplay }}</span>
                     </p>
                   </div>
                   }
@@ -69,14 +78,15 @@
               <!-- Hora (Agrupado) -->
               <div>
                 <app-label>
-                  Hora <span class="text-error-500">*</span>
+                  <span class="font-bold text-slate-700 dark:text-slate-300">Hora</span> <span
+                    class="text-rose-500 ml-1">*</span>
                 </app-label>
                 <div class="grid grid-cols-3 gap-3">
                   <!-- Hora (1-12) -->
-                  <div>
+                  <div class="relative">
                     <select [(ngModel)]="hour" name="hour" (change)="onHourOrAmPmChange()"
-                      class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
-                      [class.border-red-500]="isInvalidTime()">
+                      class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-4 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white"
+                      [class.border-rose-500]="isInvalidTime()">
                       <option *ngFor="let h of getAvailableHours()" [value]="h" [disabled]="isHourDisabled(h)">
                         {{ h }}
                       </option>
@@ -84,28 +94,32 @@
                   </div>
 
                   <!-- Minuto (0-59) -->
-                  <div>
+                  <div class="relative">
                     <select [(ngModel)]="minute" name="minute"
-                      class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
+                      class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-4 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white">
                       <option *ngFor="let m of minutes" [value]="m">{{ formatMinute(m) }}</option>
                     </select>
                   </div>
 
                   <!-- AM/PM -->
-                  <div>
+                  <div class="relative">
                     <select [(ngModel)]="amPm" name="amPm" (change)="onHourOrAmPmChange()"
-                      class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
-                      [class.border-red-500]="isInvalidTime()">
+                      class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-4 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white"
+                      [class.border-rose-500]="isInvalidTime()">
                       <option *ngFor="let option of amPmOptions" [value]="option">{{ option }}</option>
                     </select>
                   </div>
                 </div>
-                <p *ngIf="isInvalidTime()" class="mt-1 text-xs text-red-600 dark:text-red-400">
+                <p *ngIf="isInvalidTime()" class="mt-2 text-xs font-bold text-rose-500 flex items-center gap-1">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
                   <span *ngIf="amPm === 'AM'">Inválido: 12 AM - 6 AM</span>
                   <span *ngIf="amPm === 'PM'">Inválido: fuera de 1 PM - 8 PM</span>
                 </p>
-                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Actual: <span class="font-medium text-gray-700 dark:text-gray-200">{{ hour }}:{{
+                <p class="mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+                  Actual: <span class="font-bold text-slate-700 dark:text-white">{{ hour }}:{{
                     formatMinute(minute) }} {{ amPm }}</span>
                 </p>
               </div>
@@ -113,11 +127,12 @@
           </div>
 
           <!-- Sección: Reglas Cobro -->
-          <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <!-- Multa -->
             <div>
               <app-label>
-                Multa <span class="text-error-500">*</span>
+                <span class="font-bold text-slate-700 dark:text-slate-300">Multa</span> <span
+                  class="text-rose-500 ml-1">*</span>
               </app-label>
               <app-input-field type="text" name="fine" [value]="fine" (valueChange)="onFineChange($event)"
                 appNumberLimit [maxLimit]="9999999.99" [minLimit]="1" placeholder="0.00"></app-input-field>
@@ -126,43 +141,53 @@
             <!-- Minutos de espera -->
             <div>
               <app-label>
-                Minutos de espera
+                <span class="font-bold text-slate-700 dark:text-slate-300">Minutos de espera</span>
               </app-label>
-              <select [(ngModel)]="waitingMinutes" name="waitingMinutes"
-                class="h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm shadow-theme-xs focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800">
-                <option *ngFor="let option of waitingMinutesOptions" [value]="option">
-                  {{ option }} minutos
-                </option>
-              </select>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Tolerancia antes de la multa</p>
+              <div class="relative">
+                <select [(ngModel)]="waitingMinutes" name="waitingMinutes"
+                  class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-5 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white">
+                  <option *ngFor="let option of waitingMinutesOptions" [value]="option">
+                    {{ option }} minutos
+                  </option>
+                </select>
+                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </div>
+              <p class="mt-1 text-xs text-slate-400 font-medium">Tolerancia antes de la multa</p>
             </div>
           </div>
 
           <!-- Descripción -->
           <div>
             <app-label>
-              Descripción
+              <span class="font-bold text-slate-700 dark:text-slate-300">Descripción</span>
             </app-label>
             <app-text-area placeholder="Ingrese la descripción de la reunión" [value]="description"
               (valueChange)="description = $event" [rows]="3"></app-text-area>
           </div>
 
           <!-- Botones de Acción -->
-          <div class="flex flex-col gap-3 sm:flex-row sm:justify-end pt-4">
-            <app-button variant="outline" size="md" type="button" (btnClick)="onCancel()" [disabled]="isLoading">
+          <div
+            class="flex flex-col gap-4 sm:flex-row sm:justify-end pt-6 border-t border-slate-100 dark:border-slate-800">
+            <app-button variant="outline" size="md" type="button" (btnClick)="onCancel()" [disabled]="isLoading"
+              [className]="'font-bold rounded-xl border-2 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-all'">
               Cancelar
             </app-button>
-            <app-button variant="primary" size="md" type="submit" [disabled]="!isFormValid || isLoading">
-              <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar' : 'Guardar' }}</span>
-              <span *ngIf="isLoading">
-                <svg class="animate-spin h-5 w-5 inline-block mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
+            <app-button variant="primary" size="md" type="submit" [disabled]="!isFormValid || isLoading"
+              [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-8 py-3 rounded-xl border-none active:scale-95'">
+              <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar Cambios' : 'Crear Reunión' }}</span>
+              <span *ngIf="isLoading" class="flex items-center">
+                <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
                   viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                   </path>
                 </svg>
-                {{ isEditMode ? 'Guardando...' : 'Guardando...' }}
+                Guardando...
               </span>
             </app-button>
           </div>

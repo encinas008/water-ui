@@ -28,21 +28,10 @@ import { toast } from 'ngx-sonner';
   styles: `
     .cdk-virtual-scroll-viewport {
       height: 600px;
-      border: 1px solid #e2e8f0;
-      border-radius: 0.5rem;
     }
     .cdk-virtual-scroll-content-wrapper {
       min-width: 100%;
     }
-    .table-fixed {
-      table-layout: fixed;
-    }
-    .col-checkbox { width: 60px; }
-    .col-nombre { width: 25%; }
-    .col-fecha { width: 15%; }
-    .col-descripcion { width: 30%; }
-    .col-multa { width: 15%; }
-    .col-acciones { width: 15%; }
   `
 })
 export class JobsListComponent implements OnInit {
@@ -61,9 +50,6 @@ export class JobsListComponent implements OnInit {
   totalPages: number = 0;
   isLoadingMore: boolean = false;
 
-  // Selección
-  selectAll: boolean = false;
-  selectedJobs: Set<string> = new Set();
 
   // Estado
   isLoading: boolean = true;
@@ -164,34 +150,9 @@ export class JobsListComponent implements OnInit {
     }
   }
 
-  toggleSelectAll(): void {
-    this.selectAll = !this.selectAll;
 
-    if (this.selectAll) {
-      this.jobs.forEach(job => {
-        if (job.id) {
-          this.selectedJobs.add(job.id);
-        }
-      });
-    } else {
-      this.selectedJobs.clear();
-    }
-  }
-
-  toggleSelectJob(id: string | undefined): void {
-    if (!id) return;
-
-    if (this.selectedJobs.has(id)) {
-      this.selectedJobs.delete(id);
-    } else {
-      this.selectedJobs.add(id);
-    }
-
-    this.selectAll = this.jobs.length > 0 && this.jobs.every(j => j.id && this.selectedJobs.has(j.id));
-  }
-
-  isSelected(id: string | undefined): boolean {
-    return id ? this.selectedJobs.has(id) : false;
+  navigateToAddJob(): void {
+    this.router.navigate(['/jobs/add']);
   }
 
   onView(job: JobOutputDto): void {

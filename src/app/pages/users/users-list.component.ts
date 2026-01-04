@@ -1,20 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms'; // Added
 import { UserService } from '../../shared/services/user.service';
 import { UserDetails } from '../../shared/models/water-system.models';
 import { toast } from 'ngx-sonner';
 import { SwitchComponent } from '../../shared/components/form/input/switch.component';
+import { ScrollingModule } from '@angular/cdk/scrolling'; // Added
+import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component'; // Added
+import { ButtonComponent } from '../../shared/components/ui/button/button.component'; // Added
 
 @Component({
   selector: 'app-users-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, SwitchComponent],
+  imports: [CommonModule, RouterLink, SwitchComponent, ScrollingModule, FormsModule, PageBreadcrumbComponent, ButtonComponent],
   templateUrl: './users-list.component.html',
-  styles: ``
+  styles: `
+    .cdk-virtual-scroll-viewport {
+      height: 600px;
+    }
+    .cdk-virtual-scroll-content-wrapper {
+      min-width: 100%;
+    }
+  `
 })
 export class UsersListComponent implements OnInit {
   users: UserDetails[] = [];
+  filteredUsers: UserDetails[] = []; // Added for search
+  searchQuery: string = ''; // Added
   isLoading = false;
 
   constructor(private userService: UserService) { }
@@ -26,8 +39,9 @@ export class UsersListComponent implements OnInit {
   loadUsers(): void {
     this.isLoading = true;
     this.userService.getAllUsers().subscribe({
-      next: (data: UserDetails[]) => { // Corrected type usage here
+      next: (data: UserDetails[]) => {
         this.users = data;
+        this.filterUsers(); // Initial filter
         this.isLoading = false;
       },
       error: (err) => {
@@ -36,6 +50,25 @@ export class UsersListComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  onSearch(): void {
+    this.filterUsers();
+  }
+
+  filterUsers(): void {
+    if (!this.searchQuery) {
+      this.filteredUsers = [...this.users];
+      return;
+    }
+
+    const query = this.searchQuery.toLowerCase();
+    this.filteredUsers = this.users.filter(user =>
+      user.username.toLowerCase().includes(query) ||
+      user.profile.name.toLowerCase().includes(query) ||
+      user.profile.lastname.toLowerCase().includes(query) ||
+      user.profile.dni.toLowerCase().includes(query)
+    );
   }
 
   getInitials(fullName: string | undefined): string {

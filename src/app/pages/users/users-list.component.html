@@ -1,104 +1,220 @@
-<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-  <h2 class="text-title-md2 font-semibold text-black dark:text-white">
-    Administración de Usuarios
-  </h2>
-  <nav>
-    <ol class="flex items-center gap-2">
-      <li>
-        <a class="font-medium" routerLink="/dashboard">Dashboard /</a>
-      </li>
-      <li class="font-medium text-primary">Usuarios</li>
-    </ol>
-  </nav>
-</div>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
+  <app-page-breadcrumb pageTitle="Administración de Usuarios" />
 
-<div class="flex flex-col gap-10">
-  <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-    <div class="flex justify-between items-center py-6 px-4 md:px-6 xl:px-7.5">
-      <h4 class="text-xl font-semibold text-black dark:text-white">
-        Lista de Usuarios
-      </h4>
-      <a routerLink="/users/add"
-        class="inline-flex items-center justify-center gap-2.5 rounded-full bg-primary py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10">
-        <span>
-          <svg class="fill-current" width="20" height="20" viewBox="0 0 20 20" fill="none"
-            xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M10 18.3333C5.41667 18.3333 1.66667 14.5833 1.66667 10C1.66667 5.41667 5.41667 1.66667 10 1.66667C14.5833 1.66667 18.3333 5.41667 18.3333 10C18.3333 14.5833 14.5833 18.3333 10 18.3333ZM10 0C4.47715 0 0 4.47715 0 10C0 15.5228 4.47715 20 10 20C15.5228 20 20 15.5228 20 10C20 4.47715 15.5228 0 10 0Z"
-              fill="" />
-            <path d="M10 5V15M5 10H15" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              stroke-linejoin="round" />
-          </svg>
-        </span>
-        Nuevo Usuario
-      </a>
-    </div>
-
-    <div
-      class="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5">
-      <div class="col-span-2 flex items-center">
-        <p class="font-medium">Nombre Completo</p>
-      </div>
-      <div class="col-span-1 hidden items-center sm:flex">
-        <p class="font-medium">Usuario</p>
-      </div>
-      <div class="col-span-2 flex items-center">
-        <p class="font-medium">Rol</p>
-      </div>
-      <div class="col-span-1 flex items-center">
-        <p class="font-medium">Estado</p>
-      </div>
-      <div class="col-span-1 flex items-center">
-        <p class="font-medium">DNI</p>
-      </div>
-      <div class="col-span-2 flex items-center justify-end">
-        <p class="font-medium">Acciones</p>
-      </div>
-    </div>
-
-    <div *ngFor="let user of users"
-      class="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-9 md:px-6 2xl:px-7.5 hover:bg-gray-2 dark:hover:bg-meta-4">
-      <div class="col-span-2 flex items-center">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <!-- Initials Avatar -->
-          <div [ngClass]="getAvatarColor(user.profile.name + ' ' + user.profile.lastname)"
-            class="h-10 w-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold">
-            {{ getInitials(user.profile.name + ' ' + user.profile.lastname) }}
-          </div>
-          <p class="text-sm text-black dark:text-white">{{ user.profile.name }} {{ user.profile.lastname }}</p>
-        </div>
-      </div>
-      <div class="col-span-1 hidden items-center sm:flex">
-        <p class="text-sm text-black dark:text-white">{{ user.username }}</p>
-      </div>
-      <div class="col-span-2 flex items-center">
-        <p class="text-sm text-black dark:text-white">{{ user.role?.name || 'Sin Rol' }}</p>
-      </div>
-      <div class="col-span-1 flex items-center">
-        <span [ngClass]="{
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium': true,
-                'bg-success/10 text-success': user.active,
-                'bg-danger/10 text-danger': !user.active
-              }">
-          {{ user.active ? 'Activo' : 'Inactivo' }}
-        </span>
-      </div>
-      <div class="col-span-1 flex items-center">
-        <p class="text-sm text-black dark:text-white">{{ user.profile.dni }}</p>
-      </div>
-      <div class="col-span-2 flex items-center justify-end gap-2.5">
-        <a [routerLink]="['/users/edit', user.id]"
-          class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
-          title="Editar">
+  <!-- Actions & Filters Bar -->
+  <div class="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between animate-fade-in">
+    <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
+      <!-- Search -->
+      <div class="relative group max-w-md w-full">
+        <span
+          class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-brand-500">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-            </path>
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-        </a>
-        <app-switch [defaultChecked]="user.active" (valueChange)="toggleStatus(user)"
-          [title]="user.active ? 'Desactivar' : 'Activar'"></app-switch>
+        </span>
+        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Buscar usuarios..."
+          class="w-full rounded-xl border-2 border-slate-100 bg-white py-3.5 pl-12 pr-4 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white" />
       </div>
     </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+      <app-button (click)="loadUsers()" [variant]="'secondary'"
+        [className]="'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600 transition-all font-bold px-4 py-3 rounded-xl shadow-lg border-none active:scale-95 flex items-center justify-center'">
+        <svg [ngClass]="{'animate-spin': isLoading}" class="h-5 w-5" fill="none" stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span class="ml-2 hidden sm:inline">Actualizar</span>
+      </app-button>
+
+      <a routerLink="/users/add"
+        class="bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-6 py-3 rounded-xl border-none active:scale-95 flex items-center justify-center cursor-pointer no-underline">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span class="ml-2 hidden sm:inline">Nuevo Usuario</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Table Card -->
+  <div
+    class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden dark:bg-boxdark dark:border-strokedark animate-fade-in"
+    style="animation-delay: 100ms;">
+    <!-- Table Header Summary -->
+    <div
+      class="px-7 py-5 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-boxdark">
+      <div class="flex items-center gap-3">
+        <div class="h-8 w-1.5 bg-brand-500 rounded-full"></div>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Lista de Usuarios</h3>
+      </div>
+      <div class="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total: {{ filteredUsers.length
+          }}</span>
+      </div>
+    </div>
+
+    <!-- Static Column Headers -->
+    <div class="bg-slate-100/30 dark:bg-meta-4/20 px-7 py-4 hidden md:block">
+      <div class="grid grid-cols-12 gap-4 items-center text-xs font-black text-slate-500 uppercase tracking-widest">
+        <div class="col-span-4 pl-4">Nombre Completo</div>
+        <div class="col-span-2">Usuario</div>
+        <div class="col-span-2">Rol</div>
+        <div class="col-span-2">Estado</div>
+        <div class="col-span-1">DNI</div>
+        <div class="col-span-1 text-center">Acciones</div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-24">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-solid border-brand-500 border-t-transparent mb-4">
+      </div>
+      <p class="text-slate-500 font-medium">Cargando usuarios...</p>
+    </div>
+
+    <!-- Virtual Scroll List -->
+    <cdk-virtual-scroll-viewport *ngIf="!isLoading" itemSize="80"
+      class="cdk-virtual-scroll-viewport border-none bg-white dark:bg-boxdark">
+
+      <div *cdkVirtualFor="let user of filteredUsers"
+        class="group relative px-7 py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/20 transition-all">
+        <!-- Desktop Grid Layout -->
+        <div class="hidden md:grid grid-cols-12 gap-4 items-center">
+          <!-- Name + Avatar -->
+          <div class="col-span-4 flex items-center gap-4">
+            <div [ngClass]="getAvatarColor(user.profile.name + ' ' + user.profile.lastname)"
+              class="h-10 w-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
+              {{ getInitials(user.profile.name + ' ' + user.profile.lastname) }}
+            </div>
+            <div>
+              <p class="font-bold text-slate-800 dark:text-white">{{ user.profile.name }} {{ user.profile.lastname }}
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">{{ user.profile.email || 'Sin email' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Usuario -->
+          <div class="col-span-2">
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              &#64;{{ user.username }}
+            </p>
+          </div>
+
+          <!-- Rol -->
+          <div class="col-span-2">
+            <span
+              class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
+              {{ user.role?.name || 'N/A' }}
+            </span>
+          </div>
+
+          <!-- Estado -->
+          <div class="col-span-2">
+            <span [ngClass]="{
+                  'px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase shadow-sm border': true,
+                  'bg-emerald-50 text-emerald-600 border-emerald-100': user.active,
+                  'bg-rose-50 text-rose-600 border-rose-100': !user.active
+                }">
+              {{ user.active ? 'ACTIVO' : 'INACTIVO' }}
+            </span>
+          </div>
+
+          <!-- DNI -->
+          <div class="col-span-1">
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400">{{ user.profile.dni }}</p>
+          </div>
+
+          <!-- Actions -->
+          <div class="col-span-1 flex justify-center gap-2">
+            <a [routerLink]="['/users/edit', user.id]"
+              class="h-8 w-8 flex items-center justify-center rounded-lg text-brand-600 hover:text-white hover:bg-brand-500 transition-colors"
+              title="Editar">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                </path>
+              </svg>
+            </a>
+            <div class="scale-90">
+              <app-switch [defaultChecked]="user.active" (valueChange)="toggleStatus(user)"
+                [title]="user.active ? 'Desactivar' : 'Activar'"></app-switch>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Layout -->
+        <div class="md:hidden flex flex-col gap-4">
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-3">
+              <div [ngClass]="getAvatarColor(user.profile.name + ' ' + user.profile.lastname)"
+                class="h-10 w-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
+                {{ getInitials(user.profile.name + ' ' + user.profile.lastname) }}
+              </div>
+              <div>
+                <p class="font-bold text-slate-800 dark:text-white">{{ user.profile.name }} {{ user.profile.lastname }}
+                </p>
+                <p class="text-xs text-slate-500">
+                  <span class="font-bold text-brand-500">&#64;{{user.username}}</span> • {{ user.profile.dni }}
+                </p>
+              </div>
+            </div>
+            <span [ngClass]="{
+                  'px-2 py-0.5 rounded text-[10px] font-black uppercase': true,
+                  'bg-emerald-50 text-emerald-600': user.active,
+                  'bg-rose-50 text-rose-600': !user.active
+                }">
+              {{ user.active ? 'ACTIVO' : 'INACTIVO' }}
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center border-t border-slate-50 dark:border-slate-800 pt-3">
+            <div>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Rol:</span>
+              <span class="ml-1 text-sm font-semibold text-slate-600 dark:text-slate-300">{{ user.role?.name || 'N/A'
+                }}</span>
+            </div>
+            <div class="flex gap-3 items-center">
+              <app-switch [defaultChecked]="user.active" (valueChange)="toggleStatus(user)"></app-switch>
+              <a [routerLink]="['/users/edit', user.id]"
+                class="h-9 w-9 flex items-center justify-center rounded-lg bg-slate-50 text-brand-600 border border-slate-200 shadow-sm">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                  </path>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && (!filteredUsers || filteredUsers.length === 0)"
+        class="flex flex-col items-center justify-center py-20 px-4">
+        <div
+          class="h-24 w-24 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-200 dark:text-slate-700 mb-6">
+          <svg class="h-14 w-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">No hay usuarios encontrados</h3>
+        <p class="text-slate-500 text-center max-w-sm">
+          {{ searchQuery ? 'No encontramos resultados para "' + searchQuery + '"' : 'Comienza agregando tu primer
+          usuario.' }}
+        </p>
+        <a *ngIf="!searchQuery" routerLink="/users/add"
+          class="mt-6 bg-brand-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-brand-600 transition-all no-underline inline-block">
+          + Nuevo Usuario
+        </a>
+      </div>
+
+    </cdk-virtual-scroll-viewport>
   </div>
 </div>

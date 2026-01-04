@@ -28,23 +28,10 @@ import { toast } from 'ngx-sonner';
   styles: `
     .cdk-virtual-scroll-viewport {
       height: 600px;
-      border: 1px solid #e2e8f0;
-      border-radius: 0.5rem;
     }
     .cdk-virtual-scroll-content-wrapper {
       min-width: 100%;
     }
-    .table-fixed {
-      table-layout: fixed;
-    }
-    .col-checkbox { width: 60px; }
-    .col-nombre { width: 18%; }
-    .col-tipo { width: 12%; }
-    .col-fecha { width: 12%; }
-    .col-hora { width: 10%; }
-    .col-descripcion { width: 20%; }
-    .col-multa { width: 12%; }
-    .col-acciones { width: 14%; }
   `
 })
 export class MeetingsListComponent implements OnInit {
@@ -63,9 +50,6 @@ export class MeetingsListComponent implements OnInit {
   totalPages: number = 0;
   isLoadingMore: boolean = false;
 
-  // Selección
-  selectAll: boolean = false;
-  selectedMeetings: Set<string> = new Set();
 
   // Estado
   isLoading: boolean = true;
@@ -166,35 +150,6 @@ export class MeetingsListComponent implements OnInit {
     }
   }
 
-  toggleSelectAll(): void {
-    this.selectAll = !this.selectAll;
-
-    if (this.selectAll) {
-      this.meetings.forEach(meeting => {
-        if (meeting.id) {
-          this.selectedMeetings.add(meeting.id);
-        }
-      });
-    } else {
-      this.selectedMeetings.clear();
-    }
-  }
-
-  toggleSelectMeeting(id: string | undefined): void {
-    if (!id) return;
-
-    if (this.selectedMeetings.has(id)) {
-      this.selectedMeetings.delete(id);
-    } else {
-      this.selectedMeetings.add(id);
-    }
-
-    this.selectAll = this.meetings.length > 0 && this.meetings.every(m => m.id && this.selectedMeetings.has(m.id));
-  }
-
-  isSelected(id: string | undefined): boolean {
-    return id ? this.selectedMeetings.has(id) : false;
-  }
 
   navigateToAddMeeting(): void {
     this.router.navigate(['/meetings/add']);

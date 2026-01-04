@@ -1,231 +1,267 @@
-<div>
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
   <app-page-breadcrumb pageTitle="Lista de Socios" />
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading && (!partners || partners.length === 0)"
-    class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-10">
-    <div class="flex flex-col items-center justify-center">
-      <svg class="animate-spin h-10 w-10 text-brand-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-        </path>
-      </svg>
-      <p class="text-gray-600 dark:text-gray-400">Cargando socios...</p>
-    </div>
-  </div>
-
-  <!-- Error State -->
-  <div *ngIf="errorMessage && !isLoading"
-    class="rounded-2xl border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20 p-4 mb-6">
-    <p class="text-red-800 dark:text-red-400">{{ errorMessage }}</p>
-  </div>
-
-  <!-- Table -->
-  <div *ngIf="!isLoading || (partners && partners.length > 0)"
-    class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-
-    <!-- Header con búsqueda y filtros -->
-    <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-800 sm:px-6 lg:px-8">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <!-- Búsqueda -->
-        <div class="relative w-full sm:max-w-xs">
-          <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()"
-            placeholder="Buscar socio por nombre o # de socio"
-            class="h-10 w-full rounded-lg border border-gray-300 bg-transparent pl-10 pr-4 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800" />
-          <svg class="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor"
-            viewBox="0 0 24 24">
+  <!-- Actions & Filters Bar -->
+  <div class="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between animate-fade-in">
+    <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto flex-1">
+      <!-- Search -->
+      <div class="relative group max-w-md w-full">
+        <span
+          class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-brand-500">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-        </div>
-
-        <!-- Acciones -->
-        <div class="flex items-center gap-3">
-          <app-button *ngIf="isAdmin" size="sm" variant="primary" (btnClick)="navigateToAddPartner()">
-            + Nuevo Socio
-          </app-button>
-        </div>
-      </div>
-
-      <!-- Info de total -->
-      <div class="mt-4">
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          Total de socios: <span class="font-medium text-gray-900 dark:text-white">{{ totalElements }}</span>
-        </p>
+        </span>
+        <input type="text" [(ngModel)]="searchQuery" (input)="onSearch()" placeholder="Buscar socio..."
+          class="w-full rounded-xl border-2 border-slate-100 bg-white py-3.5 pl-12 pr-4 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white" />
       </div>
     </div>
 
-    <!-- Tabla con Virtual Scrolling -->
-    <div class="overflow-x-auto">
-      <!-- Header fijo -->
-      <div class="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-        <table class="partners-table">
-          <thead>
-            <tr>
-              <!-- Checkbox -->
-              <!-- <th class="col-checkbox px-4 py-4 text-left">
-                <input type="checkbox" [checked]="selectAll" (change)="toggleSelectAll()"
-                  class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-              </th> -->
-              <!-- Socio -->
-              <th class="col-socio px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                Socio
-              </th>
+    <!-- Actions -->
+    <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+      <app-button *ngIf="isAdmin" size="sm" variant="primary" (btnClick)="navigateToAddPartner()"
+        [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-6 py-3 rounded-xl border-none active:scale-95 flex items-center justify-center'">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span class="ml-2 hidden sm:inline">Nuevo Socio</span>
+      </app-button>
+    </div>
+  </div>
 
-              <!-- Estado -->
-              <th class="col-estado px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                Estado
-              </th>
-              <!-- Deuda -->
-              <th class="col-deuda px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                Deuda
-              </th>
-              <!-- Acciones -->
-              <th class="col-acciones px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-        </table>
+  <!-- Table Card -->
+  <div
+    class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden dark:bg-boxdark dark:border-strokedark animate-fade-in"
+    style="animation-delay: 100ms;">
+    <!-- Table Header Summary -->
+    <div
+      class="px-7 py-5 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-boxdark">
+      <div class="flex items-center gap-3">
+        <div class="h-8 w-1.5 bg-brand-500 rounded-full"></div>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Directorio de Socios</h3>
+      </div>
+      <div class="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total: {{ totalElements }}</span>
+      </div>
+    </div>
+
+    <!-- Static Column Headers -->
+    <div class="bg-slate-100/30 dark:bg-meta-4/20 px-7 py-4 hidden md:block">
+      <div class="grid grid-cols-12 gap-4 items-center text-xs font-black text-slate-500 uppercase tracking-widest">
+        <div class="col-span-5 pl-4">Socio</div>
+        <div class="col-span-2">Estado</div>
+        <div class="col-span-3">Deuda</div>
+        <div class="col-span-2 text-center">Acciones</div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-24">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-solid border-brand-500 border-t-transparent mb-4">
+      </div>
+      <p class="text-slate-500 font-medium">Cargando socios...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="p-6">
+      <div
+        class="rounded-2xl border border-rose-100 bg-rose-50 p-4 flex items-center gap-3 shadow-sm dark:border-rose-900/30 dark:bg-rose-900/20">
+        <svg class="h-6 w-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p class="text-rose-800 dark:text-rose-200 font-medium">{{ errorMessage }}</p>
+      </div>
+    </div>
+
+
+    <!-- Virtual Scroll List -->
+    <cdk-virtual-scroll-viewport *ngIf="!isLoading && !errorMessage" itemSize="88"
+      class="cdk-virtual-scroll-viewport border-none bg-white dark:bg-boxdark"
+      (scrolledIndexChange)="onScrolledIndexChange($event)">
+
+      <div *cdkVirtualFor="let partner of (partners || [])"
+        class="group relative px-7 py-5 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/20 transition-all">
+        <!-- Desktop Grid Layout -->
+        <div class="hidden md:grid grid-cols-12 gap-4 items-center">
+          <!-- Socio -->
+          <div class="col-span-5 flex items-center gap-4">
+            <div [ngClass]="getAvatarColor(partner.fullName)"
+              class="h-12 w-12 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold shadow-sm text-lg">
+              {{ getInitials(partner.fullName) }}
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <p class="font-bold text-slate-800 dark:text-white truncate max-w-[200px]" title="{{partner.fullName}}">
+                  {{ partner.fullName }}</p>
+                <span *ngIf="partner.partnerNumber"
+                  class="inline-flex items-center rounded-lg bg-indigo-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-indigo-600 border border-indigo-100">
+                  #{{ partner.partnerNumber }}
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{{ partner.email || 'Sin email'
+                }}</p>
+            </div>
+          </div>
+
+          <!-- Estado -->
+          <div class="col-span-2">
+            <span [ngClass]="{
+                        'px-2.5 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase shadow-sm border': true,
+                        'bg-emerald-50 text-emerald-600 border-emerald-100': partner.connectionStatusCode === 'ACTIVE',
+                        'bg-amber-50 text-amber-600 border-amber-100': partner.connectionStatusCode === 'SUSPENDED',
+                        'bg-rose-50 text-rose-600 border-rose-100': partner.connectionStatusCode === 'CUT_OFF',
+                        'bg-slate-50 text-slate-600 border-slate-100': partner.connectionStatusCode === 'INACTIVE'
+                      }">
+              {{ getStatusLabel(partner.connectionStatusCode) }}
+            </span>
+          </div>
+
+          <!-- Deuda -->
+          <div class="col-span-3">
+            <span class="text-sm font-bold" [ngClass]="{
+                        'text-rose-500': partner.currentDebt && partner.currentDebt > 0,
+                        'text-emerald-500': !partner.currentDebt || partner.currentDebt === 0,
+                        'text-slate-400': partner.currentDebt === undefined
+                      }">
+              {{ partner.currentDebt !== undefined && partner.currentDebt !== null
+              ? 'BOB ' + (partner.currentDebt | number:'1.2-2')
+              : 'N/A' }}
+            </span>
+          </div>
+
+          <!-- Acciones -->
+          <div class="col-span-2 flex items-center justify-center gap-2">
+            <button (click)="onView(partner)"
+              class="h-9 w-9 flex items-center justify-center rounded-lg text-emerald-600 hover:text-white hover:bg-emerald-500 transition-colors bg-emerald-50"
+              title="Ver detalles">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                </path>
+              </svg>
+            </button>
+            <button *ngIf="isAdmin" (click)="onEdit(partner)"
+              class="h-9 w-9 flex items-center justify-center rounded-lg text-blue-600 hover:text-white hover:bg-blue-500 transition-colors bg-blue-50"
+              title="Editar">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                </path>
+              </svg>
+            </button>
+            <button *ngIf="isAdmin" (click)="onDelete(partner)"
+              class="h-9 w-9 flex items-center justify-center rounded-lg text-rose-600 hover:text-white hover:bg-rose-500 transition-colors bg-rose-50"
+              title="Eliminar">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                </path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+
+        <!-- Mobile Layout -->
+        <div class="md:hidden flex flex-col gap-4">
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-3">
+              <div [ngClass]="getAvatarColor(partner.fullName)"
+                class="h-10 w-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
+                {{ getInitials(partner.fullName) }}
+              </div>
+              <div>
+                <p class="font-bold text-slate-800 dark:text-white">{{ partner.fullName }}</p>
+                <p class="text-xs text-slate-500 flex items-center gap-2">
+                  <span *ngIf="partner.partnerNumber" class="font-black text-indigo-500">#{{ partner.partnerNumber
+                    }}</span>
+                  <span *ngIf="partner.email">• {{ partner.email }}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center border-t border-slate-50 dark:border-slate-800 pt-3">
+            <div class="flex flex-col">
+              <span [ngClass]="{
+                            'px-2 py-0.5 rounded text-[10px] font-black uppercase w-fit mb-1': true,
+                            'bg-emerald-50 text-emerald-600': partner.connectionStatusCode === 'ACTIVE',
+                            'bg-amber-50 text-amber-600': partner.connectionStatusCode === 'SUSPENDED',
+                            'bg-rose-50 text-rose-600': partner.connectionStatusCode === 'CUT_OFF',
+                            'bg-slate-50 text-slate-600': partner.connectionStatusCode === 'INACTIVE'
+                        }">
+                {{ getStatusLabel(partner.connectionStatusCode) }}
+              </span>
+              <span class="text-xs font-bold" [ngClass]="{
+                            'text-rose-500': partner.currentDebt && partner.currentDebt > 0,
+                            'text-emerald-500': !partner.currentDebt || partner.currentDebt === 0,
+                            'text-slate-400': partner.currentDebt === undefined
+                        }">
+                {{ partner.currentDebt !== undefined && partner.currentDebt !== null
+                ? 'Deuda: BOB ' + (partner.currentDebt | number:'1.2-2')
+                : 'Sin deuda' }}
+              </span>
+            </div>
+
+            <div class="flex gap-2">
+              <button (click)="onView(partner)" class="p-2 rounded-lg bg-emerald-50 text-emerald-600">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                  </path>
+                </svg>
+              </button>
+              <button *ngIf="isAdmin" (click)="onEdit(partner)" class="p-2 rounded-lg bg-blue-50 text-blue-600">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                  </path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Virtual Scroll Viewport -->
-      <cdk-virtual-scroll-viewport itemSize="80" class="cdk-virtual-scroll-viewport"
-        (scrolledIndexChange)="onScrolledIndexChange($event)">
-        <table class="partners-table">
-          <tbody>
-            <tr *cdkVirtualFor="let partner of (partners || [])"
-              class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors border-b border-gray-200 dark:border-gray-800">
-              <!-- Checkbox -->
-              <!-- <td class="col-checkbox px-4 py-4">
-                <input type="checkbox" [checked]="isSelected(partner.id)" (change)="toggleSelectPartner(partner.id)"
-                  class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900" />
-              </td> -->
-
-              <!-- Socio -->
-              <td class="col-socio px-4 py-4">
-                <div class="flex items-center gap-3">
-                  <!-- Avatar -->
-                  <div [ngClass]="getAvatarColor(partner.fullName)"
-                    class="h-10 w-10 flex-shrink-0 rounded-full flex items-center justify-center text-white font-semibold">
-                    {{ getInitials(partner.fullName) }}
-                  </div>
-
-                  <!-- Info -->
-                  <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2">
-                      <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
-                        {{ partner.fullName }}
-                      </p>
-                      <span *ngIf="partner.partnerNumber"
-                        class="inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-800 dark:bg-brand-900/30 dark:text-brand-400">
-                        #{{ partner.partnerNumber }}
-                      </span>
-                    </div>
-                    <p class="truncate text-sm text-gray-500 dark:text-gray-400">
-                      {{ partner.email || 'Sin email' }}
-                    </p>
-                  </div>
-                </div>
-              </td>
-
-
-
-              <!-- Estado -->
-              <td class="col-estado px-4 py-4">
-                <app-badge [variant]="'light'" [color]="getStatusColor(partner.connectionStatusCode)">
-                  {{ getStatusLabel(partner.connectionStatusCode) }}
-                </app-badge>
-              </td>
-
-              <!-- Deuda -->
-              <td class="col-deuda px-4 py-4">
-                <span class="text-sm font-medium" [ngClass]="{
-                    'text-red-600 dark:text-red-400': partner.currentDebt && partner.currentDebt > 0,
-                    'text-green-600 dark:text-green-400': !partner.currentDebt || partner.currentDebt === 0,
-                    'text-gray-600 dark:text-gray-400': partner.currentDebt === undefined
-                  }">
-                  {{ partner.currentDebt !== undefined && partner.currentDebt !== null
-                  ? 'BOB ' + (partner.currentDebt | number:'1.2-2')
-                  : 'N/A' }}
-                </span>
-              </td>
-
-              <!-- Acciones -->
-              <td class="col-acciones px-4 py-4">
-                <div class="flex items-center justify-center gap-2">
-                  <button (click)="onView(partner)"
-                    class="rounded-lg p-2 text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-900/20"
-                    title="Ver detalles">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
-                      </path>
-                    </svg>
-                  </button>
-                  <button *ngIf="isAdmin" (click)="onEdit(partner)"
-                    class="rounded-lg p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
-                    title="Editar">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                      </path>
-                    </svg>
-                  </button>
-                  <button *ngIf="isAdmin" (click)="onDelete(partner)"
-                    class="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-                    title="Eliminar">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                      </path>
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- Empty State -->
-            <tr *ngIf="!isLoading && (!partners || partners.length === 0)">
-              <td colspan="4" class="px-4 py-12 text-center">
-                <div class="flex flex-col items-center justify-center">
-                  <svg class="h-16 w-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                    </path>
-                  </svg>
-                  <p class="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    No se encontraron socios
-                  </p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    {{ searchQuery ? 'Intenta con otro término de búsqueda' : 'Comienza agregando tu primer socio' }}
-                  </p>
-                  <app-button *ngIf="!searchQuery && isAdmin" size="sm" variant="primary"
-                    (btnClick)="navigateToAddPartner()">
-                    + Agregar Socio
-                  </app-button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- Loading More Indicator -->
-        <div *ngIf="isLoadingMore" class="flex justify-center py-4">
-          <svg class="animate-spin h-6 w-6 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && (!partners || partners.length === 0)"
+        class="flex flex-col items-center justify-center py-20 px-4">
+        <div
+          class="h-24 w-24 rounded-3xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-200 dark:text-slate-700 mb-6">
+          <svg class="h-14 w-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
             </path>
           </svg>
         </div>
-      </cdk-virtual-scroll-viewport>
+        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">No se encontraron socios</h3>
+        <p class="text-slate-500 text-center max-w-sm">
+          {{ searchQuery ? 'No encontramos resultados para "' + searchQuery + '"' : 'Comienza agregando tu primer
+          socio.' }}
+        </p>
+        <app-button *ngIf="!searchQuery && isAdmin" (click)="navigateToAddPartner()" [variant]="'primary'"
+          [className]="'mt-6 bg-brand-500 text-white px-6 py-2 rounded-xl font-bold'">
+          + Nuevo Socio
+        </app-button>
+      </div>
+    </cdk-virtual-scroll-viewport>
+
+    <!-- Pagination / Load More Loader -->
+    <div *ngIf="isLoadingMore"
+      class="flex justify-center py-6 bg-slate-50/30 border-t border-slate-50 dark:bg-boxdark dark:border-slate-800">
+      <div
+        class="flex items-center gap-3 px-4 py-2 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-100 dark:border-slate-700">
+        <div class="h-4 w-4 animate-spin rounded-full border-2 border-solid border-brand-500 border-t-transparent">
+        </div>
+        <span class="text-xs font-bold text-slate-500 tracking-wide">Cargando más registros...</span>
+      </div>
     </div>
   </div>
 </div>
