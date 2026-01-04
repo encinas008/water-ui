@@ -27,7 +27,8 @@ import { PartnerOutputDto, PageResponse } from '../../shared/models/water-system
   templateUrl: './partners-list.component.html',
   styles: `
     .cdk-virtual-scroll-viewport {
-      height: 600px;
+      height: calc(100vh - 380px);
+      min-height: 400px;
     }
     .cdk-virtual-scroll-content-wrapper {
       min-width: 100%;
