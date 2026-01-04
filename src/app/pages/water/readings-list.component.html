@@ -151,9 +151,15 @@
                             {{ getInitials(reading.partnerName) }}
                         </div>
                         <div class="truncate">
-                            <p class="font-bold text-slate-800 dark:text-white truncate"
-                                title="{{ reading.partnerName }}">{{
-                                reading.partnerName }}</p>
+                            <div class="flex items-center gap-2 mb-0.5">
+                                <p class="font-bold text-slate-800 dark:text-white truncate"
+                                    title="{{ reading.partnerName }}">{{
+                                    reading.partnerName }}</p>
+                                <span *ngIf="reading.partnerNumber"
+                                    class="inline-flex items-center rounded-lg bg-indigo-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-indigo-600 border border-indigo-100">
+                                    #{{ reading.partnerNumber }}
+                                </span>
+                            </div>
                         </div>
                     </div>
 

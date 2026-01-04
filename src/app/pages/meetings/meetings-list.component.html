@@ -150,7 +150,7 @@
                 </path>
               </svg>
             </button>
-            <button (click)="onView(meeting)"
+            <button *ngIf="meeting.meetingTypeCode !== 'OTHER_INCOME'" (click)="onView(meeting)"
               class="h-8 w-8 flex items-center justify-center rounded-lg text-emerald-600 hover:text-white hover:bg-emerald-500 transition-colors"
               title="Ver asistencia">
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,7 +217,7 @@
               <p class="text-sm font-medium text-slate-400" *ngIf="!meeting.fine">Sin multa</p>
             </div>
             <div class="flex gap-2">
-              <button (click)="onView(meeting)"
+              <button *ngIf="meeting.meetingTypeCode !== 'OTHER_INCOME'" (click)="onView(meeting)"
                 class="px-3 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-sm font-bold">
                 Asistencia
               </button>

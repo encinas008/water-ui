@@ -100,8 +100,6 @@
                   #{{ partner.partnerNumber }}
                 </span>
               </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{{ partner.email || 'Sin email'
-                }}</p>
             </div>
           </div>
 
@@ -179,7 +177,6 @@
                 <p class="text-xs text-slate-500 flex items-center gap-2">
                   <span *ngIf="partner.partnerNumber" class="font-black text-indigo-500">#{{ partner.partnerNumber
                     }}</span>
-                  <span *ngIf="partner.email">• {{ partner.email }}</span>
                 </p>
               </div>
             </div>

@@ -207,8 +207,8 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
     const fineValue = typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine;
     if (isNaN(fineValue) || fineValue < 1 || fineValue > 9999999.99) return false;
 
-    // Hora válida (reglas de negocio AM/PM)
-    if (this.isInvalidTime()) return false;
+    // Hora válida (reglas de negocio AM/PM) - solo si no es OTHER_INCOME
+    if (this.meetingTypeCode !== 'OTHER_INCOME' && this.isInvalidTime()) return false;
 
     return true;
   }
@@ -240,34 +240,37 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    if (this.hour < 1 || this.hour > 12) {
-      toast.error('La hora debe estar entre 1 y 12');
-      return false;
-    }
-
-    if (this.minute < 0 || this.minute > 59) {
-      toast.error('El minuto debe estar entre 0 y 59');
-      return false;
-    }
-
-    if (this.amPm !== 'AM' && this.amPm !== 'PM') {
-      toast.error('Debe seleccionar AM o PM');
-      return false;
-    }
-
-    // Validar que no sea horario de madrugada (12 AM - 6 AM)
-    if (this.amPm === 'AM') {
-      if (this.hour === 12 || (this.hour >= 1 && this.hour <= 6)) {
-        toast.error('No se permiten reuniones entre 12 AM y 6 AM');
+    // Validaciones de tiempo solo si no es OTHER_INCOME
+    if (this.meetingTypeCode !== 'OTHER_INCOME') {
+      if (this.hour < 1 || this.hour > 12) {
+        toast.error('La hora debe estar entre 1 y 12');
         return false;
       }
-    }
 
-    // Validar que en PM solo se permitan horas de 1 PM a 8 PM
-    if (this.amPm === 'PM') {
-      if (this.hour < 1 || this.hour > 8) {
-        toast.error('En PM solo se permiten reuniones de 1 PM a 8 PM');
+      if (this.minute < 0 || this.minute > 59) {
+        toast.error('El minuto debe estar entre 0 y 59');
         return false;
+      }
+
+      if (this.amPm !== 'AM' && this.amPm !== 'PM') {
+        toast.error('Debe seleccionar AM o PM');
+        return false;
+      }
+
+      // Validar que no sea horario de madrugada (12 AM - 6 AM)
+      if (this.amPm === 'AM') {
+        if (this.hour === 12 || (this.hour >= 1 && this.hour <= 6)) {
+          toast.error('No se permiten reuniones entre 12 AM y 6 AM');
+          return false;
+        }
+      }
+
+      // Validar que en PM solo se permitan horas de 1 PM a 8 PM
+      if (this.amPm === 'PM') {
+        if (this.hour < 1 || this.hour > 8) {
+          toast.error('En PM solo se permiten reuniones de 1 PM a 8 PM');
+          return false;
+        }
       }
     }
 
@@ -287,13 +290,13 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
       const meetingUpdate: MeetingUpdateDto = {
         name: this.name,
         meetingDate: this.meetingDateBackend,
-        hour: this.hour,
-        minute: this.minute,
-        amPm: this.amPm,
+        hour: this.meetingTypeCode === 'OTHER_INCOME' ? 2 : this.hour,
+        minute: this.meetingTypeCode === 'OTHER_INCOME' ? 0 : this.minute,
+        amPm: this.meetingTypeCode === 'OTHER_INCOME' ? 'PM' : this.amPm,
         meetingTypeCode: this.meetingTypeCode || undefined,
         description: this.description || undefined,
         fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : 0,
-        waitingMinutes: this.waitingMinutes || 0
+        waitingMinutes: this.meetingTypeCode === 'OTHER_INCOME' ? 0 : (this.waitingMinutes || 0)
       };
 
       this.meetingService.updateMeeting(id, meetingUpdate).subscribe({
@@ -313,13 +316,13 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
       const meetingInput: MeetingInputDto = {
         name: this.name,
         meetingDate: this.meetingDateBackend,
-        hour: this.hour,
-        minute: this.minute,
-        amPm: this.amPm,
+        hour: this.meetingTypeCode === 'OTHER_INCOME' ? 2 : this.hour,
+        minute: this.meetingTypeCode === 'OTHER_INCOME' ? 0 : this.minute,
+        amPm: this.meetingTypeCode === 'OTHER_INCOME' ? 'PM' : this.amPm,
         meetingTypeCode: this.meetingTypeCode || undefined,
         description: this.description || undefined,
         fine: this.fine ? (typeof this.fine === 'string' ? parseFloat(this.fine) : this.fine) : 0,
-        waitingMinutes: this.waitingMinutes || 0
+        waitingMinutes: this.meetingTypeCode === 'OTHER_INCOME' ? 0 : (this.waitingMinutes || 0)
       };
 
       this.meetingService.createMeeting(meetingInput).subscribe({
