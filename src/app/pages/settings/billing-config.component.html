@@ -1,0 +1,138 @@
+<div class="p-6.5">
+    <!-- Header -->
+    <div class="mb-8">
+        <h2
+            class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+            Configuración de Facturación
+        </h2>
+        <p class="mt-2 text-slate-600 dark:text-slate-400">
+            Modifica los valores por defecto para la generación de facturas de agua
+        </p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex justify-center py-20">
+        <div class="h-16 w-16 animate-spin rounded-full border-4 border-solid border-blue-600 border-t-transparent">
+        </div>
+    </div>
+
+    <!-- Configuration Form -->
+    <div *ngIf="!isLoading" class="max-w-4xl">
+        <div
+            class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl p-8 border-2 border-blue-100 dark:border-blue-900/30 shadow-xl">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Tarifa Básica -->
+                <div class="space-y-3">
+                    <label
+                        class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        Tarifa Básica (Consumo hasta 15 m³)
+                    </label>
+                    <div class="relative">
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">Bs</span>
+                        <input type="number" [(ngModel)]="tarifaBasica" name="tarifaBasica" min="0" step="0.01"
+                            class="w-full pl-14 pr-4 py-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                            placeholder="15.00">
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Monto fijo que incluye consumo hasta 15 m³</p>
+                </div>
+
+                <!-- Multa por Exceso -->
+                <div class="space-y-3">
+                    <label
+                        class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        Multa por Exceso de Consumo
+                    </label>
+                    <div class="relative">
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">Bs/m³</span>
+                        <input type="number" [(ngModel)]="multaExcesoM3" name="multaExcesoM3" min="0" step="0.01"
+                            class="w-full pl-20 pr-4 py-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                            placeholder="5.00">
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Costo por cada m³ que exceda los 15 m³ base
+                    </p>
+                </div>
+
+                <!-- Aporte al Deporte -->
+                <div class="space-y-3">
+                    <label
+                        class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        Aporte al Deporte
+                    </label>
+                    <div class="relative">
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">Bs</span>
+                        <input type="number" [(ngModel)]="aporteDeporte" name="aporteDeporte" min="0" step="0.01"
+                            class="w-full pl-14 pr-4 py-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                            placeholder="2.00">
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Monto fijo por factura</p>
+                </div>
+
+                <!-- Aporte a la OTB -->
+                <div class="space-y-3">
+                    <label
+                        class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        Aporte a la OTB
+                    </label>
+                    <div class="relative">
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">Bs</span>
+                        <input type="number" [(ngModel)]="aporteOTB" name="aporteOTB" min="0" step="0.01"
+                            class="w-full pl-14 pr-4 py-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                            placeholder="3.00">
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Monto fijo por factura</p>
+                </div>
+
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                <app-button type="button" [variant]="'primary'" (click)="saveConfigs()"
+                    [disabled]="isSaving || !validateInputs()"
+                    [className]="'flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black text-lg py-5 rounded-2xl shadow-xl shadow-blue-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale'">
+                    <div class="flex items-center justify-center gap-2">
+                        <svg *ngIf="!isSaving" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                        <svg *ngIf="isSaving" class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span>{{ isSaving ? 'Guardando...' : 'Guardar Cambios' }}</span>
+                    </div>
+                </app-button>
+
+                <app-button type="button" [variant]="'secondary'" (click)="resetForm()" [disabled]="isSaving"
+                    [className]="'flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 font-bold py-5 rounded-2xl transition-all'">
+                    Restablecer
+                </app-button>
+            </div>
+
+        </div>
+
+        <!-- Info Card -->
+        <div class="mt-6 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/30 rounded-2xl p-6">
+            <div class="flex gap-3">
+                <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="text-sm text-blue-800 dark:text-blue-200">
+                    <p class="font-bold mb-1">Importante:</p>
+                    <p>Los cambios solo afectarán a las <strong>nuevas facturas</strong> generadas después de guardar.
+                        Las facturas existentes mantendrán sus valores originales.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -267,6 +267,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/users/add-user.component').then(m => m.AddUserComponent),
         title: 'Editar Usuario | Sistema'
       },
+      // Settings
+      {
+        path: 'settings/billing-config',
+        loadComponent: () => import('./pages/settings/billing-config.component').then(m => m.BillingConfigComponent),
+        title: 'Configuración de Facturación | Sistema'
+      },
     ]
   },
   // auth pages

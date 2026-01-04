@@ -9,6 +9,21 @@ export enum ConnectionStatus {
   INACTIVE = 'INACTIVE'
 }
 
+// ============================================
+// BILLING CONFIGURATION
+// ============================================
+
+export interface BillingConfigOutputDto {
+  id: string;
+  configKey: string;
+  configValue: number;
+  description?: string;
+}
+
+export interface BillingConfigUpdateDto {
+  configValue: number;
+}
+
 export enum BillStatus {
   PENDING = 'PENDING',
   PARTIAL_PAID = 'PARTIAL_PAID',
