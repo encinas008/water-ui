@@ -3,194 +3,320 @@
 
 
 
-  <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-    <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-      <h3 class="font-medium text-black dark:text-white">Información del Pago</h3>
+  <div class="max-w-4xl mx-auto animate-fade-in">
+    <!-- Main Card -->
+    <div
+      class="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden dark:bg-boxdark dark:border-strokedark transition-all">
+      <!-- Header Gradient -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-10 text-white relative overflow-hidden">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div class="flex items-center gap-4 mb-2">
+              <div class="h-12 w-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
+                <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h3 class="text-3xl font-black">Registrar Pago</h3>
+            </div>
+            <p class="text-white/80 font-medium max-w-lg">Complete la información para registrar el cobro de la factura
+              de agua.</p>
+          </div>
+          <div class="hidden md:block text-right">
+            <p class="text-xs font-bold text-white/60 uppercase tracking-widest mb-1">Fecha de Registro</p>
+            <p class="text-xl font-black">{{ paymentDate | date:'dd MMM yyyy' }}</p>
+          </div>
+        </div>
+        <!-- Decorative bubbles -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-1/3 -translate-y-1/3"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full -translate-x-1/2 translate-y-1/2"></div>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="p-6 md:p-10 space-y-8">
+
+        <!-- Balance de Caja (Admin Selection) -->
+        <div *ngIf="openCashBalances.length > 1"
+          class="space-y-3 p-5 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m8-2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h4 class="font-bold text-indigo-900 dark:text-indigo-100 uppercase text-xs tracking-widest">Caja Destino
+            </h4>
+          </div>
+
+          <div class="relative">
+            <select [(ngModel)]="cashBalanceId" name="cashBalanceId" required
+              class="w-full rounded-xl border-2 border-indigo-200 bg-white py-4 px-4 font-bold text-slate-800 outline-none transition-all focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 dark:border-indigo-700 dark:bg-boxdark dark:text-white appearance-none cursor-pointer">
+              <option value="">-- Seleccione una Caja --</option>
+              <option *ngFor="let balance of openCashBalances" [value]="balance.id">
+                {{ balance.assignee }} - Apertura: {{ balance.openTime | date:'dd/MM HH:mm' }}
+              </option>
+            </select>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-indigo-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Columna Izquierda: Selección de Factura -->
+          <div class="space-y-6">
+            <div class="space-y-3">
+              <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">
+                Buscar Factura <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative group" *ngIf="!selectedBill; else selectedBillSummary">
+                <span
+                  class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </span>
+                <input type="text" [(ngModel)]="billSearch" name="billSearch" (input)="onBillSearch()"
+                  placeholder="Número de factura o socio..."
+                  class="w-full rounded-2xl border-2 border-slate-100 bg-slate-50 py-4 pl-12 pr-4 text-lg font-bold text-slate-800 outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+
+                <!-- Dropdown de resultados -->
+                <div *ngIf="showBillDropdown && filteredBills.length > 0"
+                  class="absolute z-20 w-full mt-2 bg-white dark:bg-boxdark border border-slate-100 dark:border-slate-700 rounded-2xl shadow-2xl max-h-80 overflow-y-auto animate-fade-in-up">
+                  <div *ngFor="let bill of filteredBills" (click)="selectBill(bill)"
+                    class="p-4 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer border-b border-slate-50 dark:border-slate-800 last:border-0 transition-colors">
+                    <div class="flex justify-between items-center mb-1">
+                      <p class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span
+                          class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-black">
+                          #{{ bill.billNumber }}
+                        </span>
+                        {{ bill.partnerName }}
+                      </p>
+                      <span
+                        class="px-2 py-1 rounded-md bg-rose-50 text-rose-600 text-xs font-bold uppercase tracking-wider">
+                        Pendiente
+                      </span>
+                    </div>
+                    <p class="text-sm font-medium text-slate-500 pl-10">
+                      Saldo Total: <span class="text-slate-800 dark:text-slate-300 font-bold">BOB {{
+                        bill.remainingBalance | number:'1.2-2' }}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Factura Seleccionada (Resumen Compacto) -->
+              <ng-template #selectedBillSummary>
+                <div
+                  class="relative bg-blue-50 dark:bg-blue-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800 p-5 group transition-all hover:shadow-lg hover:shadow-blue-500/10 cursor-pointer"
+                  (click)="selectedBill = null; billSearch = '';">
+                  <div class="absolute top-4 right-4 text-blue-400 group-hover:text-rose-500 transition-colors"
+                    title="Cambiar factura">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+
+                  <div class="flex items-center gap-4 mb-4">
+                    <div
+                      class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg font-black shadow-lg shadow-blue-500/30">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-xs font-black text-blue-400 uppercase tracking-widest">Factura Seleccionada</p>
+                      <p class="text-xl font-black text-slate-800 dark:text-white">N° {{ selectedBill?.billNumber }}</p>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between py-1 border-b border-blue-100 dark:border-blue-800/50">
+                      <span class="text-slate-500 font-medium">Socio</span>
+                      <span class="font-bold text-slate-700 dark:text-slate-300">{{ selectedBill?.partnerName }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-blue-100 dark:border-blue-800/50">
+                      <span class="text-slate-500 font-medium">Mes</span>
+                      <span class="font-bold text-slate-700 dark:text-slate-300 uppercase">{{
+                        formatBillingMonth(selectedBill!) }}</span>
+                    </div>
+                    <div class="flex justify-between pt-1">
+                      <span class="text-slate-500 font-medium">Saldo Factura</span>
+                      <span class="font-bold text-blue-600">BOB {{ (selectedBill?.remainingBalance || 0) |
+                        number:'1.2-2' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Método de Pago -->
+            <div class="space-y-3">
+              <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">
+                Método de Pago <span class="text-rose-500">*</span>
+              </label>
+              <div class="relative">
+                <select [(ngModel)]="paymentTypeId" name="paymentType" required
+                  class="w-full rounded-2xl border-2 border-slate-100 bg-slate-50 py-4 px-4 font-bold text-slate-800 outline-none transition-all focus:border-blue-500 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white appearance-none">
+                  <option value="">Seleccione método...</option>
+                  <option *ngFor="let type of paymentTypes" [value]="type.id">{{ type.name }}</option>
+                </select>
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="space-y-3">
+              <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">
+                Observaciones
+              </label>
+              <textarea [(ngModel)]="observation" name="observation" rows="3"
+                placeholder="Notas adicionales sobre el pago..."
+                class="w-full rounded-2xl border-2 border-slate-100 bg-slate-50 py-4 px-4 font-medium text-slate-800 outline-none transition-all focus:border-blue-500 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white"></textarea>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Detalles del Cobro -->
+          <div class="space-y-6">
+
+            <!-- Multas Pendientes -->
+            <div
+              *ngIf="pendingFines && (pendingFines.jobAbsences.length > 0 || pendingFines.meetingAbsences.length > 0)"
+              class="bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30 overflow-hidden">
+              <div
+                class="px-5 py-3 bg-amber-100/50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800/30 flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h4 class="font-bold text-amber-800 dark:text-amber-200 text-sm">Multas Pendientes</h4>
+              </div>
+
+              <div class="p-5 space-y-4">
+                <!-- Trabajos -->
+                <div *ngIf="pendingFines.jobAbsences.length > 0">
+                  <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-2">Trabajos</p>
+                  <ul class="space-y-2">
+                    <li *ngFor="let item of pendingFines.jobAbsences"
+                      class="flex justify-between text-sm text-amber-900/80 dark:text-amber-100/80">
+                      <span>{{ item.name }}</span>
+                      <span class="font-bold">BOB {{ item.fine | number:'1.2-2' }}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <!-- Reuniones -->
+                <div *ngIf="pendingFines.meetingAbsences.length > 0">
+                  <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-2">Reuniones</p>
+                  <ul class="space-y-2">
+                    <li *ngFor="let item of pendingFines.meetingAbsences"
+                      class="flex justify-between text-sm text-amber-900/80 dark:text-amber-100/80">
+                      <span>{{ item.name }}</span>
+                      <span class="font-bold">BOB {{ item.fine | number:'1.2-2' }}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div
+                  class="pt-3 border-t border-amber-200/50 dark:border-amber-800/30 flex justify-between items-center text-amber-800 dark:text-amber-200">
+                  <span class="font-bold text-xs uppercase">Total Multas</span>
+                  <span class="font-black">BOB {{ pendingFines.totalFines | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total a Pagar -->
+            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-3xl p-6 border border-slate-100 dark:border-slate-700">
+              <div class="space-y-3 mb-6">
+                <!-- Desglose de Factura -->
+                <ng-container
+                  *ngIf="selectedBill?.concepts && selectedBill!.concepts!.length > 0; else simpleBillAmount">
+                  <div class="border-b border-slate-200 dark:border-slate-600 pb-3 mb-3">
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Detalle Factura</p>
+                    <div *ngFor="let concept of selectedBill!.concepts"
+                      class="flex justify-between items-center text-sm py-1">
+                      <span class="text-slate-600 dark:text-slate-400">{{ concept.conceptName }}</span>
+                      <span class="font-bold text-slate-700 dark:text-slate-300">BOB {{ concept.amount | number:'1.2-2'
+                        }}</span>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center text-slate-500 mb-2">
+                    <span class="font-medium text-sm">Subtotal Factura</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-300">BOB {{ (selectedBill?.remainingBalance ||
+                      0) | number:'1.2-2' }}</span>
+                  </div>
+                </ng-container>
+
+                <ng-template #simpleBillAmount>
+                  <div class="flex justify-between items-center text-slate-500">
+                    <span class="font-medium">Subtotal Factura</span>
+                    <span class="font-bold text-slate-700 dark:text-slate-300">BOB {{ (selectedBill?.remainingBalance ||
+                      0) | number:'1.2-2' }}</span>
+                  </div>
+                </ng-template>
+
+                <div class="flex justify-between items-center text-amber-600"
+                  *ngIf="pendingFines && pendingFines.totalFines > 0">
+                  <span class="font-medium">Total Multas</span>
+                  <span class="font-bold">+ BOB {{ pendingFines.totalFines | number:'1.2-2' }}</span>
+                </div>
+              </div>
+
+              <div class="pt-6 border-t-2 border-dashed border-slate-200 dark:border-slate-600">
+                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 text-center">Monto
+                  Total a Pagar</label>
+                <div class="relative group">
+                  <span
+                    class="absolute left-6 top-1/2 -translate-y-1/2 font-black text-slate-300 text-2xl group-focus-within:text-blue-500 transition-colors">BOB</span>
+                  <input type="number" [(ngModel)]="amount" name="amount" required readonly
+                    class="w-full text-center bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-600 py-5 text-3xl font-black text-slate-800 dark:text-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 cursor-not-allowed" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex flex-col gap-3">
+              <app-button type="submit" [variant]="'primary'" [disabled]="isLoading || !isFormValid()"
+                [className]="'w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-lg py-5 rounded-2xl shadow-xl shadow-blue-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale'">
+                <div class="flex items-center justify-center gap-2">
+                  <span *ngIf="!isLoading">Confirmar Pago</span>
+                  <span *ngIf="isLoading" class="flex items-center gap-2">
+                    <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                      </path>
+                    </svg>
+                    Procesando...
+                  </span>
+                </div>
+              </app-button>
+
+              <app-button type="button" [variant]="'secondary'" (click)="onCancel()" [disabled]="isLoading"
+                [className]="'w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-lg py-5 rounded-2xl shadow-xl shadow-blue-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale'">
+                Cancelar Operación
+              </app-button>
+            </div>
+
+          </div>
+        </div>
+
+      </form>
     </div>
-
-    <form (ngSubmit)="onSubmit()" class="p-6.5">
-      <!-- Información de la Factura -->
-      <div *ngIf="selectedBill" class="mb-6 p-4 bg-gray-2 dark:bg-meta-4 rounded-lg">
-        <h4 class="font-medium text-black dark:text-white mb-3">Factura Seleccionada</h4>
-        <div class="grid grid-cols-2 gap-3 text-sm">
-          <div><strong>N° Factura:</strong> {{ selectedBill.billNumber }}</div>
-          <div><strong>Socio:</strong> {{ selectedBill.partnerName }}</div>
-          <div><strong>Mes:</strong> {{ formatBillingMonth(selectedBill) }}</div>
-          <div><strong>Total (con multas):</strong> BOB {{ (selectedBill.totalPayableAmount || selectedBill.totalAmount) | number:'1.2-2' }}</div>
-          <div><strong>Pagado (Total):</strong> BOB {{ (selectedBill.paidAmount + (selectedBill.totalFinesPaid || 0)) | number:'1.2-2' }}</div>
-          <div><strong class="text-danger">Saldo Pendiente Total:</strong> <span class="text-danger font-bold">BOB {{ (selectedBill.remainingBalance + (selectedBill.totalFinesAmount || 0)) | number:'1.2-2' }}</span></div>
-        </div>
-      </div>
-
-      <!-- Buscar Factura -->
-      <div *ngIf="!selectedBill" class="mb-4.5">
-        <label class="mb-2.5 block text-black dark:text-white">Buscar Factura <span class="text-meta-1">*</span></label>
-        <div class="relative">
-          <input type="text" [(ngModel)]="billSearch" name="billSearch" (input)="onBillSearch()"
-            placeholder="Buscar por número de factura o nombre de socio..."
-            class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input" />
-          
-          <div *ngIf="showBillDropdown && filteredBills.length > 0" 
-               class="absolute z-10 w-full mt-1 bg-white dark:bg-boxdark border border-stroke dark:border-strokedark rounded-lg shadow-lg max-h-60 overflow-y-auto">
-            <div *ngFor="let bill of filteredBills" (click)="selectBill(bill)"
-                 class="p-3 hover:bg-gray-2 dark:hover:bg-meta-4 cursor-pointer border-b">
-              <p class="font-medium">{{ bill.billNumber }} - {{ bill.partnerName }}</p>
-              <p class="text-sm text-bodydark">Saldo: BOB {{ bill.remainingBalance | number:'1.2-2' }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="selectedBill">
-        <!-- Fecha de Pago -->
-        <div class="mb-4.5">
-          <label class="mb-2.5 block text-black dark:text-white">Fecha de Pago <span class="text-meta-1">*</span></label>
-          <input type="date" [(ngModel)]="paymentDate" name="paymentDate" required
-            [readonly]="true"
-            class="w-full rounded border-[1.5px] border-stroke bg-gray-2 dark:bg-meta-4 py-3 px-5 font-medium outline-none transition cursor-not-allowed dark:border-form-strokedark" />
-        </div>
-
-        <!-- Pendientes del Mes -->
-        <div *ngIf="pendingFines && (pendingFines.jobAbsences.length > 0 || pendingFines.meetingAbsences.length > 0)" class="mb-4.5 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-          <div class="mb-3">
-            <h4 class="font-medium text-black dark:text-white">Multas Pendientes del Mes ({{ formatBillingMonth(selectedBill) }})</h4>
-          </div>
-          
-          <div *ngIf="isLoadingPendingFines" class="text-sm text-bodydark">
-            Cargando pendientes...
-          </div>
-          
-          <div *ngIf="!isLoadingPendingFines">
-            <!-- Ausencias de Trabajos -->
-            <div *ngIf="pendingFines.jobAbsences.length > 0" class="mb-3">
-              <p class="text-sm font-medium text-black dark:text-white mb-2">Ausencias de Trabajos:</p>
-              <div class="space-y-1">
-                <div *ngFor="let absence of pendingFines.jobAbsences" class="text-sm text-bodydark flex justify-between">
-                  <span>{{ absence.name }} - {{ absence.date | date:'dd/MM/yyyy' }}</span>
-                  <span class="font-medium">BOB {{ absence.fine | number:'1.2-2' }}</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Ausencias de Reuniones -->
-            <div *ngIf="pendingFines.meetingAbsences.length > 0" class="mb-3">
-              <p class="text-sm font-medium text-black dark:text-white mb-2">Ausencias de Reuniones:</p>
-              <div class="space-y-1">
-                <div *ngFor="let absence of pendingFines.meetingAbsences" class="text-sm text-bodydark flex justify-between">
-                  <span>{{ absence.name }} - {{ absence.date | date:'dd/MM/yyyy' }}</span>
-                  <span class="font-medium">BOB {{ absence.fine | number:'1.2-2' }}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="mt-3 pt-3 border-t border-yellow-200 dark:border-yellow-800">
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-bold text-black dark:text-white">Total de Multas:</span>
-                <span class="text-lg font-bold text-yellow-600 dark:text-yellow-400">BOB {{ pendingFines.totalFines | number:'1.2-2' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Monto -->
-        <div class="mb-4.5">
-          <label class="mb-2.5 block text-black dark:text-white">Monto del Pago <span class="text-meta-1">*</span></label>
-          <input type="number" step="0.01" [(ngModel)]="amount" name="amount" required
-            [max]="getMaxPaymentAmount()"
-            [readonly]="true"
-            placeholder="Monto a pagar"
-            class="w-full rounded border-[1.5px] border-stroke bg-gray-2 dark:bg-meta-4 py-3 px-5 font-medium outline-none transition cursor-not-allowed dark:border-form-strokedark" />
-          <p class="mt-1 text-sm text-bodydark">
-            Máximo: BOB {{ getMaxPaymentAmount() | number:'1.2-2' }}
-            <span *ngIf="pendingFines && pendingFines.totalFines > 0" class="text-yellow-600 dark:text-yellow-400">
-              (incluye BOB {{ pendingFines.totalFines | number:'1.2-2' }} en multas)
-            </span>
-          </p>
-          
-          <!-- Detalle de pago desglosado -->
-          <div *ngIf="pendingFines && pendingFines.totalFines > 0" class="mt-3 p-3 bg-gray-2 dark:bg-meta-4 rounded-lg">
-            <p class="text-sm font-medium text-black dark:text-white mb-2">Desglose del Pago:</p>
-            <div class="text-sm text-bodydark space-y-1">
-              <div class="flex justify-between">
-                <span>Monto Factura:</span>
-                <span class="font-medium">BOB {{ (selectedBill?.remainingBalance || 0) | number:'1.2-2' }}</span>
-              </div>
-              <div *ngIf="pendingFines.jobAbsences.length > 0" class="ml-4 mt-1">
-                <p class="font-medium mb-1">Multas de Trabajos:</p>
-                <div *ngFor="let fine of pendingFines.jobAbsences" class="flex justify-between ml-2">
-                  <span>{{ fine.name }} ({{ fine.date | date:'dd/MM/yyyy' }}):</span>
-                  <span>BOB {{ fine.fine | number:'1.2-2' }}</span>
-                </div>
-              </div>
-              <div *ngIf="pendingFines.meetingAbsences.length > 0" class="ml-4 mt-1">
-                <p class="font-medium mb-1">Multas de Reuniones:</p>
-                <div *ngFor="let fine of pendingFines.meetingAbsences" class="flex justify-between ml-2">
-                  <span>{{ fine.name }} ({{ fine.date | date:'dd/MM/yyyy' }}):</span>
-                  <span>BOB {{ fine.fine | number:'1.2-2' }}</span>
-                </div>
-              </div>
-              <div class="flex justify-between pt-2 border-t border-stroke dark:border-strokedark mt-2">
-                <span class="font-bold">Total a Pagar:</span>
-                <span class="font-bold">BOB {{ getMaxPaymentAmount() | number:'1.2-2' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tipo de Pago -->
-        <div class="mb-4.5">
-          <label class="mb-2.5 block text-black dark:text-white">Método de Pago <span class="text-meta-1">*</span></label>
-          <select [(ngModel)]="paymentTypeId" name="paymentType" required
-            class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input">
-            <option value="">Seleccione un método</option>
-            <option *ngFor="let type of paymentTypes" [value]="type.id">{{ type.name }}</option>
-          </select>
-        </div>
-
-        <!-- Balance de Caja -->
-        <div class="mb-4.5">
-          <label class="mb-2.5 block text-black dark:text-white">Balance de Caja <span class="text-meta-1">*</span></label>
-          <select [(ngModel)]="cashBalanceId" name="cashBalanceId" required
-            class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input">
-            <option value="">Seleccione un balance de caja</option>
-            <option *ngFor="let balance of openCashBalances" [value]="balance.id">
-              {{ balance.description || 'Balance sin descripción' }} - Abierto: {{ balance.openTime | date:'dd/MM/yyyy HH:mm' }}
-            </option>
-          </select>
-          <p class="mt-1 text-sm text-bodydark">
-            <span *ngIf="openCashBalances.length === 0" class="text-warning">
-              ⚠️ No hay balances de caja abiertos. Es necesario abrir un balance de caja antes de registrar el pago.
-            </span>
-            <span *ngIf="openCashBalances.length > 0 && cashBalanceId" class="text-success">
-              ✓ Balance de caja seleccionado
-            </span>
-          </p>
-        </div>
-
-        <!-- Observaciones -->
-        <div class="mb-6">
-          <label class="mb-2.5 block text-black dark:text-white">Observaciones</label>
-          <textarea [(ngModel)]="observation" name="observation" rows="3"
-            placeholder="Observaciones sobre el pago..."
-            class="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input"></textarea>
-        </div>
-
-        <!-- Botones -->
-        <div class="flex gap-4">
-          <app-button type="submit" [variant]="'primary'" [disabled]="isLoading || !isFormValid()">
-            <span *ngIf="!isLoading">Registrar Pago</span>
-            <span *ngIf="isLoading">Registrando...</span>
-          </app-button>
-          <app-button type="button" [variant]="'secondary'" (click)="onCancel()" [disabled]="isLoading">
-            Cancelar
-          </app-button>
-        </div>
-      </div>
-    </form>
   </div>
 
   <!-- Detalle del Pago Registrado -->
-  <div *ngIf="registeredPaymentDetail && registeredPaymentDetail.finesAmount > 0" class="mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+  <div *ngIf="registeredPaymentDetail && registeredPaymentDetail.finesAmount > 0"
+    class="mt-6 rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
     <div class="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
       <h3 class="font-medium text-black dark:text-white">Detalle del Pago Registrado</h3>
     </div>
@@ -199,14 +325,16 @@
         <!-- Monto de Factura -->
         <div class="flex justify-between items-center pb-3 border-b border-stroke dark:border-strokedark">
           <span class="text-black dark:text-white font-medium">Monto de Factura:</span>
-          <span class="text-black dark:text-white font-bold">BOB {{ registeredPaymentDetail.billAmount | number:'1.2-2' }}</span>
+          <span class="text-black dark:text-white font-bold">BOB {{ registeredPaymentDetail.billAmount | number:'1.2-2'
+            }}</span>
         </div>
 
         <!-- Multas de Trabajos -->
         <div *ngIf="registeredPaymentDetail.jobFines.length > 0">
           <p class="text-sm font-medium text-black dark:text-white mb-2">Multas de Trabajos:</p>
           <div class="ml-4 space-y-1">
-            <div *ngFor="let fine of registeredPaymentDetail.jobFines" class="flex justify-between text-sm text-bodydark">
+            <div *ngFor="let fine of registeredPaymentDetail.jobFines"
+              class="flex justify-between text-sm text-bodydark">
               <span>{{ fine.name }} ({{ fine.date | date:'dd/MM/yyyy' }}):</span>
               <span class="font-medium">BOB {{ fine.fineAmount | number:'1.2-2' }}</span>
             </div>
@@ -217,7 +345,8 @@
         <div *ngIf="registeredPaymentDetail.meetingFines.length > 0">
           <p class="text-sm font-medium text-black dark:text-white mb-2">Multas de Reuniones:</p>
           <div class="ml-4 space-y-1">
-            <div *ngFor="let fine of registeredPaymentDetail.meetingFines" class="flex justify-between text-sm text-bodydark">
+            <div *ngFor="let fine of registeredPaymentDetail.meetingFines"
+              class="flex justify-between text-sm text-bodydark">
               <span>{{ fine.name }} ({{ fine.date | date:'dd/MM/yyyy' }}):</span>
               <span class="font-medium">BOB {{ fine.fineAmount | number:'1.2-2' }}</span>
             </div>
@@ -227,7 +356,8 @@
         <!-- Total -->
         <div class="flex justify-between items-center pt-3 border-t border-stroke dark:border-strokedark">
           <span class="text-black dark:text-white font-bold text-lg">Total Pagado:</span>
-          <span class="text-black dark:text-white font-bold text-lg">BOB {{ registeredPaymentDetail.totalAmount | number:'1.2-2' }}</span>
+          <span class="text-black dark:text-white font-bold text-lg">BOB {{ registeredPaymentDetail.totalAmount |
+            number:'1.2-2' }}</span>
         </div>
       </div>
 
@@ -240,29 +370,30 @@
   </div>
 
   <!-- Modal de Vista Previa de Factura -->
-  <div *ngIf="showReceiptPreview && fullReceipt" 
-       class="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 p-4"
-       (click)="closeReceiptPreview()">
+  <div *ngIf="showReceiptPreview && fullReceipt"
+    class="fixed inset-0 z-999999 flex items-center justify-center bg-black bg-opacity-50 p-4"
+    (click)="closeReceiptPreview()">
     <div class="max-w-6xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-boxdark rounded-lg shadow-xl"
-         (click)="$event.stopPropagation()">
-      <div class="sticky top-0 bg-white dark:bg-boxdark border-b border-stroke dark:border-strokedark py-4 px-6.5 flex justify-between items-center z-10">
+      (click)="$event.stopPropagation()">
+      <div
+        class="sticky top-0 bg-white dark:bg-boxdark border-b border-stroke dark:border-strokedark py-4 px-6.5 flex justify-between items-center z-10">
         <h3 class="font-medium text-black dark:text-white">Factura de Pago</h3>
         <div class="flex gap-3">
-              <button (click)="downloadReceiptPdf()" 
-                      [disabled]="isLoadingReceipt"
-                      class="inline-flex items-center justify-center rounded-md bg-primary py-2 px-4 text-center font-medium text-white hover:bg-opacity-90">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                </svg>
-                {{ isLoadingReceipt ? 'Generando...' : 'Imprimir Factura (PDF)' }}
-              </button>
-          <button (click)="closeReceiptPreview()" 
-                  class="inline-flex items-center justify-center rounded-md bg-meta-3 py-2 px-4 text-center font-medium text-white hover:bg-opacity-90">
+          <button (click)="downloadReceiptPdf()" [disabled]="isLoadingReceipt"
+            class="inline-flex items-center justify-center rounded-md bg-primary py-2 px-4 text-center font-medium text-white hover:bg-opacity-90">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            {{ isLoadingReceipt ? 'Generando...' : 'Imprimir Factura (PDF)' }}
+          </button>
+          <button (click)="closeReceiptPreview()"
+            class="inline-flex items-center justify-center rounded-md bg-meta-3 py-2 px-4 text-center font-medium text-white hover:bg-opacity-90">
             Cerrar
           </button>
         </div>
       </div>
-      
+
       <!-- <app-payment-receipt-preview 
         [receipt]="fullReceipt"
         (printReceipt)="downloadReceiptPdf()"

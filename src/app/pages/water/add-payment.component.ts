@@ -93,17 +93,22 @@ export class AddPaymentComponent implements OnInit {
       return;
     }
 
-    this.cashBalanceService.getLastOpenCashBalanceByUser(userInfo.userId).subscribe({
+    const isAdmin = userInfo.role?.toUpperCase() === 'ADMINISTRADOR';
+
+    const obs = isAdmin
+      ? this.cashBalanceService.getAllOpenCashBalances()
+      : this.cashBalanceService.getLastOpenCashBalanceByUser(userInfo.userId);
+
+    obs.subscribe({
       next: (balances) => {
         this.openCashBalances = balances;
-        // Si hay un balance abierto, asignarlo automáticamente
-        if (balances.length > 0) {
+        // Si hay un solo balance abierto, asignarlo automáticamente
+        if (balances.length === 1) {
           this.cashBalanceId = balances[0].id;
         }
       },
       error: (error) => {
         console.error('Error al cargar balance de caja abierto:', error);
-        // No mostrar error al usuario, solo log
       }
     });
   }
