@@ -1,8 +1,9 @@
-import { Directive, HostListener, Input, Optional } from '@angular/core';
+import { Directive, HostListener, Input, Optional, ElementRef } from '@angular/core';
+import { NgControl } from '@angular/forms';
 import { InputFieldComponent } from '../components/form/input/input-field.component';
 
 @Directive({
-    selector: 'app-input-field[appNumberLimit]',
+    selector: '[appNumberLimit]',
     standalone: true
 })
 export class NumberLimitDirective {
@@ -11,18 +12,20 @@ export class NumberLimitDirective {
     @Input() decimals: number = 2;
 
     constructor(
-        @Optional() private inputField: InputFieldComponent
+        @Optional() private inputField: InputFieldComponent,
+        @Optional() private ngControl: NgControl,
+        private el: ElementRef
     ) { }
 
     @HostListener('keydown', ['$event'])
     onKeydown(event: KeyboardEvent) {
-        if (!this.inputField) return;
-
-        const input = (event.target as HTMLInputElement);
+        // If on app-input-field, native element is the wrapper, so we might need event target
+        // But event target is always the input element where the event originated
+        const input = event.target as HTMLInputElement;
         const value = input.value;
         const key = event.key;
 
-        // Permitir teclas de control: Backspace, Delete, Tab, Escape, Enter, flechas, etc.
+        // Permitir teclas de control
         const controlKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
         if (controlKeys.indexOf(key) !== -1 || (event.ctrlKey || event.metaKey)) {
             return;
@@ -48,7 +51,6 @@ export class NumberLimitDirective {
 
             // Si el cursor está después del punto y ya alcanzamos el límite de decimales
             if (selectionStart > dotIndex && parts[1].length >= this.decimals) {
-                // Solo bloquear si no hay texto seleccionado (si hay selección, se va a reemplazar)
                 if (input.selectionStart === input.selectionEnd) {
                     event.preventDefault();
                 }
@@ -56,9 +58,24 @@ export class NumberLimitDirective {
         }
     }
 
+    // Listen to valueChange for app-input-field
     @HostListener('valueChange', ['$event'])
-    onValueChange(value: any) {
-        if (!this.inputField || value === null || value === undefined) return;
+    onComponentValueChange(value: any) {
+        if (this.inputField) {
+            this.processValue(value, true);
+        }
+    }
+
+    // Listen to input event for raw input
+    @HostListener('input', ['$event.target.value'])
+    onInputValueChange(value: any) {
+        if (!this.inputField) {
+            this.processValue(value, false);
+        }
+    }
+
+    processValue(value: any, isComponent: boolean) {
+        if (value === null || value === undefined) return;
 
         let stringValue = value.toString();
 
@@ -80,20 +97,31 @@ export class NumberLimitDirective {
             stringValue = this.maxLimit.toString();
         }
 
-        // 4. Sincronización crítica con el componente y el modelo original
+        // 4. Sincronización crítica
         if (stringValue !== value.toString()) {
-            this.inputField.value = stringValue;
-            // Notificar al componente que el valor ha cambiado después de nuestra limpieza
-            // para que el ngModel/FormControl se actualice.
-            this.inputField.valueChange.emit(stringValue);
+            if (isComponent && this.inputField) {
+                this.inputField.value = stringValue;
+                this.inputField.valueChange.emit(stringValue);
+            } else if (!isComponent) {
+                this.el.nativeElement.value = stringValue;
+                if (this.ngControl && this.ngControl.control) {
+                    this.ngControl.control.setValue(stringValue, { emitEvent: false });
+                }
+            }
         }
     }
 
     @HostListener('blur')
     onBlur() {
-        if (!this.inputField) return;
+        let value: any;
+        if (this.inputField) {
+            value = this.inputField.value;
+        } else {
+            value = this.el.nativeElement.value;
+        }
 
-        const value = this.inputField.value;
+        if (!value) return;
+
         let numValue = parseFloat(value.toString());
 
         if (isNaN(numValue)) {
@@ -107,8 +135,15 @@ export class NumberLimitDirective {
         const formattedValue = numValue.toFixed(this.decimals);
 
         if (formattedValue !== value.toString()) {
-            this.inputField.value = formattedValue;
-            this.inputField.valueChange.emit(formattedValue);
+            if (this.inputField) {
+                this.inputField.value = formattedValue;
+                this.inputField.valueChange.emit(formattedValue);
+            } else {
+                this.el.nativeElement.value = formattedValue;
+                if (this.ngControl && this.ngControl.control) {
+                    this.ngControl.control.setValue(formattedValue);
+                }
+            }
         }
     }
 }

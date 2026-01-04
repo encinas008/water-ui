@@ -7,12 +7,13 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { CashBalanceInputDto } from '../../shared/models/water-system.models';
+import { NumberLimitDirective } from '../../shared/directives/number-limit.directive';
 import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-open-cash-balance',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent, NumberLimitDirective],
   templateUrl: './open-cash-balance.component.html',
   styles: ``
 })

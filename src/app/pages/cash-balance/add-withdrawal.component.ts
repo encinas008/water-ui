@@ -11,12 +11,13 @@ import { PartnerService } from '../../shared/services/partner.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { CashFlowInputDto, CashBalanceOutputDto, PaymentType, CashFlowType } from '../../shared/models/water-system.models';
 import { map } from 'rxjs/operators';
+import { NumberLimitDirective } from '../../shared/directives/number-limit.directive';
 import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-add-withdrawal',
   standalone: true,
-  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, PageBreadcrumbComponent, ButtonComponent, NumberLimitDirective],
   templateUrl: './add-withdrawal.component.html',
   styles: ``
 })
