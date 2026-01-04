@@ -37,6 +37,9 @@ export class ReadingsListComponent implements OnInit {
   searchQuery: string = '';
   private searchSubject = new Subject<string>();
 
+  // Dashboard Stats
+  currentMonthReadings: number = 0;
+
   // Paginación
   currentPage: number = 0; // Backend pages are 0-indexed
   pageSize: number = 20;
@@ -62,6 +65,20 @@ export class ReadingsListComponent implements OnInit {
       this.resetAndLoadReadings();
     });
     this.loadReadings();
+    this.loadDashboardStats();
+  }
+
+  loadDashboardStats(): void {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+    this.waterReadingService.getReadingsByPeriod(startOfMonth, endOfMonth).subscribe({
+      next: (readings) => {
+        this.currentMonthReadings = readings.length;
+      },
+      error: (err) => console.error('Error loading dashboard stats:', err)
+    });
   }
 
   loadReadings(): void {
@@ -260,4 +277,29 @@ export class ReadingsListComponent implements OnInit {
     const diffTime = today.getTime() - readingDate.getTime();
     return Math.floor(diffTime / (1000 * 60 * 60 * 24));
   }
+
+  getInitials(fullName: string | undefined): string {
+    if (!fullName) return '?';
+
+    const parts = fullName.trim().split(' ');
+    if (parts.length === 1) {
+      return parts[0].substring(0, 2).toUpperCase();
+    }
+
+    const firstInitial = parts[0].charAt(0);
+    const lastInitial = parts[parts.length - 1].charAt(0);
+    return `${firstInitial}${lastInitial}`.toUpperCase();
+  }
+
+  getAvatarColor(name: string | undefined): string {
+    if (!name) return 'bg-gray-500';
+
+    const colors = [
+      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500',
+      'bg-yellow-500', 'bg-red-500', 'bg-indigo-500', 'bg-teal-500'
+    ];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  }
+
 }

@@ -1,45 +1,7 @@
 .cdk-virtual-scroll-viewport {
     height: 600px;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
 }
 
 .cdk-virtual-scroll-content-wrapper {
     min-width: 100%;
-}
-
-.table-fixed {
-    table-layout: fixed;
-}
-
-.col-fecha {
-    width: 15%;
-}
-
-.col-socio {
-    width: 18%;
-}
-
-.col-medidor {
-    width: 12%;
-}
-
-.col-anterior {
-    width: 12%;
-}
-
-.col-actual {
-    width: 12%;
-}
-
-.col-consumo {
-    width: 12%;
-}
-
-.col-estado {
-    width: 12%;
-}
-
-.col-acciones {
-    width: 7%;
 }

@@ -393,5 +393,28 @@ export class BillsListComponent implements OnInit {
     if (error.status === 0) return 'No se puede conectar al servidor.';
     return 'Error al cargar las facturas.';
   }
+  getInitials(fullName: string | undefined): string {
+    if (!fullName) return '?';
+
+    const parts = fullName.trim().split(' ');
+    if (parts.length === 1) {
+      return parts[0].substring(0, 2).toUpperCase();
+    }
+
+    const firstInitial = parts[0].charAt(0);
+    const lastInitial = parts[parts.length - 1].charAt(0);
+    return `${firstInitial}${lastInitial}`.toUpperCase();
+  }
+
+  getAvatarColor(name: string | undefined): string {
+    if (!name) return 'bg-gray-500';
+
+    const colors = [
+      'bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500',
+      'bg-yellow-500', 'bg-red-500', 'bg-indigo-500', 'bg-teal-500'
+    ];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  }
 }
 
