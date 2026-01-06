@@ -22,6 +22,8 @@ export class BillingConfigComponent implements OnInit {
     aporteOTB = 0;
     tarifaBasica = 0;
     multaExcesoM3 = 0;
+    multaCorte = 50;
+    mantenimientoSuspendida = 5;
 
     constructor(private billingConfigService: BillingConfigService) { }
 
@@ -60,13 +62,20 @@ export class BillingConfigComponent implements OnInit {
                 case 'MULTA_EXCESO_M3':
                     this.multaExcesoM3 = config.configValue;
                     break;
+                case 'MULTA_CORTE':
+                    this.multaCorte = config.configValue;
+                    break;
+                case 'MANTENIMIENTO_SUSPENDIDA':
+                    this.mantenimientoSuspendida = config.configValue;
+                    break;
             }
         });
     }
 
     saveConfigs(): void {
-        if (!this.validateInputs()) {
-            toast.error('Todos los valores deben ser mayores a cero');
+        if (this.aporteDeporte < 0 || this.aporteOTB < 0 || this.tarifaBasica < 0 ||
+            this.multaExcesoM3 < 0 || this.multaCorte < 0 || this.mantenimientoSuspendida < 0) {
+            toast.error('Todos los valores deben ser mayores o iguales a cero');
             return;
         }
 
@@ -75,7 +84,9 @@ export class BillingConfigComponent implements OnInit {
             this.billingConfigService.updateConfig('APORTE_DEPORTE', this.aporteDeporte),
             this.billingConfigService.updateConfig('APORTE_OTB', this.aporteOTB),
             this.billingConfigService.updateConfig('TARIFA_BASICA', this.tarifaBasica),
-            this.billingConfigService.updateConfig('MULTA_EXCESO_M3', this.multaExcesoM3)
+            this.billingConfigService.updateConfig('MULTA_EXCESO_M3', this.multaExcesoM3),
+            this.billingConfigService.updateConfig('MULTA_CORTE', this.multaCorte),
+            this.billingConfigService.updateConfig('MANTENIMIENTO_SUSPENDIDA', this.mantenimientoSuspendida)
         ];
 
         // Execute all updates
@@ -93,14 +104,22 @@ export class BillingConfigComponent implements OnInit {
     }
 
     resetForm(): void {
-        this.populateFormValues();
-        toast.info('Valores restaurados');
+        this.aporteDeporte = 2;
+        this.aporteOTB = 3;
+        this.tarifaBasica = 15;
+        this.multaExcesoM3 = 5;
+        this.multaCorte = 50;
+        this.mantenimientoSuspendida = 5;
+
+        toast.info('Valores restablecidos a su configuración original');
     }
 
     validateInputs(): boolean {
-        return this.aporteDeporte > 0 &&
-            this.aporteOTB > 0 &&
-            this.tarifaBasica > 0 &&
-            this.multaExcesoM3 > 0;
+        return this.aporteDeporte >= 0 &&
+            this.aporteOTB >= 0 &&
+            this.tarifaBasica >= 0 &&
+            this.multaExcesoM3 >= 0 &&
+            this.multaCorte >= 0 &&
+            this.mantenimientoSuspendida >= 0;
     }
 }

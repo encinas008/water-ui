@@ -60,7 +60,7 @@ export class AddPartnerComponent implements OnInit {
     { value: 'ACTIVE', label: 'Activa' },
     { value: 'SUSPENDED', label: 'Suspendida' },
     { value: 'CUT_OFF', label: 'Cortada' },
-    { value: 'INACTIVE', label: 'Inactiva' }
+    { value: 'INACTIVE', label: 'Pasivo' }
   ];
 
   // UI State
@@ -404,13 +404,13 @@ export class AddPartnerComponent implements OnInit {
           } else if (error.status === 404) {
             userMessage = 'Socio no encontrado.';
           } else if (error.status === 400) {
-            userMessage = `Datos inválidos: ${error.error?.message || 'Verifica los datos ingresados'}`;
+            userMessage = (typeof error.error === 'string' ? error.error : error.error?.message) || 'Datos inválidos: Verifica los datos ingresados';
           } else if (error.status === 422) {
-            userMessage = `Error de validación: ${error.error?.message || 'Revisa los campos del formulario'}`;
+            userMessage = `Error de validación: ${(typeof error.error === 'string' ? error.error : error.error?.message) || 'Revisa los campos del formulario'}`;
           } else if (error.status === 500) {
             userMessage = 'Error interno del servidor. Contacta al administrador.';
           } else {
-            userMessage = `Error ${error.status}: ${error.error?.message || error.statusText || 'Error desconocido'}`;
+            userMessage = (typeof error.error === 'string' ? error.error : error.error?.message) || `Error ${error.status}: ${error.statusText || 'Error desconocido'}`;
           }
 
           toast.error(userMessage);
@@ -441,13 +441,13 @@ export class AddPartnerComponent implements OnInit {
           } else if (error.status === 404) {
             userMessage = 'Recurso no encontrado.';
           } else if (error.status === 400) {
-            userMessage = `Datos inválidos: ${error.error?.message || 'Verifica los datos ingresados'}`;
+            userMessage = (typeof error.error === 'string' ? error.error : error.error?.message) || 'Datos inválidos: Verifica los datos ingresados';
           } else if (error.status === 422) {
-            userMessage = `Error de validación: ${error.error?.message || 'Revisa los campos del formulario'}`;
+            userMessage = `Error de validación: ${(typeof error.error === 'string' ? error.error : error.error?.message) || 'Revisa los campos del formulario'}`;
           } else if (error.status === 500) {
             userMessage = 'Error interno del servidor. Contacta al administrador.';
           } else {
-            userMessage = `Error ${error.status}: ${error.error?.message || error.statusText || 'Error desconocido'}`;
+            userMessage = (typeof error.error === 'string' ? error.error : error.error?.message) || `Error ${error.status}: ${error.statusText || 'Error desconocido'}`;
           }
 
           toast.error(userMessage);

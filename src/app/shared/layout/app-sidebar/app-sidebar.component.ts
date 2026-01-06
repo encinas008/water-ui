@@ -96,7 +96,7 @@ export class AppSidebarComponent {
       name: "Facturas de Agua",
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" fill="currentColor"/><path d="M8 16h8v2H8zm0-4h8v2H8zm0-4h5v2H8z" fill="currentColor"/></svg>`,
       subItems: [
-        { name: "Lista de Facturas", path: "/water-bills", pro: false }
+        { name: "Lista de Facturas", path: "/water-bills", pro: false },
         // { name: "Generar Facturas", path: "/water-bills/generate", pro: false }
       ],
       roles: ['ADMINISTRADOR', 'CAJERO']

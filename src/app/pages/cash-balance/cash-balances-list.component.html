@@ -70,7 +70,7 @@
 
     <div class="flex items-center gap-3">
       <app-button (click)="goBack()" [variant]="'secondary'"
-        [className]="'bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-lg font-bold px-6 py-2.5 rounded-xl border-none flex items-center justify-center gap-2'">
+        [className]="'bg-blue-500 text-white hover:bg-blue-600 shadow-blue-500/20 transition-all shadow-lg font-bold px-6 py-2.5 rounded-xl border-none flex items-center justify-center gap-2'">
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
@@ -80,7 +80,7 @@
       <div class="h-10 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1"></div>
 
       <app-button (click)="resetAndLoadCashBalances()" [variant]="'secondary'"
-        [className]="'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600 transition-all font-bold px-4 py-2.5 rounded-xl shadow-lg border-none active:scale-95'">
+        [className]="'bg-blue-500 text-white hover:bg-blue-600 shadow-blue-500/20 transition-all font-bold px-4 py-2.5 rounded-xl shadow-lg border-none active:scale-95'">
         <svg [ngClass]="{'animate-spin': isLoading}" class="h-5 w-5" fill="none" stroke="currentColor"
           viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

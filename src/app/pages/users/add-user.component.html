@@ -135,8 +135,8 @@
 
     <!-- Botones -->
     <div class="flex flex-col gap-4 sm:flex-row sm:justify-end py-4">
-      <app-button variant="outline" (btnClick)="cancel()"
-        [className]="'font-bold rounded-xl border-2 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-all px-6 py-3'">
+      <app-button variant="secondary" (btnClick)="cancel()"
+        [className]="'font-bold rounded-xl bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20 border-none active:scale-95 transition-all px-6 py-3'">
         Cancelar
       </app-button>
       <app-button variant="primary" (btnClick)="save()" [disabled]="isLoading"
