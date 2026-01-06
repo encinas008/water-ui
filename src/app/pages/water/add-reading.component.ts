@@ -119,10 +119,14 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       tap(partners => console.log('✅ Resultados del servidor:', partners.length)),
       tap(partners => {
         this.filteredPartners = partners.filter(p => {
-          const isActive = !p.connectionStatusCode || p.connectionStatusCode === 'ACTIVE';
-          return isActive;
+          // Permitir ACTIVE y CUT_OFF (Cortado) para registrar lecturas y aplicar multas recurrentes
+          const isAllowedStatus = !p.connectionStatusCode ||
+            p.connectionStatusCode === 'ACTIVE' ||
+            p.connectionStatusCode === 'CUT_OFF' ||
+            p.connectionStatusCode === 'SUSPENDED';
+          return isAllowedStatus;
         });
-        console.log('✅ Socios con conexión activa:', this.filteredPartners.length);
+        console.log('✅ Socios permitidos para lectura:', this.filteredPartners.length);
         this.isSearching = false;
       })
     ).subscribe({
