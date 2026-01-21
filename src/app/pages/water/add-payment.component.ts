@@ -124,13 +124,31 @@ export class AddPaymentComponent implements OnInit {
     this.waterBillService.getBillById(billId).subscribe({
       next: (bill) => {
         this.selectedBill = bill;
-        // El monto se calculará automáticamente cuando se carguen las multas pendientes
-        this.amount = bill.remainingBalance;
-        // Cargar pendientes del mes cuando se selecciona una factura
-        this.loadPendingFines(bill.partnerId);
+        this.processSelectedBill(bill);
       },
       error: (error) => console.error('Error al cargar factura:', error)
     });
+  }
+
+  processSelectedBill(bill: WaterBillOutputDto): void {
+    // Si la factura ya trae las multas y el total procesado desde el backend, usarlos directamente
+    // Esto evita doble cobro y errores de redondeo o filtrado en el frontend
+    if (bill.pendingFines) {
+      this.pendingFines = {
+        partnerId: bill.partnerId,
+        month: 0, // No se usa en el template
+        year: 0,
+        jobAbsences: bill.pendingFines.filter(f => f.type === 'JOB' || f.type === 'TRABAJO'),
+        meetingAbsences: bill.pendingFines.filter(f => f.type === 'MEETING' || f.type === 'REUNION'),
+        totalFines: bill.totalFinesAmount || 0
+      };
+
+      this.amount = bill.totalPayableAmount || (bill.remainingBalance + this.pendingFines.totalFines);
+    } else {
+      // Fallback: Si por alguna razón no vienen las multas, intentar cargarlas
+      this.amount = bill.remainingBalance;
+      this.loadPendingFines(bill.partnerId);
+    }
   }
 
   loadPendingFines(partnerId: string): void {
@@ -153,17 +171,47 @@ export class AddPaymentComponent implements OnInit {
 
     this.waterPaymentService.getMonthlyPendingFines(partnerId, month, year).subscribe({
       next: (data) => {
-        this.pendingFines = data;
+        // Filtrar multas que ya están incluidas como conceptos en la factura para evitar cobro doble
+        if (this.selectedBill && this.selectedBill.concepts && this.selectedBill.concepts.length > 0) {
+          const billedFines = this.selectedBill.concepts.filter(c =>
+            c.conceptName.toLowerCase().includes('multa')
+          );
+
+          const filteredJobs = data.jobAbsences.filter(fine => {
+            const fineName = fine.name.toLowerCase().trim();
+            return !billedFines.some(c => c.conceptName.toLowerCase().trim().includes(fineName));
+          });
+
+          const filteredMeetings = data.meetingAbsences.filter(fine => {
+            const fineName = fine.name.toLowerCase().trim();
+            return !billedFines.some(c => c.conceptName.toLowerCase().trim().includes(fineName));
+          });
+
+          this.pendingFines = {
+            ...data,
+            jobAbsences: filteredJobs,
+            meetingAbsences: filteredMeetings,
+            totalFines: filteredJobs.reduce((sum, f) => sum + f.fine, 0) +
+              filteredMeetings.reduce((sum, f) => sum + f.fine, 0)
+          };
+        } else {
+          this.pendingFines = data;
+        }
+
         this.isLoadingPendingFines = false;
-        // Calcular automáticamente el monto total incluyendo multas
+
+        // Calcular automáticamente el monto total incluyendo solo multas NO facturadas
         if (this.selectedBill) {
-          this.amount = this.selectedBill.remainingBalance + data.totalFines;
+          this.amount = this.selectedBill.remainingBalance + (this.pendingFines?.totalFines || 0);
         }
       },
       error: (error) => {
         console.error('Error al cargar multas pendientes:', error);
         this.isLoadingPendingFines = false;
-        // No mostrar error al usuario, solo log
+        // Si falla la carga de multas, mantener el saldo de la factura
+        if (this.selectedBill) {
+          this.amount = this.selectedBill.remainingBalance;
+        }
       }
     });
   }
@@ -233,10 +281,7 @@ export class AddPaymentComponent implements OnInit {
     this.selectedBill = bill;
     this.billSearch = `${bill.billNumber} - ${bill.partnerName}`;
     this.showBillDropdown = false;
-    // El monto se calculará automáticamente cuando se carguen las multas pendientes
-    this.amount = bill.remainingBalance;
-    // Cargar pendientes del mes cuando se selecciona una factura
-    this.loadPendingFines(bill.partnerId);
+    this.processSelectedBill(bill);
   }
 
   isFormValid(): boolean {
