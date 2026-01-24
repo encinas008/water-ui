@@ -8,7 +8,8 @@ import {
   GenerateMonthlyBillsRequestDto,
   GenerateMonthlyBillsResponseDto,
   PageResponse,
-  WaterBillStatsDto
+  WaterBillStatsDto,
+  DetailedDebtorsReportDto
 } from '../models/water-system.models';
 import { environment } from '../../../environments/environment';
 
@@ -17,6 +18,7 @@ import { environment } from '../../../environments/environment';
 })
 export class WaterBillService {
   private apiUrl = `${environment.apiUrl}/water-bills`;
+  private reportUrl = `${environment.apiUrl}/water-reports`;
 
   constructor(private http: HttpClient) { }
 
@@ -200,6 +202,20 @@ export class WaterBillService {
     return this.http.post<WaterBillOutputDto>(`${this.apiUrl}/${id}/cancel`, {}, { headers, params }).pipe(
       catchError(error => {
         console.error('❌ Error al anular factura:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Obtener reporte detallado de deudores (completo)
+   * GET /water-reports/debtors
+   */
+  getDebtorsReport(): Observable<DetailedDebtorsReportDto> {
+    const headers = this.getHeaders();
+    return this.http.get<DetailedDebtorsReportDto>(`${this.reportUrl}/debtors`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener reporte de deudores:', error);
         throw error;
       })
     );

@@ -34,6 +34,7 @@ import { BillsListComponent } from './pages/water/bills-list.component';
 import { GenerateBillsComponent } from './pages/water/generate-bills.component';
 import { AddPaymentComponent } from './pages/water/add-payment.component';
 import { PartnerPaymentsComponent } from './pages/water/partner-payments.component';
+import { DebtorsReportComponent } from './pages/water/debtors-report.component';
 
 // Cash Balance Components
 import { CashBalancesListComponent } from './pages/cash-balance/cash-balances-list.component';
@@ -219,6 +220,11 @@ export const routes: Routes = [
         path: 'water-payments/partner',
         component: PartnerPaymentsComponent,
         title: 'Cobros por Socio | Sistema de Agua'
+      },
+      {
+        path: 'reports/debtors',
+        component: DebtorsReportComponent,
+        title: 'Reporte de Deudores | Sistema de Agua'
       },
       // Cash Balance Routes
       {

@@ -407,6 +407,25 @@ export interface PendingReadingsReportDto {
   daysSinceLastReading?: number;
 }
 
+export interface DetailedDebtItemDto {
+  partnerId: string;
+  partnerNumber: string;
+  partnerName: string;
+  date: string;
+  concept: string;
+  amount: number;
+  type: string; // "BILL_CONCEPT", "PARTIAL_PAYMENT", "ABSENCE_FINE"
+}
+
+export interface DetailedDebtorsReportDto {
+  items: DetailedDebtItemDto[];
+  totalDebt: number;
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  generatedAt: string;
+}
+
 // ============================================
 // TIPOS DE CATÁLOGO
 // ============================================
