@@ -348,7 +348,14 @@ export class AddPaymentComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/water-bills']);
+    // Si hay una factura seleccionada, volver con el número de socio como búsqueda para conveniencia
+    if (this.selectedBill) {
+      this.router.navigate(['/water-bills'], {
+        queryParams: { search: this.selectedBill.partnerNumber || this.selectedBill.partnerName }
+      });
+    } else {
+      this.router.navigate(['/water-bills']);
+    }
   }
 
 
@@ -404,8 +411,14 @@ export class AddPaymentComponent implements OnInit {
     this.waterPaymentService.downloadReceiptPdf(this.registeredPaymentId).then(() => {
       this.isLoadingReceipt = false;
       toast.success('Vista de impresión generada');
-      // Redirigir al listado de facturas después de imprimir
-      this.router.navigate(['/water-bills']);
+      // Redirigir al listado de facturas después de imprimir con el número de socio como búsqueda
+      if (this.selectedBill) {
+        this.router.navigate(['/water-bills'], {
+          queryParams: { search: this.selectedBill.partnerNumber || this.selectedBill.partnerName }
+        });
+      } else {
+        this.router.navigate(['/water-bills']);
+      }
     }).catch((error) => {
       this.isLoadingReceipt = false;
       console.error('Error al generar PDF:', error);
