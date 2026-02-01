@@ -194,7 +194,7 @@ export class WaterPaymentService {
         if (!result) return;
         const file = new Blob([result], { type: "application/pdf" });
         const fileURL = URL.createObjectURL(file);
-        window.open(fileURL, "_blank", "width=1000, height=800");
+        window.open(fileURL, "_blank", "width=800, height=1000");
       })
       .catch((error) => {
         console.error('❌ Error al generar impresión PDF:', error);
