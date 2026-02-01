@@ -81,7 +81,17 @@ export class AddPaymentComponent implements OnInit {
 
   loadPaymentTypes(): void {
     this.waterPaymentService.getPaymentTypes().subscribe({
-      next: (data) => this.paymentTypes = data,
+      next: (data) => {
+        this.paymentTypes = data;
+        // Preseleccionar "EFECTIVO" por defecto
+        const efectivoType = data.find(t => t.name.toUpperCase() === 'EFECTIVO');
+        if (efectivoType) {
+          this.paymentTypeId = efectivoType.id;
+        } else if (data.length > 0) {
+          // Si no encuentra "EFECTIVO", seleccionar el primero
+          this.paymentTypeId = data[0].id;
+        }
+      },
       error: (error) => console.error('Error al cargar tipos de pago:', error)
     });
   }

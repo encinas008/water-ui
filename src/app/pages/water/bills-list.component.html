@@ -131,6 +131,16 @@
       <div class="flex items-center gap-3">
         <div class="h-8 w-1.5 bg-primary rounded-full"></div>
         <h3 class="text-lg font-bold text-slate-800 dark:text-white">Registros de Facturación</h3>
+        <span [ngClass]="{
+          'px-2.5 py-1 rounded-lg text-xs font-black tracking-widest uppercase shadow-sm border ml-2': true,
+          'bg-emerald-50 text-emerald-600 border-emerald-100': filterStatus === 'PAID',
+          'bg-amber-50 text-amber-600 border-amber-100': filterStatus === 'PENDING',
+          'bg-rose-50 text-rose-600 border-rose-100': filterStatus === 'OVERDUE' || filterStatus === 'CANCELLED',
+          'bg-blue-50 text-blue-600 border-blue-100': filterStatus === 'PARTIAL_PAID',
+          'bg-slate-50 text-slate-600 border-slate-200': !filterStatus
+        }">
+          {{ getFilterStatusName() }}
+        </span>
       </div>
       <div class="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
         <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Total: {{ totalElements }}</span>

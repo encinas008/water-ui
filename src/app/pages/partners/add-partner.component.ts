@@ -74,6 +74,7 @@ export class AddPartnerComponent implements OnInit {
   // Modo edición
   partnerId: string | null = null;
   isEditMode: boolean = false;
+  originalWaterMeterNumber: string = '';
 
   // Getter para verificar si el formulario es válido
   get isFormValid(): boolean {
@@ -109,7 +110,9 @@ export class AddPartnerComponent implements OnInit {
       if (!/^[A-Z0-9]+$/.test(this.waterMeterNumber.trim())) {
         return false;
       }
-      if (this.meterNumberExists) {
+
+      // SOLO bloquear si existe el número Y es distinto al original
+      if (this.meterNumberExists && this.waterMeterNumber.trim().toUpperCase() !== this.originalWaterMeterNumber.trim().toUpperCase()) {
         return false;
       }
     }
@@ -208,15 +211,26 @@ export class AddPartnerComponent implements OnInit {
   }
 
   loadPaymentTypes(): void {
-    // Nota: Esto podría optimizarse en un servicio, por ahora usamos los comunes
-    this.paymentTypeOptions = [
-      { value: '7c6ce56e-827d-4b82-9907-73d1f3b39867', label: 'Efectivo' }, // Ejemplo de ID, idealmente se obtiene de la DB
-      { value: '8d7de67e-938e-5b93-0018-84e2a4c40978', label: 'Transferencia' }
-    ];
-    // Intentar obtener de verdad si hay un endpoint
+    // Intentar obtener tipos de pago reales
     this.cashBalanceService.getPaymentTypes().subscribe({
       next: (types: any[]) => {
         this.paymentTypeOptions = types.map((t: any) => ({ value: t.id, label: t.name }));
+
+        // Preseleccionar "EFECTIVO" por defecto
+        const efectivoType = types.find(t => t.name.toUpperCase() === 'EFECTIVO');
+        if (efectivoType) {
+          this.paymentTypeId = efectivoType.id;
+        } else if (types.length > 0) {
+          this.paymentTypeId = types[0].id;
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar tipos de pago:', error);
+        // Fallback en caso de error
+        this.paymentTypeOptions = [
+          { value: '7c6ce56e-827d-4b82-9907-73d1f3b39867', label: 'Efectivo' },
+          { value: '8d7de67e-938e-5b93-0018-84e2a4c40978', label: 'Transferencia' }
+        ];
       }
     });
   }
@@ -243,6 +257,7 @@ export class AddPartnerComponent implements OnInit {
         this.phoneNumber = partner.phoneNumber || '';
         this.address = partner.address || '';
         this.waterMeterNumber = partner.waterMeterNumber || '';
+        this.originalWaterMeterNumber = partner.waterMeterNumber || '';
         this.connectionStatusCode = partner.connectionStatusCode || 'ACTIVE';
         if (partner.connectionDate) {
           this.connectionDate = partner.connectionDate;
@@ -362,9 +377,8 @@ export class AddPartnerComponent implements OnInit {
 
     this.isLoading = true;
 
-    // Mapear al formato que espera el backend (cellphone en lugar de phoneNumber)
-    // Convertir nombre completo a mayúsculas
-    const partnerInput: any = {
+    // Basic partner info (used for both CREATE and UPDATE)
+    const partnerDTO: any = {
       fullName: this.fullName.trim().toUpperCase(),
       partnerIdentificationNumber: this.partnerIdentificationNumber?.trim() || undefined,
       cellphone: this.phoneNumber?.trim() || undefined,
@@ -374,16 +388,12 @@ export class AddPartnerComponent implements OnInit {
       connectionDate: this.connectionDate || undefined,
       waterConnectionAddress: this.waterConnectionAddress?.trim() || undefined,
       isElderly: this.isElderly,
-      notes: this.notes?.trim() || undefined,
-      installationAmount: this.installationAmount !== '' ? (typeof this.installationAmount === 'string' ? parseFloat(this.installationAmount) : this.installationAmount) : 0,
-      paymentTypeId: this.paymentTypeId || undefined,
-      cashBalanceId: this.openCashBalanceId || undefined,
-      userId: this.authService.getUserInfo()?.userId || undefined
+      notes: this.notes?.trim() || undefined
     };
 
     if (this.isEditMode && this.partnerId) {
-      // Actualizar socio existente
-      this.partnerService.updatePartner(this.partnerId, partnerInput).subscribe({
+      // Actualizar socio existente - SOLO enviar datos básicos
+      this.partnerService.updatePartner(this.partnerId, partnerDTO).subscribe({
         next: (response) => {
           this.isLoading = false;
           toast.success('Socio actualizado exitosamente');
@@ -402,7 +412,7 @@ export class AddPartnerComponent implements OnInit {
           } else if (error.status === 403) {
             userMessage = 'No tienes permisos para actualizar socios.';
           } else if (error.status === 404) {
-            userMessage = 'Socio no encontrado.';
+            userMessage = error.error || 'Socio o estado de conexión no encontrado.';
           } else if (error.status === 400) {
             userMessage = (typeof error.error === 'string' ? error.error : error.error?.message) || 'Datos inválidos: Verifica los datos ingresados';
           } else if (error.status === 422) {
@@ -417,13 +427,19 @@ export class AddPartnerComponent implements OnInit {
         }
       });
     } else {
-      // Crear nuevo socio
-      this.partnerService.createPartner(partnerInput).subscribe({
+      // Crear nuevo socio - Incluir datos de instalación
+      const createPayload = {
+        ...partnerDTO,
+        installationAmount: this.installationAmount !== '' ? (typeof this.installationAmount === 'string' ? parseFloat(this.installationAmount) : this.installationAmount) : 0,
+        paymentTypeId: this.paymentTypeId || undefined,
+        cashBalanceId: this.openCashBalanceId || undefined,
+        userId: this.authService.getUserInfo()?.userId || undefined
+      };
+
+      this.partnerService.createPartner(createPayload).subscribe({
         next: (response) => {
           this.isLoading = false;
-
           toast.success('Socio creado exitosamente');
-
           this.router.navigate(['/partners']);
         },
         error: (error) => {
@@ -439,7 +455,7 @@ export class AddPartnerComponent implements OnInit {
           } else if (error.status === 403) {
             userMessage = 'No tienes permisos para crear partners.';
           } else if (error.status === 404) {
-            userMessage = 'Recurso no encontrado.';
+            userMessage = error.error || 'Recurso no encontrado.';
           } else if (error.status === 400) {
             userMessage = (typeof error.error === 'string' ? error.error : error.error?.message) || 'Datos inválidos: Verifica los datos ingresados';
           } else if (error.status === 422) {

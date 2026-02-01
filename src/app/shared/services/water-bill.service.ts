@@ -182,9 +182,19 @@ export class WaterBillService {
     );
   }
 
-  getBillStats(): Observable<WaterBillStatsDto> {
+  getBillStats(search?: string, statusCode?: string): Observable<WaterBillStatsDto> {
     const headers = this.getHeaders();
-    return this.http.get<WaterBillStatsDto>(`${this.apiUrl}/summary`, { headers }).pipe(
+    let params = new HttpParams();
+
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+
+    if (statusCode && statusCode.trim()) {
+      params = params.set('statusCode', statusCode.trim());
+    }
+
+    return this.http.get<WaterBillStatsDto>(`${this.apiUrl}/summary`, { headers, params }).pipe(
       catchError(error => {
         console.error('❌ Error al obtener estadísticas de facturas:', error);
         throw error;

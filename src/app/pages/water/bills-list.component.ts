@@ -44,7 +44,7 @@ export class BillsListComponent implements OnInit {
 
   // Filtros
   searchQuery = '';
-  filterStatus = '';
+  filterStatus = 'PENDING';
   private searchSubject = new Subject<string>();
   private filterStatusSubject = new Subject<string>();
 
@@ -126,7 +126,7 @@ export class BillsListComponent implements OnInit {
       }
     });
 
-    this.waterBillService.getBillStats().subscribe({
+    this.waterBillService.getBillStats(this.searchQuery, this.filterStatus).subscribe({
       next: (stats) => {
         this.totalPendingAmount = stats.totalPendingAmount;
         this.pendingBillsCount = stats.pendingBillsCount;
@@ -401,6 +401,20 @@ export class BillsListComponent implements OnInit {
     if (error.status === 0) return 'No se puede conectar al servidor.';
     return 'Error al cargar las facturas.';
   }
+
+  getFilterStatusName(): string {
+    switch (this.filterStatus) {
+      case 'PENDING':
+        const amountStr = this.totalPendingAmount > 0 ? ` - BOB ${this.totalPendingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
+        return `PENDIENTES${amountStr}`;
+      case 'PAID': return 'PAGADAS';
+      case 'PARTIAL_PAID': return 'PAGOS PARCIALES';
+      case 'OVERDUE': return 'VENCIDAS';
+      case 'CANCELLED': return 'ANULADAS';
+      default: return 'TODAS LAS FACTURAS';
+    }
+  }
+
   getInitials(fullName: string | undefined): string {
     if (!fullName) return '?';
 
