@@ -91,7 +91,11 @@ export class AddIncomeComponent implements OnInit {
             next: (types) => {
                 this.cashPaymentTypes = types;
 
-                if (this.cashPaymentTypes.length === 1) {
+                // Buscar el tipo EFECTIVO por defecto
+                const cashType = types.find(t => t.name.toUpperCase() === 'EFECTIVO');
+                if (cashType) {
+                    this.paymentTypeId = cashType.id;
+                } else if (this.cashPaymentTypes.length === 1) {
                     this.paymentTypeId = this.cashPaymentTypes[0].id;
                 }
             },

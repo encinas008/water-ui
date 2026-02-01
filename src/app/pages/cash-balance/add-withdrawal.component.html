@@ -1,5 +1,5 @@
 <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
-  <app-page-breadcrumb [pageTitle]="'Retiro Manual de Efectivo'"
+  <app-page-breadcrumb [pageTitle]="'Registrar Egreso Manual'"
     [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
   <div class="max-w-3xl mx-auto">
@@ -86,7 +86,7 @@
           <!-- Monto -->
           <div class="space-y-3">
             <div class="flex justify-between">
-              <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">Monto a Retirar <span
+              <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">Monto del Egreso <span
                   class="text-rose-500">*</span></label>
               <span *ngIf="amount && amount > getMaxWithdrawalAmount()"
                 class="text-[10px] font-bold text-rose-500 uppercase px-2 py-0.5 bg-rose-50 rounded">Excede
@@ -103,7 +103,7 @@
 
           <!-- Tipo de Pago -->
           <div class="space-y-3">
-            <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">Medio de Retiro <span
+            <label class="block text-xs font-black text-slate-500 uppercase tracking-widest">Medio de Egreso <span
                 class="text-rose-500">*</span></label>
             <select [(ngModel)]="paymentTypeId" name="paymentType" required
               class="w-full rounded-xl border-2 border-slate-100 bg-slate-50 py-4 px-4 font-bold text-slate-800 outline-none transition-all focus:border-rose-500 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white">
@@ -126,7 +126,7 @@
         <div class="flex flex-col sm:flex-row gap-4 pt-4">
           <app-button type="submit" [variant]="'primary'" [disabled]="isLoading || !isFormValid()"
             [className]="'flex-1 bg-rose-500 hover:bg-rose-600 text-white font-black text-lg py-4 rounded-xl shadow-xl shadow-rose-200 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale'">
-            {{ isLoading ? 'Procesando...' : 'Confirmar Retiro' }}
+            {{ isLoading ? 'Procesando...' : 'Confirmar Egreso' }}
           </app-button>
 
           <app-button type="button" [variant]="'secondary'" (click)="onCancel()" [disabled]="isLoading"

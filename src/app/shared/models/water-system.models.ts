@@ -577,6 +577,7 @@ export interface CashBalanceMovementDto {
   partnerNumber?: string;
   partnerName?: string;
   billingPeriod?: string;
+  correlativeNumber?: number;
 }
 
 export interface CashBalanceMovementsOutputDto {

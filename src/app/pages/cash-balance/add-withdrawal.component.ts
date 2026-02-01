@@ -25,7 +25,7 @@ export class AddWithdrawalComponent implements OnInit {
   breadcrumbItems = [
     { label: 'Dashboard', link: '/' },
     { label: 'Balances de Caja', link: '/cash-balances' },
-    { label: 'Registrar Retiro', link: '/cash-balances/withdrawal' }
+    { label: 'Registrar Egreso', link: '/cash-balances/withdrawal' }
   ];
 
   cashBalanceId = '';
@@ -92,8 +92,11 @@ export class AddWithdrawalComponent implements OnInit {
       next: (types) => {
         this.cashPaymentTypes = types;
 
-        // Seleccionar el primero por defecto si hay solo uno
-        if (this.cashPaymentTypes.length === 1) {
+        // Buscar el tipo EFECTIVO por defecto
+        const cashType = types.find(t => t.name.toUpperCase() === 'EFECTIVO');
+        if (cashType) {
+          this.paymentTypeId = cashType.id;
+        } else if (this.cashPaymentTypes.length === 1) {
           this.paymentTypeId = this.cashPaymentTypes[0].id;
         }
       },
@@ -224,14 +227,14 @@ export class AddWithdrawalComponent implements OnInit {
     this.cashFlowService.createCashFlow(withdrawal).subscribe({
       next: (response) => {
         this.isLoading = false;
-        toast.success('Retiro registrado exitosamente');
+        toast.success('Egreso registrado exitosamente');
         this.router.navigate(['/cash-balances', this.cashBalanceId]);
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error al registrar retiro:', error);
 
-        let errorMessage = 'Error al registrar el retiro';
+        let errorMessage = 'Error al registrar el egreso';
         if (error.error) {
           if (typeof error.error === 'string') {
             errorMessage = error.error;

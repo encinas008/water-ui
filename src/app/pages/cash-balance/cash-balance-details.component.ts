@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
+import { WaterPaymentService } from '../../shared/services/water-payment.service';
 import { CashBalanceDetailsOutputDto, CashBalanceMovementsOutputDto } from '../../shared/models/water-system.models';
 import { toast } from 'ngx-sonner';
 import Swal from 'sweetalert2';
@@ -31,6 +32,7 @@ export class CashBalanceDetailsComponent implements OnInit {
 
   constructor(
     private cashBalanceService: CashBalanceService,
+    private waterPaymentService: WaterPaymentService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
@@ -121,6 +123,21 @@ export class CashBalanceDetailsComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/cash-balances']);
+  }
+
+  printMovement(movement: any): void {
+    if (movement.category === 'MANUAL') {
+      this.waterPaymentService.downloadCashFlowReceiptPdf(movement.id).then(() => {
+        toast.success('Comprobante generado correctamente');
+      }).catch(error => {
+        toast.error('Error al generar el comprobante');
+      });
+    } else if (movement.reference) {
+      // Si es cobranza, intentamos imprimir el recibo de pago normal usando la referencia (que es el nro de recibo o mejor el paymentId si lo tuviéramos)
+      // Pero el DTO de movimientos no parece tener el paymentId directamente, sino el reference (recibo).
+      // Habría que ver si podemos obtener el paymentId.
+      toast.info('Para pagos de agua, use la sección de Registros de Cobranza para reimprimir.');
+    }
   }
 
 

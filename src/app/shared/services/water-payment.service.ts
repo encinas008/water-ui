@@ -201,4 +201,27 @@ export class WaterPaymentService {
         throw error;
       });
   }
+
+  /**
+   * Descargar PDF de recibo de ingreso/egreso (Cash Flow)
+   * GET /reports/cash-flows/{id}/receipt-pdf
+   */
+  downloadCashFlowReceiptPdf(cashFlowId: string): Promise<void> {
+    const headers = this.getHeaders().set("Accept", "application/pdf");
+    const reportUrl = `${environment.apiUrl}/reports/cash-flows/${cashFlowId}/receipt-pdf`;
+
+    return this.http
+      .get(reportUrl, { headers: headers, responseType: "blob" })
+      .toPromise()
+      .then((result: Blob | undefined) => {
+        if (!result) return;
+        const file = new Blob([result], { type: "application/pdf" });
+        const fileURL = URL.createObjectURL(file);
+        window.open(fileURL, "_blank", "width=800, height=1000");
+      })
+      .catch((error) => {
+        console.error('❌ Error al generar impresión de comprobante:', error);
+        throw error;
+      });
+  }
 }
