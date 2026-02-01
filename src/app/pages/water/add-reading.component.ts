@@ -276,17 +276,10 @@ export class AddReadingComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    console.log('📤 onSubmit llamado');
-    console.log('📊 Estado del formulario:', {
-      selectedPartner: this.selectedPartner,
-      partnerSearch: this.partnerSearch,
-      readingDate: this.readingDate,
-      currentReading: this.currentReading,
-      observation: this.observation
-    });
+    this.isLoading = true;
 
     if (!this.isFormValid()) {
-      console.log('❌ Formulario inválido');
+      this.isLoading = false;
       toast.warning('Por favor complete todos los campos obligatorios');
       return;
     }
@@ -301,6 +294,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
           const monthName = monthNames[date.getMonth()];
           const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
           toast.error(`Ya existe una lectura registrada para este socio en el mes de ${capitalizedMonth} ${date.getFullYear()}. Solo se permite una lectura por mes.`);
+          this.isLoading = false;
           return;
         }
 
@@ -316,9 +310,6 @@ export class AddReadingComponent implements OnInit, OnDestroy {
   }
 
   private proceedWithSubmission(): void {
-    console.log('✅ Formulario válido, enviando...');
-
-    this.isLoading = true;
 
     const readingInput: WaterMeterReadingInputDto = {
       partnerId: this.selectedPartner!.id,

@@ -105,6 +105,7 @@ export class CashBalanceDetailsComponent implements OnInit {
   }
 
   private executeCloseBalance(): void {
+    this.isLoading = true;
     this.cashBalanceService.closeCashBalance({ cashBalanceId: this.balanceId }).subscribe({
       next: (success) => {
         if (success) {

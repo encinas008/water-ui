@@ -309,9 +309,11 @@ export class AddPaymentComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) return;
-
     this.isLoading = true;
+    if (!this.isFormValid()) {
+      this.isLoading = false;
+      return;
+    }
 
     // Obtener userId del usuario autenticado
     const userInfo = this.authService.getUserInfo();

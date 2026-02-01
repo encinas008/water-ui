@@ -47,9 +47,11 @@ export class OpenCashBalanceComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (!this.isFormValid()) return;
-
     this.isLoading = true;
+    if (!this.isFormValid()) {
+      this.isLoading = false;
+      return;
+    }
 
     const cashBalanceInput: CashBalanceInputDto = {
       moneyToOpenCashBalance: this.moneyToOpenCashBalance!,

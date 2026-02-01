@@ -171,17 +171,19 @@ export class AddIncomeComponent implements OnInit {
     }
 
     onSubmit(): void {
+        this.isLoading = true;
+
         if (!this.isFormValid()) {
+            this.isLoading = false;
             return;
         }
 
         const userInfo = this.authService.getUserInfo();
         if (!userInfo || !userInfo.userId) {
             toast.error('No se pudo obtener la información del usuario');
+            this.isLoading = false;
             return;
         }
-
-        this.isLoading = true;
 
         const income: CashFlowInputDto = {
             paymentTypeId: this.paymentTypeId,

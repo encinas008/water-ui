@@ -192,17 +192,21 @@ export class AddWithdrawalComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.isLoading = true;
+
     if (!this.isFormValid()) {
       // Validar específicamente si el monto excede lo disponible
       if (this.amount && this.amount > this.getMaxWithdrawalAmount()) {
         toast.error(`El monto del retiro (BOB ${this.amount.toFixed(2)}) no puede ser mayor al disponible en caja (BOB ${this.getMaxWithdrawalAmount().toFixed(2)})`);
       }
+      this.isLoading = false;
       return;
     }
 
     const userInfo = this.authService.getUserInfo();
     if (!userInfo || !userInfo.userId) {
       toast.error('No se pudo obtener la información del usuario');
+      this.isLoading = false;
       return;
     }
 
@@ -210,10 +214,9 @@ export class AddWithdrawalComponent implements OnInit {
     const maxAmount = this.getMaxWithdrawalAmount();
     if (this.amount && this.amount > maxAmount) {
       toast.error(`El monto del retiro no puede ser mayor al disponible en caja (BOB ${maxAmount.toFixed(2)})`);
+      this.isLoading = false;
       return;
     }
-
-    this.isLoading = true;
 
     const withdrawal: CashFlowInputDto = {
       paymentTypeId: this.paymentTypeId,

@@ -193,9 +193,16 @@
           <!-- Columna Derecha: Detalles del Cobro -->
           <div class="space-y-6">
 
+            <!-- Loading Multas -->
+            <div *ngIf="isLoadingPendingFines"
+              class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 p-8 flex flex-col items-center justify-center gap-3">
+              <div class="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
+              <p class="text-xs font-black text-amber-600 uppercase tracking-widest">Calculando Multas...</p>
+            </div>
+
             <!-- Multas Pendientes -->
             <div
-              *ngIf="pendingFines && (pendingFines.jobAbsences.length > 0 || pendingFines.meetingAbsences.length > 0)"
+              *ngIf="!isLoadingPendingFines && pendingFines && (pendingFines.jobAbsences.length > 0 || pendingFines.meetingAbsences.length > 0)"
               class="bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30 overflow-hidden">
               <div
                 class="px-5 py-3 bg-amber-100/50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800/30 flex items-center gap-2">
@@ -280,6 +287,19 @@
                 <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 text-center">Monto
                   Total a Pagar</label>
                 <div class="relative group">
+                  <div *ngIf="isLoadingPendingFines"
+                    class="absolute inset-0 z-10 bg-white/60 dark:bg-slate-800/60 backdrop-blur-[1px] flex items-center justify-center rounded-2xl">
+                    <span class="flex items-center gap-2">
+                      <svg class="animate-spin h-5 w-5 text-blue-600" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                      </svg>
+                      <span class="text-sm font-black text-blue-600 uppercase">Actualizando...</span>
+                    </span>
+                  </div>
                   <span
                     class="absolute left-6 top-1/2 -translate-y-1/2 font-black text-slate-300 text-2xl group-focus-within:text-blue-500 transition-colors">BOB</span>
                   <input type="number" [(ngModel)]="amount" name="amount" required readonly
@@ -288,9 +308,9 @@
               </div>
             </div>
 
-            <!-- Botones -->
             <div class="flex flex-col gap-3">
-              <app-button type="submit" [variant]="'primary'" [disabled]="isLoading || !isFormValid()"
+              <app-button type="submit" [variant]="'primary'"
+                [disabled]="isLoading || !isFormValid() || isLoadingPendingFines"
                 [className]="'w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-lg py-5 rounded-2xl shadow-xl shadow-blue-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale'">
                 <div class="flex items-center justify-center gap-2">
                   <span *ngIf="!isLoading">Confirmar Pago</span>
@@ -301,7 +321,7 @@
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                       </path>
                     </svg>
-                    Procesando...
+                    Procesando Pago...
                   </span>
                 </div>
               </app-button>
