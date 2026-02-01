@@ -6,6 +6,7 @@ import {
   CashBalanceOutputDto,
   CashBalanceDetailsOutputDto,
   CloseCashBalanceInputDto,
+  CashBalanceMovementsOutputDto,
   PageResponse
 } from '../models/water-system.models';
 import { environment } from '../../../environments/environment';
@@ -198,5 +199,20 @@ export class CashBalanceService {
       map((balances: CashBalanceOutputDto[]) => balances.length > 0 ? balances[0] : null)
     );
   }
+
+  /**
+   * Obtener movimientos de un balance de caja
+   * GET /cash-balances/{id}/movements
+   */
+  getCashBalanceMovements(id: string): Observable<CashBalanceMovementsOutputDto> {
+    const headers = this.getHeaders();
+    return this.http.get<CashBalanceMovementsOutputDto>(`${this.apiUrl}/${id}/movements`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener movimientos del balance:', error);
+        throw error;
+      })
+    );
+  }
 }
+
 

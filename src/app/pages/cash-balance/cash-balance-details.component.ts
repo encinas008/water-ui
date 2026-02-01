@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { CashBalanceService } from '../../shared/services/cash-balance.service';
-import { CashBalanceDetailsOutputDto } from '../../shared/models/water-system.models';
+import { CashBalanceDetailsOutputDto, CashBalanceMovementsOutputDto } from '../../shared/models/water-system.models';
 import { toast } from 'ngx-sonner';
 import Swal from 'sweetalert2';
 
@@ -23,7 +23,10 @@ export class CashBalanceDetailsComponent implements OnInit {
   ];
 
   cashBalanceDetails: CashBalanceDetailsOutputDto | null = null;
+  movementsData: CashBalanceMovementsOutputDto | null = null;
   isLoading = false;
+  isLoadingMovements = false;
+  showMovements = false;
   balanceId: string = '';
 
   constructor(
@@ -47,6 +50,8 @@ export class CashBalanceDetailsComponent implements OnInit {
       next: (data) => {
         this.cashBalanceDetails = data;
         this.isLoading = false;
+        // Cargamos movimientos por defecto si se desea o bajo demanda
+        this.loadCashBalanceMovements();
       },
       error: (error) => {
         console.error('Error al cargar detalles del balance:', error);
@@ -56,7 +61,27 @@ export class CashBalanceDetailsComponent implements OnInit {
     });
   }
 
+  loadCashBalanceMovements(): void {
+    this.isLoadingMovements = true;
+    this.cashBalanceService.getCashBalanceMovements(this.balanceId).subscribe({
+      next: (data) => {
+        this.movementsData = data;
+        this.isLoadingMovements = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar movimientos:', error);
+        toast.error('Error al cargar la lista de movimientos');
+        this.isLoadingMovements = false;
+      }
+    });
+  }
+
+  toggleMovements(): void {
+    this.showMovements = !this.showMovements;
+  }
+
   closeBalance(): void {
+
     Swal.fire({
       title: '¿Cerrar Balance de Caja?',
       text: 'Una vez cerrado, no podrá registrar más movimientos en este balance.',

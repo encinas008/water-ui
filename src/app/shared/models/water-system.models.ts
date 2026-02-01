@@ -564,6 +564,27 @@ export interface CashBalanceDetailsOutputDto {
   updatedAt?: string;               // OffsetDateTime? en backend
 }
 
+export interface CashBalanceMovementDto {
+  id: string;
+  type: string; // "INGRESO" or "EGRESO"
+  category: string; // "COBRANZA" or "MANUAL"
+  description: string;
+  amount: number;
+  paymentMethod: string; // "EFECTIVO", "QR", etc.
+  date: string; // OffsetDateTime string
+  reference?: string; // receipt number for payments
+  billNumber?: string;
+  partnerNumber?: string;
+  partnerName?: string;
+  billingPeriod?: string;
+}
+
+export interface CashBalanceMovementsOutputDto {
+  cashBalanceId: string;
+  movements: CashBalanceMovementDto[];
+}
+
+
 // ============================================
 // JOB (TRABAJO) - Administración de trabajos
 // ============================================
