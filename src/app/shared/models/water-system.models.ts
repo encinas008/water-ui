@@ -862,6 +862,7 @@ export interface MeetingAttendanceOutputDto {
   present: boolean;
   checkInTime?: string;
   checkOutTime?: string;
+  lateFine: number;
   active: boolean;
   createdAt: string;
   updatedAt?: string;

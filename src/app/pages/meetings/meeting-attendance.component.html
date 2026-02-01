@@ -118,6 +118,9 @@
             <th class="px-4 py-4 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
               Hora Salida
             </th>
+            <th class="px-4 py-4 text-center text-sm font-medium text-gray-700 dark:text-gray-300">
+              Multa Retraso
+            </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
@@ -171,6 +174,17 @@
             <td class="px-4 py-4 text-center">
               <span class="text-sm text-gray-700 dark:text-gray-300">
                 {{ getAttendance(partner.partnerId).checkOutTime || '--:--' }}
+              </span>
+            </td>
+
+            <!-- Multa Retraso -->
+            <td class="px-4 py-4 text-center">
+              <span *ngIf="getLateFine(partner.partnerId) > 0"
+                class="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
+                Bs {{ getLateFine(partner.partnerId) | number:'1.2-2' }}
+              </span>
+              <span *ngIf="getLateFine(partner.partnerId) === 0" class="text-xs text-gray-400">
+                -
               </span>
             </td>
           </tr>

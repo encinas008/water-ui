@@ -211,8 +211,15 @@ export class MeetingAttendanceComponent implements OnInit {
     return this.partnerAttendanceMap.get(partnerId) || {
       present: false,
       checkInTime: '',
-      checkOutTime: ''
+      checkOutTime: '',
+      lateFine: 0
     };
+  }
+
+  getLateFine(partnerId: string): number {
+    return this.attendanceRecords.find(
+      a => a.partnerId.toLowerCase() === partnerId.toLowerCase()
+    )?.lateFine || 0;
   }
 
   markCheckIn(partnerId: string): void {
