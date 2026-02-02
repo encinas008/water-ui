@@ -132,6 +132,11 @@ export class AppSidebarComponent {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M6 2C4.34315 2 3 3.34315 3 5V19C3 20.6569 4.34315 22 6 22H18C19.6569 22 21 20.6569 21 19V9C21 7.34315 19.6569 6 18 6H13V5C13 3.34315 11.6569 2 10 2H6ZM11 6V5C11 4.44772 10.5523 4 10 4H6C5.44772 4 5 4.44772 5 5V19C5 19.5523 5.44772 20 6 20H18C18.5523 20 19 19.5523 19 19V9C19 8.44772 18.5523 8 18 8H11V6ZM7 10C7 9.44772 7.44772 9 8 9H16C16.5523 9 17 9.44772 17 10C17 10.5523 16.5523 11 16 11H8C7.44772 11 7 10.5523 7 10ZM8 13C7.44772 13 7 13.4477 7 14C7 14.5523 7.44772 15 8 15H16C16.5523 15 17 14.5523 17 14C17 13.4477 16.5523 13 16 13H8ZM7 18C7 17.4477 7.44772 17 8 17H12C12.5523 17 13 17.4477 13 18C13 18.5523 12.5523 19 12 19H8C7.44772 19 7 18.5523 7 18Z" fill="currentColor"/></svg>`,
       subItems: [
         { name: "Reporte de Deudores", path: "/reports/debtors", pro: false },
+        { name: "Cortes (4+ meses)", path: "/reports/cutoff-candidates", pro: false },
+        { name: "Resumen de Movimientos", path: "/reports/movements", pro: false },
+        { name: "Lecturas por Mes", path: "/reports/readings", pro: false },
+        { name: "Lecturas Faltantes", path: "/reports/missing-readings", pro: false },
+        { name: "Estado de Socios", path: "/reports/partners-status", pro: false },
       ],
       roles: ['ADMINISTRADOR']
     },

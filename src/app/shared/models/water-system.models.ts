@@ -361,9 +361,10 @@ export interface DebtReportDto {
   waterConnectionNumber?: string;
   connectionStatus: string;
   totalDebt: number;
-  pendingBills: number;
-  overdueBills: number;
-  oldestUnpaidDate?: string;
+  pendingBillsCount: number;
+  overdueBillsCount: number;
+  lastPaymentDate?: string;
+  contactPhone?: string;
 }
 
 export interface ConsumptionReportDto {
@@ -405,6 +406,58 @@ export interface PendingReadingsReportDto {
   waterMeterNumber?: string;
   lastReadingDate?: string;
   daysSinceLastReading?: number;
+}
+
+export interface MovementConceptDto {
+  name: string;
+  type: string; // "INGRESO" or "EGRESO"
+  amount: number;
+  isManual: boolean;
+}
+
+export interface DailyMovementReportDto {
+  concepts: MovementConceptDto[];
+  totalIncome: number;
+  totalExpense: number;
+  grandTotal: number;
+}
+
+export interface MonthlyReadingItemDto {
+  partnerNumber: number;
+  partnerName: string;
+  readingValue: number;
+  readingDate: string;
+}
+
+export interface MonthlyReadingsReportDto {
+  year: number;
+  month: number;
+  monthName: string;
+  readings: MonthlyReadingItemDto[];
+}
+
+export interface PartnerStatusItemDto {
+  partnerNumber: number;
+  fullName: string;
+  identificationNumber?: string;
+  address?: string;
+  currentDebt: number;
+  statusName: string;
+  statusCode: string;
+}
+
+export interface PartnerStatusReportDto {
+  statusSummary: Record<string, number>;
+  results: PartnerStatusItemDto[];
+}
+
+export interface MissingReadingItemDto {
+  partnerId: string;
+  partnerNumber: number;
+  partnerName: string;
+  waterMeterNumber?: string;
+  previousReading?: number;
+  previousReadingDate?: string;
 }
 
 export interface DetailedDebtItemDto {

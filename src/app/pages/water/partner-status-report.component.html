@@ -1,0 +1,213 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
+    <app-page-breadcrumb [pageTitle]="'Reporte por Estado de Socio'"
+        [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+
+    <!-- Resumen de Estados -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" *ngIf="report && !isLoading">
+        <div *ngFor="let status of getStatusList()" (click)="selectedStatus = status; applyFilters()"
+            [ngClass]="selectedStatus === status ? 'border-primary ring-4 ring-primary/5 bg-primary/5' : 'bg-white dark:bg-boxdark border-slate-100 dark:border-strokedark hover:bg-slate-50 dark:hover:bg-slate-800/50'"
+            class="p-6 rounded-3xl border transition-all cursor-pointer group shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">{{ status }}</h4>
+                <span
+                    [ngClass]="selectedStatus === status ? 'bg-primary text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'"
+                    class="h-8 w-8 rounded-full flex items-center justify-center font-black text-sm transition-colors group-hover:scale-110">
+                    {{ report.statusSummary[status] }}
+                </span>
+            </div>
+            <p class="text-2xl font-black text-slate-800 dark:text-white" *ngIf="selectedStatus === status">Seleccionado
+            </p>
+            <p class="text-xs font-bold text-slate-400 mt-1" *ngIf="selectedStatus !== status">Click para filtrar</p>
+        </div>
+
+        <!-- Ver Todos -->
+        <div (click)="selectedStatus = 'ALL'; applyFilters()"
+            [ngClass]="selectedStatus === 'ALL' ? 'border-slate-800 ring-4 ring-slate-800/5 bg-slate-50' : 'bg-white dark:bg-boxdark border-slate-100 dark:border-strokedark hover:bg-slate-50'"
+            class="p-6 rounded-3xl border transition-all cursor-pointer group shadow-sm md:col-span-1 lg:col-span-1">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">TODOS</h4>
+                <span [ngClass]="selectedStatus === 'ALL' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500'"
+                    class="h-8 w-8 rounded-full flex items-center justify-center font-black text-sm">
+                    {{ report.results.length }}
+                </span>
+            </div>
+            <p class="text-2xl font-black text-slate-800" *ngIf="selectedStatus === 'ALL'">Total</p>
+        </div>
+    </div>
+
+    <!-- Filtros Secundarios y Acciones -->
+    <div class="mb-8 bg-white dark:bg-boxdark p-6 rounded-3xl border border-slate-100 dark:border-strokedark shadow-sm">
+        <div class="flex flex-col md:flex-row gap-6 items-center">
+            <div class="relative flex-1">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
+                <input type="text" [(ngModel)]="searchQuery" (input)="applyFilters()"
+                    placeholder="Buscar por socio, número o CI..."
+                    class="w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-slate-100 bg-slate-50/50 font-bold text-slate-700 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5 dark:border-slate-700 dark:bg-slate-800 dark:text-white" />
+            </div>
+
+            <div class="flex gap-3">
+                <button (click)="exportToExcel()" [disabled]="filteredPartners.length === 0 || isLoading"
+                    class="bg-emerald-600 text-white font-black px-6 py-3.5 rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Excel
+                </button>
+                <button (click)="printReport()" [disabled]="filteredPartners.length === 0 || isLoading"
+                    class="bg-slate-800 text-white font-black px-6 py-3.5 rounded-xl shadow-lg shadow-slate-800/20 hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Socios -->
+    <div class="bg-white dark:bg-boxdark rounded-[2.5rem] border border-slate-100 dark:border-strokedark shadow-sm overflow-hidden"
+        *ngIf="!isLoading">
+        <div
+            class="px-8 py-6 bg-slate-50/50 dark:bg-meta-4/10 border-b border-slate-100 dark:border-strokedark flex items-center justify-between font-bold text-slate-800 dark:text-white">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-1.5 bg-primary rounded-full"></div>
+                <span>Socios {{ selectedStatus === 'ALL' ? 'Totales' : selectedStatus }}</span>
+            </div>
+            <span
+                class="px-4 py-2 bg-primary/10 text-primary rounded-2xl text-xs font-black uppercase tracking-widest">{{
+                filteredPartners.length }} Socios Listados</span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-left border-b border-slate-50 dark:border-slate-800">
+                        <th
+                            class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                            Nro Socio</th>
+                        <th
+                            class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                            Nombre</th>
+                        <th
+                            class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                            CI / NIT</th>
+                        <th
+                            class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                            Estado</th>
+                        <th
+                            class="px-8 py-5 text-right text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                            Deuda</th>
+                        <th
+                            class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                            Conexión</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                    <tr *ngFor="let partner of filteredPartners"
+                        class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-8 py-5">
+                            <span
+                                class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg font-black text-sm">#{{
+                                partner.partnerNumber }}</span>
+                        </td>
+                        <td
+                            class="px-8 py-5 font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors">
+                            {{ partner.fullName }}</td>
+                        <td class="px-8 py-5 text-slate-500 font-medium whitespace-nowrap">{{
+                            partner.identificationNumber || '-' }}</td>
+                        <td class="px-8 py-5">
+                            <span [ngClass]="{
+                'bg-emerald-100 text-emerald-700': partner.statusCode === 'ACTIVE',
+                'bg-rose-100 text-rose-700': partner.statusCode === 'CUT_OFF',
+                'bg-amber-100 text-amber-700': partner.statusCode === 'SUSPENDED',
+                'bg-slate-100 text-slate-600': !['ACTIVE', 'CUT_OFF', 'SUSPENDED'].includes(partner.statusCode)
+              }" class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest inline-block whitespace-nowrap">
+                                {{ partner.statusName }}
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-right font-black text-slate-800 dark:text-white"
+                            [class.text-rose-500]="partner.currentDebt > 0">
+                            {{ formatCurrency(partner.currentDebt) }}
+                        </td>
+                        <td class="px-8 py-5 text-slate-500 font-medium text-sm max-w-[200px] truncate"
+                            [title]="partner.address">
+                            {{ partner.address || '-' }}
+                        </td>
+                    </tr>
+                    <tr *ngIf="filteredPartners.length === 0">
+                        <td colspan="6" class="px-8 py-20 text-center text-slate-400 font-medium italic">No se
+                            encontraron socios con los filtros actuales</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-40">
+        <div class="h-16 w-16 rounded-full border-4 border-slate-100 border-t-primary animate-spin"></div>
+        <p class="mt-6 text-slate-400 font-black uppercase tracking-widest text-xs">Cargando reporte de socios...</p>
+    </div>
+</div>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .mx-auto,
+        .mx-auto * {
+            visibility: visible;
+        }
+
+        .mx-auto {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+        }
+
+        button,
+        input,
+        .app-page-breadcrumb,
+        .grid {
+            display: none !important;
+        }
+
+        .bg-white {
+            background: white !important;
+        }
+
+        .rounded-\[2\.5rem\] {
+            border-radius: 0 !important;
+            border: 1px solid #eee !important;
+            box-shadow: none !important;
+        }
+
+        table {
+            width: 100% !important;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #eee !important;
+            padding: 10px !important;
+        }
+
+        .truncate {
+            white-space: normal !important;
+            overflow: visible !important;
+        }
+    }
+</style>

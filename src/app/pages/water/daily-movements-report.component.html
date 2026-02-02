@@ -1,0 +1,293 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
+    <app-page-breadcrumb [pageTitle]="'Resumen de Movimientos'"
+        [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+
+    <!-- Filtros y Acciones -->
+    <div
+        class="mb-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between bg-white dark:bg-boxdark p-6 rounded-3xl border border-slate-100 dark:border-strokedark shadow-sm">
+        <div class="flex flex-col md:flex-row gap-4 flex-1">
+            <div class="flex flex-col gap-1.5 flex-1">
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Fecha Inicio</label>
+                <app-date-picker [id]="'startDate'" [defaultDate]="startDate" (dateChange)="onStartDateChange($event)"
+                    [altFormat]="'d/m/Y'" [useAltInput]="true" [dateFormat]="'Y-m-d'"></app-date-picker>
+            </div>
+            <div class="flex flex-col gap-1.5 flex-1">
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Fecha Fin</label>
+                <app-date-picker [id]="'endDate'" [defaultDate]="endDate" (dateChange)="onEndDateChange($event)"
+                    [altFormat]="'d/m/Y'" [useAltInput]="true" [dateFormat]="'Y-m-d'"></app-date-picker>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" *ngIf="report">
+        <div
+            class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-8 rounded-[2rem] text-white shadow-xl shadow-emerald-500/20 relative overflow-hidden group">
+            <div
+                class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700">
+            </div>
+            <p class="text-emerald-100 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Total Ingresos
+            </p>
+            <p class="text-4xl font-black relative z-10">{{ formatCurrency(report.totalIncome) }}</p>
+            <div class="mt-4 flex items-center gap-2 text-emerald-100/80 text-xs font-bold relative z-10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 10l7-7m0 0l7 7m-7-7v18" stroke-width="3" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Entrada de efectivo
+            </div>
+        </div>
+
+        <div
+            class="bg-gradient-to-br from-rose-500 to-rose-600 p-8 rounded-[2rem] text-white shadow-xl shadow-rose-500/20 relative overflow-hidden group">
+            <div
+                class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700">
+            </div>
+            <p class="text-rose-100 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Total Egresos</p>
+            <p class="text-4xl font-black relative z-10">{{ formatCurrency(report.totalExpense) }}</p>
+            <div class="mt-4 flex items-center gap-2 text-rose-100/80 text-xs font-bold relative z-10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke-width="3" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Salida de efectivo
+            </div>
+        </div>
+
+        <div [ngClass]="report.grandTotal >= 0 ? 'from-blue-600 to-indigo-700' : 'from-amber-500 to-orange-600'"
+            class="bg-gradient-to-br p-8 rounded-[2rem] text-white shadow-xl shadow-blue-500/20 relative overflow-hidden group">
+            <div
+                class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700">
+            </div>
+            <p class="text-white/70 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Saldo Neto
+                (Utilidad)</p>
+            <p class="text-4xl font-black relative z-10">{{ formatCurrency(report.grandTotal) }}</p>
+            <div class="mt-4 flex items-center gap-2 text-white/80 text-xs font-bold relative z-10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Balance del periodo
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" *ngIf="report && !isLoading">
+
+        <!-- Sección Ingresos -->
+        <div
+            class="bg-white dark:bg-boxdark rounded-[2.5rem] border border-slate-100 dark:border-strokedark shadow-sm overflow-hidden">
+            <div
+                class="px-8 py-6 bg-slate-50/50 dark:bg-meta-4/10 border-b border-slate-100 dark:border-strokedark flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-1.5 bg-emerald-500 rounded-full"></div>
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">Desglose de Ingresos</h3>
+                </div>
+                <span
+                    class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-black uppercase tracking-wider">Entradas</span>
+            </div>
+
+            <div class="p-4">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-left">
+                            <th class="px-4 py-3 text-xs font-black text-slate-400 uppercase tracking-widest">Concepto
+                            </th>
+                            <th
+                                class="px-4 py-3 text-right text-xs font-black text-slate-400 uppercase tracking-widest">
+                                Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                        <tr *ngFor="let concept of getIncomeConcepts()"
+                            class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div *ngIf="concept.isManual" class="w-2 h-2 rounded-full bg-amber-400"
+                                        title="Manual"></div>
+                                    <div *ngIf="!concept.isManual" class="w-2 h-2 rounded-full bg-blue-400"
+                                        title="Sistema"></div>
+                                    <span
+                                        class="font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary transition-colors">{{
+                                        concept.name }}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 text-right">
+                                <span class="font-black text-slate-800 dark:text-white">{{
+                                    formatCurrency(concept.amount) }}</span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="getIncomeConcepts().length === 0">
+                            <td colspan="2" class="px-4 py-12 text-center text-slate-400 font-medium italic">No se
+                                registraron ingresos en este periodo</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="bg-slate-50/30 dark:bg-meta-4/5" *ngIf="getIncomeConcepts().length > 0">
+                        <tr>
+                            <td class="px-4 py-6 font-black text-slate-500 uppercase tracking-widest text-sm">Suma Total
+                                Ingresos</td>
+                            <td class="px-4 py-6 text-right font-black text-emerald-600 text-xl">{{
+                                formatCurrency(report.totalIncome) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sección Egresos -->
+        <div
+            class="bg-white dark:bg-boxdark rounded-[2.5rem] border border-slate-100 dark:border-strokedark shadow-sm overflow-hidden">
+            <div
+                class="px-8 py-6 bg-slate-50/50 dark:bg-meta-4/10 border-b border-slate-100 dark:border-strokedark flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-1.5 bg-rose-500 rounded-full"></div>
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-white">Desglose de Egresos</h3>
+                </div>
+                <span
+                    class="px-3 py-1 bg-rose-100 text-rose-700 rounded-lg text-xs font-black uppercase tracking-wider">Salidas</span>
+            </div>
+
+            <div class="p-4">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-left">
+                            <th class="px-4 py-3 text-xs font-black text-slate-400 uppercase tracking-widest">Concepto
+                            </th>
+                            <th
+                                class="px-4 py-3 text-right text-xs font-black text-slate-400 uppercase tracking-widest">
+                                Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                        <tr *ngFor="let concept of getExpenseConcepts()"
+                            class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                            <td class="px-4 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-rose-400"></div>
+                                    <span
+                                        class="font-bold text-slate-700 dark:text-slate-300 group-hover:text-rose-500 transition-colors">{{
+                                        concept.name }}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 text-right">
+                                <span class="font-black text-slate-800 dark:text-white">{{
+                                    formatCurrency(concept.amount) }}</span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="getExpenseConcepts().length === 0">
+                            <td colspan="2" class="px-4 py-12 text-center text-slate-400 font-medium italic">No se
+                                registraron egresos en este periodo</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="bg-slate-50/30 dark:bg-meta-4/5" *ngIf="getExpenseConcepts().length > 0">
+                        <tr>
+                            <td class="px-4 py-6 font-black text-slate-500 uppercase tracking-widest text-sm">Suma Total
+                                Egresos</td>
+                            <td class="px-4 py-6 text-right font-black text-rose-600 text-xl">{{
+                                formatCurrency(report.totalExpense) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-32">
+        <div class="relative">
+            <div class="h-20 w-20 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+            <div
+                class="absolute inset-0 h-20 w-20 rounded-full border-4 border-primary border-t-transparent animate-spin">
+            </div>
+        </div>
+        <p class="mt-6 text-slate-500 font-bold animate-pulse uppercase tracking-[0.2em] text-xs">Cargando
+            movimientos...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !report"
+        class="flex flex-col items-center justify-center py-32 bg-white dark:bg-boxdark rounded-[3rem] border-2 border-dashed border-slate-100 dark:border-strokedark">
+        <div
+            class="h-24 w-24 bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center text-slate-200 mb-6">
+            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Selecciona un rango de fechas</h3>
+        <p class="text-slate-400 max-w-xs text-center">Utiliza los selectores superiores para ver el resumen de ingresos
+            y egresos.</p>
+    </div>
+</div>
+
+<!-- Print Only styles -->
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .mx-auto,
+        .mx-auto * {
+            visibility: visible;
+        }
+
+        .mx-auto {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+        }
+
+        button,
+        input,
+        .app-page-breadcrumb {
+            display: none !important;
+        }
+
+        .rounded-3xl,
+        .rounded-\[2rem\],
+        .rounded-\[2\.5rem\],
+        .rounded-\[3rem\] {
+            border-radius: 0 !important;
+            border: 1px solid #eee !important;
+            box-shadow: none !important;
+        }
+
+        .bg-gradient-to-br {
+            background: #f8fafc !important;
+            color: #333 !important;
+        }
+
+        .text-emerald-100,
+        .text-rose-100,
+        .text-white\/70 {
+            color: #666 !important;
+        }
+
+        .text-4xl {
+            font-size: 24pt !important;
+            color: #000 !important;
+        }
+
+        .grid {
+            display: block !important;
+        }
+
+        .mb-8 {
+            margin-bottom: 20px !important;
+        }
+
+        .lg\:grid-cols-2>*+* {
+            margin-top: 20px !important;
+        }
+
+        .bg-white {
+            background: white !important;
+        }
+    }
+</style>

@@ -226,6 +226,31 @@ export const routes: Routes = [
         component: DebtorsReportComponent,
         title: 'Reporte de Deudores | Sistema de Agua'
       },
+      {
+        path: 'reports/cutoff-candidates',
+        loadComponent: () => import('./pages/water/cutoff-report.component').then(m => m.CutoffReportComponent),
+        title: 'Candidatos a Corte | Sistema de Agua'
+      },
+      {
+        path: 'reports/movements',
+        loadComponent: () => import('./pages/water/daily-movements-report.component').then(m => m.DailyMovementReportComponent),
+        title: 'Movimientos por Fecha | Sistema de Agua'
+      },
+      {
+        path: 'reports/readings',
+        loadComponent: () => import('./pages/water/monthly-readings-report.component').then(m => m.MonthlyReadingsReportComponent),
+        title: 'Lecturas por Mes | Sistema de Agua'
+      },
+      {
+        path: 'reports/missing-readings',
+        loadComponent: () => import('./pages/water/missing-readings-report.component').then(m => m.MissingReadingsReportComponent),
+        title: 'Lecturas Faltantes | Sistema de Agua'
+      },
+      {
+        path: 'reports/partners-status',
+        loadComponent: () => import('./pages/water/partner-status-report.component').then(m => m.PartnerStatusReportComponent),
+        title: 'Estado de Socios | Sistema de Agua'
+      },
       // Cash Balance Routes
       {
         path: 'cash-balances',

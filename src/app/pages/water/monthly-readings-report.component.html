@@ -1,0 +1,166 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
+    <app-page-breadcrumb [pageTitle]="'Lecturas por Mes'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+
+    <!-- Filtros -->
+    <div class="mb-8 bg-white dark:bg-boxdark p-6 rounded-3xl border border-slate-100 dark:border-strokedark shadow-sm">
+        <div class="flex flex-col md:flex-row gap-6 items-end">
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Año</label>
+                    <select [(ngModel)]="selectedYear" (change)="loadReport()"
+                        class="w-full rounded-xl border-2 border-slate-100 bg-slate-50/50 py-3 px-4 font-bold text-slate-700 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5 dark:border-slate-700 dark:bg-slate-800 dark:text-white appearance-none">
+                        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Mes</label>
+                    <select [(ngModel)]="selectedMonth" (change)="loadReport()"
+                        class="w-full rounded-xl border-2 border-slate-100 bg-slate-50/50 py-3 px-4 font-bold text-slate-700 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5 dark:border-slate-700 dark:bg-slate-800 dark:text-white appearance-none">
+                        <option *ngFor="let m of months" [value]="m.value">{{ m.name }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button (click)="exportToExcel()" [disabled]="!report || report.readings.length === 0 || isLoading"
+                    class="bg-emerald-600 text-white font-black px-6 py-3.5 rounded-xl shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Excel
+                </button>
+                <button (click)="printReport()" [disabled]="!report || report.readings.length === 0 || isLoading"
+                    class="bg-slate-800 text-white font-black px-6 py-3.5 rounded-xl shadow-lg shadow-slate-800/20 hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Content -->
+    <div class="bg-white dark:bg-boxdark rounded-[2.5rem] border border-slate-100 dark:border-strokedark shadow-sm overflow-hidden"
+        *ngIf="report && !isLoading">
+        <div
+            class="px-8 py-6 bg-slate-50/50 dark:bg-meta-4/10 border-b border-slate-100 dark:border-strokedark flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-1.5 bg-primary rounded-full"></div>
+                <h3 class="text-xl font-bold text-slate-800 dark:text-white">Lecturas de {{ report.monthName }} {{
+                    report.year }}</h3>
+            </div>
+            <span class="px-4 py-2 bg-primary/10 text-primary rounded-2xl text-xs font-black uppercase tracking-widest">
+                {{ report.readings.length }} Registros
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-left border-b border-slate-50 dark:border-slate-800">
+                        <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Socio #</th>
+                        <th class="px-8 py-5 text-xs font-black text-slate-400 uppercase tracking-widest">Nombre del
+                            Socio</th>
+                        <th class="px-8 py-5 text-right text-xs font-black text-slate-400 uppercase tracking-widest">
+                            Lectura (M3)</th>
+                        <th class="px-8 py-5 text-center text-xs font-black text-slate-400 uppercase tracking-widest">
+                            Fecha Realizada</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                    <tr *ngFor="let reading of report.readings"
+                        class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-8 py-5">
+                            <span
+                                class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg font-black text-sm">
+                                {{ reading.partnerNumber }}
+                            </span>
+                        </td>
+                        <td
+                            class="px-8 py-5 font-bold text-slate-700 dark:text-slate-300 group-hover:text-primary transition-colors">
+                            {{ reading.partnerName }}
+                        </td>
+                        <td class="px-8 py-5 text-right font-black text-slate-800 dark:text-white text-lg">
+                            {{ reading.readingValue }}
+                        </td>
+                        <td class="px-8 py-5 text-center">
+                            <span class="text-slate-500 font-medium">{{ reading.readingDate | date:'dd/MM/yyyy'
+                                }}</span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="report.readings.length === 0">
+                        <td colspan="4" class="px-8 py-16 text-center text-slate-400 font-medium italic">
+                            No se encontraron lecturas registradas para este mes.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading"
+        class="flex flex-col items-center justify-center py-32 bg-white dark:bg-boxdark rounded-[3rem] border border-slate-100 dark:border-strokedark shadow-sm">
+        <div class="relative">
+            <div class="h-20 w-20 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+            <div
+                class="absolute inset-0 h-20 w-20 rounded-full border-4 border-primary border-t-transparent animate-spin">
+            </div>
+        </div>
+        <p class="mt-6 text-slate-500 font-bold animate-pulse uppercase tracking-[0.2em] text-xs">Cargando lecturas...
+        </p>
+    </div>
+</div>
+
+<style>
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .mx-auto,
+        .mx-auto * {
+            visibility: visible;
+        }
+
+        .mx-auto {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+        }
+
+        button,
+        select,
+        label,
+        .app-page-breadcrumb {
+            display: none !important;
+        }
+
+        .bg-white {
+            background: white !important;
+        }
+
+        .rounded-\[2\.5rem\] {
+            border-radius: 0 !important;
+            border: 1px solid #eee !important;
+            box-shadow: none !important;
+        }
+
+        table {
+            width: 100% !important;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #eee !important;
+            padding: 10px !important;
+        }
+    }
+</style>
