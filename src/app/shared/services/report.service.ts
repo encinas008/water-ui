@@ -42,4 +42,30 @@ export class ReportService {
             .set('month', month.toString());
         return this.http.get<import('../models/water-system.models').MissingReadingItemDto[]>(`${this.apiUrl}/missing-readings`, { params });
     }
+
+    getDashboardStats(year?: number): Observable<import('../models/water-system.models').DashboardStatsDto> {
+        let params = new HttpParams();
+        if (year) {
+            params = params.set('year', year.toString());
+        }
+        return this.http.get<import('../models/water-system.models').DashboardStatsDto>(`${this.apiUrl}/dashboard-stats`, { params });
+    }
+
+    getExcessConsumptionReport(year: number, month: number, threshold?: number): Observable<import('../models/water-system.models').ExcessConsumptionReportDto> {
+        let params = new HttpParams()
+            .set('year', year.toString())
+            .set('month', month.toString());
+        if (threshold) {
+            params = params.set('threshold', threshold.toString());
+        }
+        return this.http.get<import('../models/water-system.models').ExcessConsumptionReportDto>(`${this.apiUrl}/excess-consumption`, { params });
+    }
+
+    getPartnerConsumptionStats(partnerId: string, year?: number): Observable<import('../models/water-system.models').PartnerConsumptionStatsDto> {
+        let params = new HttpParams();
+        if (year) {
+            params = params.set('year', year.toString());
+        }
+        return this.http.get<import('../models/water-system.models').PartnerConsumptionStatsDto>(`${this.apiUrl}/partner-consumption/${partnerId}`, { params });
+    }
 }

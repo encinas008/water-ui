@@ -251,6 +251,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/water/partner-status-report.component').then(m => m.PartnerStatusReportComponent),
         title: 'Estado de Socios | Sistema de Agua'
       },
+      {
+        path: 'reports/excess-consumption',
+        loadComponent: () => import('./pages/water/excess-consumption-report.component').then(m => m.ExcessConsumptionReportComponent),
+        title: 'Exceso de Consumo | Sistema de Agua'
+      },
       // Cash Balance Routes
       {
         path: 'cash-balances',

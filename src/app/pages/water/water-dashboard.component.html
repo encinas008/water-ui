@@ -1,227 +1,214 @@
 <div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10">
-    <app-page-breadcrumb [pageTitle]="'Dashboard de Cobranza de Agua'"
-        [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+    <app-page-breadcrumb [pageTitle]="'Dashboard de Agua'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
     <!-- Métricas principales -->
-    <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+    <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-5 2xl:gap-7.5">
         <!-- Total Socios -->
         <div
-            class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
-                <svg class="fill-primary dark:fill-white" width="22" height="22" viewBox="0 0 22 22">
+            class="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500/10 text-brand-500">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
-                        d="M11 0C8.8 0 7 1.8 7 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 10c-4.4 0-8 1.8-8 4v2h16v-2c0-2.2-3.6-4-8-4z" />
+                        d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M20 21C20 18.24 16.42 16 12 16C7.58 16 4 18.24 4 21" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </div>
             <div class="mt-4 flex items-end justify-between">
                 <div>
-                    <h4 class="text-title-md font-bold text-black dark:text-white">{{ metrics.totalPartners }}</h4>
-                    <span class="text-sm font-medium">Total Socios</span>
+                    <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ stats?.totalPartners || 0 }}</h4>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Socios</span>
                 </div>
             </div>
         </div>
 
-        <!-- Conexiones Activas -->
+        <!-- Total Lecturas -->
         <div
-            class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
-                <svg class="fill-success dark:fill-white" width="22" height="22" viewBox="0 0 22 22">
-                    <path d="M11 0a11 11 0 100 22 11 11 0 000-22zm5 13l-6 6-4-4 1.5-1.5L10 16l4.5-4.5L16 13z" />
+            class="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
+                        stroke="currentColor" stroke-width="2" />
+                    <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
                 </svg>
             </div>
             <div class="mt-4 flex items-end justify-between">
                 <div>
-                    <h4 class="text-title-md font-bold text-black dark:text-white">{{ metrics.activeConnections }}</h4>
-                    <span class="text-sm font-medium">Conexiones Activas</span>
+                    <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ stats?.totalReadings || 0 }}</h4>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Lecturas</span>
                 </div>
             </div>
         </div>
 
-        <!-- Facturas Pendientes -->
+        <!-- Total Reuniones -->
         <div
-            class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
-                <svg class="fill-warning dark:fill-white" width="22" height="22" viewBox="0 0 22 22">
-                    <path d="M3 3h16v16H3z" />
+            class="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M8 2V5M16 2V5M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </div>
             <div class="mt-4 flex items-end justify-between">
                 <div>
-                    <h4 class="text-title-md font-bold text-black dark:text-white">{{ metrics.pendingBills }}</h4>
-                    <span class="text-sm font-medium">Facturas Pendientes</span>
+                    <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ stats?.totalMeetings || 0 }}</h4>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Reuniones</span>
                 </div>
             </div>
         </div>
 
-        <!-- Deuda Total -->
+        <!-- Total Trabajos -->
         <div
-            class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex h-11.5 w-11.5 items-center justify-center rounded-full bg-meta-2 dark:bg-meta-4">
-                <svg class="fill-danger dark:fill-white" width="22" height="22" viewBox="0 0 22 22">
-                    <path d="M11 0C4.9 0 0 4.9 0 11s4.9 11 11 11 11-4.9 11-11S17.1 0 11 0z" />
+            class="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M14.7 6.3C14.1 5.7 13.1 5.7 12.5 6.3L4.9 13.9C4.3 14.5 4.3 15.5 4.9 16.1L7.9 19.1C8.5 19.7 9.5 19.7 10.1 19.1L17.7 11.5C18.3 10.9 18.3 9.9 17.7 9.3L14.7 6.3Z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M12 22L2 12M22 2L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
                 </svg>
             </div>
             <div class="mt-4 flex items-end justify-between">
                 <div>
-                    <h4 class="text-title-md font-bold text-black dark:text-white">BOB {{ metrics.totalDebt |
-                        number:'1.2-2' }}</h4>
-                    <span class="text-sm font-medium">Deuda Total</span>
+                    <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ stats?.totalJobs || 0 }}</h4>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Trabajos</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Usuarios -->
+        <div
+            class="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path
+                        d="M5.93 20H18.07C18.6 20 19.03 19.57 19.03 19.04C19.03 16.26 15.88 14 12 14C8.12 14 4.97 16.26 4.97 19.04C4.97 19.57 5.4 20 5.93 20Z"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div class="mt-4 flex items-end justify-between">
+                <div>
+                    <h4 class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ stats?.totalUsers || 0 }}</h4>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Usuarios</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Métricas secundarias -->
-    <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+    <div class="grid grid-cols-1 gap-6">
+        <!-- Estadística de Consumo -->
         <div
-            class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex items-end justify-between">
+            class="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h4 class="text-title-md font-bold text-black dark:text-white">{{ metrics.overdueBills }}</h4>
-                    <span class="text-sm font-medium">Facturas Vencidas</span>
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90">Estadística de Consumo de Agua de
+                        la OTB
+                    </h4>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {{ selectedYear === 0 ? 'Últimos 12 meses' : 'Año ' + selectedYear }}
+                    </span>
                 </div>
-                <span class="text-meta-1">
-                    <svg class="fill-danger" width="22" height="22" viewBox="0 0 22 22">
-                        <path d="M11 0l-2 8H1l7 5-3 9 6-5 6 5-3-9 7-5h-8z" />
-                    </svg>
-                </span>
+
+                <div class="inline-flex items-center gap-2">
+                    <label for="yearSelect" class="text-sm font-medium text-gray-700 dark:text-gray-300">Filtrar por
+                        año:</label>
+                    <select id="yearSelect" (change)="onYearChange($event)" [value]="selectedYear"
+                        class="rounded-lg border border-gray-300 bg-gray-50 p-2 text-sm text-gray-900 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400">
+                        <option value="0">Últimos 12 meses</option>
+                        <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+                    </select>
+                </div>
+            </div>
+            <div id="chart">
+                <apx-chart *ngIf="chartOptions" [series]="chartOptions.series" [chart]="chartOptions.chart"
+                    [dataLabels]="chartOptions.dataLabels" [plotOptions]="chartOptions.plotOptions"
+                    [xaxis]="chartOptions.xaxis" [stroke]="chartOptions.stroke" [fill]="chartOptions.fill"
+                    [tooltip]="chartOptions.tooltip" [colors]="chartOptions.colors"
+                    [grid]="chartOptions.grid"></apx-chart>
             </div>
         </div>
 
+        <!-- Estadística de Consumo por Socio -->
         <div
-            class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex items-end justify-between">
+            class="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+            <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h4 class="text-title-md font-bold text-black dark:text-white">BOB {{ metrics.monthlyCollection |
-                        number:'1.2-2' }}</h4>
-                    <span class="text-sm font-medium">Recaudación del Mes</span>
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90">Estadística de Consumo por
+                        Socio
+                    </h4>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        Ingrese el número de socio para ver su historial
+                    </span>
                 </div>
-                <span class="text-meta-3">
-                    <svg class="fill-success" width="22" height="22" viewBox="0 0 22 22">
-                        <path d="M11 0a11 11 0 100 22 11 11 0 000-22z" />
+
+                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-end sm:items-center">
+                    <!-- Filtro Año Socio -->
+                    <div class="inline-flex items-center gap-2">
+                        <label for="partnerYearSelect"
+                            class="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:block">Año:</label>
+                        <select id="partnerYearSelect" (change)="onPartnerYearChange($event)"
+                            [value]="selectedPartnerYear"
+                            class="rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400">
+                            <option value="0">Últimos 12 meses</option>
+                            <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+                        </select>
+                    </div>
+
+                    <!-- Buscador -->
+                    <div class="relative flex w-full max-w-xs gap-2">
+                        <input type="text" [(ngModel)]="partnerSearchTerm" (keyup.enter)="onSearchPartner()"
+                            placeholder="N° Socio"
+                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400 transition-colors" />
+
+                        <button (click)="onSearchPartner()" [disabled]="isSearchingPartner || !partnerSearchTerm"
+                            class="flex items-center justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-white hover:bg-brand-600 disabled:opacity-50 transition-colors shadow-sm">
+                            <svg *ngIf="!isSearchingPartner" class="h-5 w-5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <div *ngIf="isSearchingPartner"
+                                class="h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]">
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="selectedPartner && partnerStats && partnerChartOptions" id="partnerChart"
+                class="animate-fade-in">
+                <div class="mb-6 flex items-center justify-center">
+                    <div class="text-center bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-2">
+                        <p class="text-xl font-bold text-brand-600 dark:text-brand-400">{{ partnerStats.partnerName
+                            }}</p>
+                        <p class="text-xs font-bold uppercase tracking-wider text-gray-500">Socio #{{
+                            partnerStats.partnerNumber }}</p>
+                    </div>
+                </div>
+                <apx-chart [series]="partnerChartOptions.series" [chart]="partnerChartOptions.chart"
+                    [dataLabels]="partnerChartOptions.dataLabels" [plotOptions]="partnerChartOptions.plotOptions"
+                    [xaxis]="partnerChartOptions.xaxis" [stroke]="partnerChartOptions.stroke"
+                    [fill]="partnerChartOptions.fill" [tooltip]="partnerChartOptions.tooltip"
+                    [colors]="partnerChartOptions.colors" [grid]="partnerChartOptions.grid"></apx-chart>
+            </div>
+
+            <div *ngIf="!selectedPartner"
+                class="flex flex-col items-center justify-center py-12 text-gray-400 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/10">
+                <div class="rounded-full bg-gray-100 p-4 dark:bg-gray-800 mb-4">
+                    <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                </span>
-            </div>
-        </div>
-
-        <div
-            class="rounded-sm border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex items-end justify-between">
-                <div>
-                    <h4 class="text-title-md font-bold text-black dark:text-white">{{ metrics.readingsThisMonth }}</h4>
-                    <span class="text-sm font-medium">Lecturas del Mes</span>
                 </div>
-                <span class="text-meta-5">
-                    <svg class="fill-primary" width="22" height="22" viewBox="0 0 22 22">
-                        <path d="M3 3h16v16H3z" />
-                    </svg>
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Acciones rápidas -->
-    <div
-        class="mb-6 rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-        <h4 class="mb-4 text-xl font-semibold text-black dark:text-white">Acciones Rápidas</h4>
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <app-button (click)="navigateTo('/water-readings/add')" [variant]="'primary'" class="w-full">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Nueva Lectura
-            </app-button>
-
-            <app-button (click)="navigateTo('/water-bills/generate')" [variant]="'secondary'" class="w-full">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Generar Facturas
-            </app-button>
-
-            <app-button (click)="navigateTo('/water-payments/add')" [variant]="'secondary'" class="w-full">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                Registrar Pago
-            </app-button>
-
-            <app-button (click)="navigateTo('/add-partner')" [variant]="'secondary'" class="w-full">
-                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-                Nuevo Socio
-            </app-button>
-        </div>
-    </div>
-
-    <!-- Tablas de resumen -->
-    <div class="grid grid-cols-1 gap-4 md:gap-6 xl:grid-cols-2 2xl:gap-7.5">
-        <!-- Facturas Vencidas -->
-        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="text-xl font-semibold text-black dark:text-white">Facturas Vencidas Recientes</h4>
-                <app-button (click)="navigateTo('/water-bills')" [variant]="'secondary'" class="text-sm">Ver
-                    todas</app-button>
-            </div>
-
-            <div *ngIf="isLoading" class="flex justify-center py-10">
-                <div
-                    class="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent">
-                </div>
-            </div>
-
-            <div *ngIf="!isLoading && overdueBills.length === 0" class="py-8 text-center text-bodydark">
-                No hay facturas vencidas
-            </div>
-
-            <div *ngIf="!isLoading && overdueBills.length > 0" class="space-y-3">
-                <div *ngFor="let bill of overdueBills.slice(0, 5)"
-                    class="flex items-center justify-between border-b border-stroke pb-3 dark:border-strokedark">
-                    <div>
-                        <p class="font-medium text-black dark:text-white">{{ bill.partnerName }}</p>
-                        <p class="text-sm text-bodydark">{{ bill.billNumber }} - Venc: {{ bill.dueDate |
-                            date:'dd/MM/yyyy' }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-medium text-danger">BOB {{ bill.remainingBalance | number:'1.2-2' }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Socios con Mayor Deuda -->
-        <div class="rounded-sm border border-stroke bg-white p-6 shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div class="flex items-center justify-between mb-4">
-                <h4 class="text-xl font-semibold text-black dark:text-white">Socios con Mayor Deuda</h4>
-                <app-button (click)="navigateTo('/partners')" [variant]="'secondary'" class="text-sm">Ver
-                    todos</app-button>
-            </div>
-
-            <div *ngIf="isLoading" class="flex justify-center py-10">
-                <div
-                    class="h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent">
-                </div>
-            </div>
-
-            <div *ngIf="!isLoading && topDebtors.length === 0" class="py-8 text-center text-bodydark">
-                No hay socios con deuda
-            </div>
-
-            <div *ngIf="!isLoading && topDebtors.length > 0" class="space-y-3">
-                <div *ngFor="let partner of topDebtors.slice(0, 5)"
-                    class="flex items-center justify-between border-b border-stroke pb-3 dark:border-strokedark">
-                    <div>
-                        <p class="font-medium text-black dark:text-white">{{ partner.fullName }}</p>
-                        <p class="text-sm text-bodydark">Conexión: {{ partner.waterConnectionNumber }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-medium text-danger">BOB {{ partner.currentDebt | number:'1.2-2' }}</p>
-                    </div>
-                </div>
+                <p class="text-sm font-medium">Busque y seleccione un socio para visualizar sus estadísticas.</p>
             </div>
         </div>
     </div>

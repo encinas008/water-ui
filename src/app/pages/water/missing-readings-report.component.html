@@ -102,10 +102,10 @@
                 <p class="text-sm font-bold text-black dark:text-white">{{ p.partnerName }}</p>
             </div>
             <div class="col-span-1 flex flex-col items-start gap-1">
-                <span class="text-sm font-bold text-black dark:text-white">{{ p.previousReading || 0 }}</span>
-                <span class="text-xs text-body" *ngIf="p.previousReadingDate">{{ p.previousReadingDate |
+                <span class="text-sm font-bold text-black dark:text-white">{{ p.lastReading || 0 }}</span>
+                <span class="text-xs text-body" *ngIf="p.lastReadingDate">{{ p.lastReadingDate |
                     date:'dd/MM/yyyy' }}</span>
-                <span class="text-xs text-warning" *ngIf="!p.previousReadingDate">Sin lecturas previas</span>
+                <span class="text-xs text-warning" *ngIf="!p.lastReadingDate">Sin lecturas previas</span>
             </div>
         </div>
     </div>
@@ -137,8 +137,8 @@
             <tr *ngFor="let p of partners">
                 <td class="border border-black px-2 py-2 text-center">{{ p.partnerNumber }}</td>
                 <td class="border border-black px-2 py-2 font-bold">{{ p.partnerName }}</td>
-                <td class="border border-black px-2 py-2 text-right">{{ p.previousReading || 0 }}</td>
-                <td class="border border-black px-2 py-2 text-center">{{ p.previousReadingDate | date:'dd/MM/yyyy' }}
+                <td class="border border-black px-2 py-2 text-right">{{ p.lastReading || 0 }}</td>
+                <td class="border border-black px-2 py-2 text-center">{{ p.lastReadingDate | date:'dd/MM/yyyy' }}
                 </td>
                 <td class="border border-black px-2 py-2"></td> <!-- Empty for manual writing -->
             </tr>

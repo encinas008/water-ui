@@ -92,8 +92,8 @@ export class MissingReadingsReportComponent implements OnInit {
             'N° Socio': p.partnerNumber,
             'Nombre': p.partnerName,
             'Medidor': p.waterMeterNumber || '-',
-            'Lectura Anterior': p.previousReading || 0,
-            'Fecha Lectura Ant.': p.previousReadingDate || 'N/A'
+            'Lectura Anterior': p.lastReading || 0,
+            'Fecha Lectura Ant.': p.lastReadingDate || 'N/A'
         }));
 
         const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);

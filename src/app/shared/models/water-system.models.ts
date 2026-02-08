@@ -458,8 +458,26 @@ export interface MissingReadingItemDto {
   partnerNumber: number;
   partnerName: string;
   waterMeterNumber?: string;
-  previousReading?: number;
-  previousReadingDate?: string;
+  lastReading?: number;
+  lastReadingDate?: string;
+}
+
+export interface ExcessConsumptionItemDto {
+  partnerId: string;
+  partnerNumber?: number;
+  partnerName: string;
+  initialReading: number;
+  finalReading: number;
+  consumption: number;
+  excess: number;
+  readingDate: string;
+}
+
+export interface ExcessConsumptionReportDto {
+  year: number;
+  month: number;
+  threshold: number;
+  items: ExcessConsumptionItemDto[];
 }
 
 export interface DetailedDebtItemDto {
@@ -966,3 +984,23 @@ export interface BulkMeetingAttendanceInputDto {
   attendances: PartnerAttendanceDto[];
 }
 
+export interface MonthlyConsumptionDto {
+  month: string;
+  consumption: number;
+}
+
+export interface DashboardStatsDto {
+  totalPartners: number;
+  totalReadings: number;
+  totalMeetings: number;
+  totalJobs: number;
+  totalUsers: number;
+  monthlyConsumption: MonthlyConsumptionDto[];
+}
+
+export interface PartnerConsumptionStatsDto {
+  partnerId: string;
+  partnerName: string;
+  partnerNumber: number;
+  monthlyConsumption: MonthlyConsumptionDto[];
+}
