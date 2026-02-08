@@ -41,12 +41,20 @@
         </div>
 
         <div class="flex gap-3">
-            <button (click)="exportToExcel()" [disabled]="!partners.length"
-                class="inline-flex items-center justify-center gap-2.5 rounded-md bg-success py-3 px-6 text-center font-medium text-white hover:bg-opacity-90 disabled:opacity-50">
+            <button (click)="exportToExcel()" [disabled]="!partners.length || isLoading"
+                class="flex items-center gap-2 rounded-xl bg-emerald-600 py-3 px-6 font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 hover:shadow-emerald-600/30 active:scale-95 disabled:opacity-50">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
                 Excel
             </button>
-            <button (click)="printReport()" [disabled]="!partners.length"
-                class="inline-flex items-center justify-center gap-2.5 rounded-md bg-secondary py-3 px-6 text-center font-medium text-white hover:bg-opacity-90 disabled:opacity-50">
+            <button (click)="printReport()" [disabled]="!partners.length || isLoading"
+                class="flex items-center gap-2 rounded-xl bg-indigo-600 py-3 px-6 font-bold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/30 active:scale-95 disabled:opacity-50">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
                 Imprimir
             </button>
         </div>
@@ -62,15 +70,12 @@
         </div>
 
         <div
-            class="grid grid-cols-5 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-5 md:px-6 2xl:px-7.5 bg-gray-50 dark:bg-meta-4">
+            class="grid grid-cols-4 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-4 md:px-6 2xl:px-7.5 bg-gray-50 dark:bg-meta-4">
             <div class="col-span-1 flex items-center">
                 <p class="font-medium">N° Socio</p>
             </div>
             <div class="col-span-2 flex items-center">
                 <p class="font-medium">Nombre</p>
-            </div>
-            <div class="col-span-1 flex items-center">
-                <p class="font-medium">Medidor</p>
             </div>
             <div class="col-span-1 flex items-center text-right">
                 <p class="font-medium">Lectura Ant.</p>
@@ -89,15 +94,12 @@
         </div>
 
         <div *ngFor="let p of partners"
-            class="grid grid-cols-5 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-5 md:px-6 2xl:px-7.5 hover:bg-gray-50 dark:hover:bg-meta-4/50">
+            class="grid grid-cols-4 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-4 md:px-6 2xl:px-7.5 hover:bg-gray-50 dark:hover:bg-meta-4/50">
             <div class="col-span-1 flex items-center">
                 <p class="text-sm text-black dark:text-white">{{ p.partnerNumber }}</p>
             </div>
             <div class="col-span-2 flex items-center">
                 <p class="text-sm font-bold text-black dark:text-white">{{ p.partnerName }}</p>
-            </div>
-            <div class="col-span-1 flex items-center">
-                <p class="text-sm text-black dark:text-white">{{ p.waterMeterNumber || '-' }}</p>
             </div>
             <div class="col-span-1 flex flex-col items-start gap-1">
                 <span class="text-sm font-bold text-black dark:text-white">{{ p.previousReading || 0 }}</span>
@@ -126,7 +128,6 @@
             <tr class="bg-gray-100 uppercase font-black text-center text-xs">
                 <th class="border border-black px-2 py-1 w-12">N°</th>
                 <th class="border border-black px-2 py-1 text-left">Socio</th>
-                <th class="border border-black px-2 py-1 w-20">Medidor</th>
                 <th class="border border-black px-2 py-1 w-24">Lect. Ant.</th>
                 <th class="border border-black px-2 py-1 w-24">Fecha Ant.</th>
                 <th class="border border-black px-2 py-1 w-32">Nueva Lectura</th> <!-- Space for writing -->
@@ -136,7 +137,6 @@
             <tr *ngFor="let p of partners">
                 <td class="border border-black px-2 py-2 text-center">{{ p.partnerNumber }}</td>
                 <td class="border border-black px-2 py-2 font-bold">{{ p.partnerName }}</td>
-                <td class="border border-black px-2 py-2 text-center">{{ p.waterMeterNumber || '-' }}</td>
                 <td class="border border-black px-2 py-2 text-right">{{ p.previousReading || 0 }}</td>
                 <td class="border border-black px-2 py-2 text-center">{{ p.previousReadingDate | date:'dd/MM/yyyy' }}
                 </td>

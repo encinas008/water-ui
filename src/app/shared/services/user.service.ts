@@ -32,4 +32,8 @@ export class UserService {
     updateStatus(id: string, active: boolean): Observable<any> {
         return this.http.patch<any>(`${this.apiUrl}/users/${id}`, { active });
     }
+
+    changePassword(id: string, passwordData: any): Observable<any> {
+        return this.http.put<any>(`${this.apiUrl}/users/${id}/password`, passwordData);
+    }
 }

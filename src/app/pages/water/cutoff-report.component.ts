@@ -22,6 +22,7 @@ export class CutoffReportComponent implements OnInit {
 
     candidates: DebtReportDto[] = [];
     isLoading = false;
+    currentDate = new Date();
 
     constructor(
         private reportService: ReportService,
@@ -69,26 +70,62 @@ export class CutoffReportComponent implements OnInit {
         }
 
         const data = this.candidates.map(c => ({
-            'Nombre': c.partnerName,
+            'N° Socio': c.partnerNumber || 'N/A',
+            'Socio': c.partnerName,
             'Documento': c.partnerIdentificationNumber,
             'Celular': c.contactPhone || 'N/A',
-            'Estado': c.connectionStatus,
+            'Estado': this.getStatusLabel(c.connectionStatus),
             'Deuda Total': c.totalDebt,
-            'Facturas Pendientes': c.pendingBillsCount,
-            'Facturas Vencidas': c.overdueBillsCount
+            'Meses Mora': c.pendingBillsCount + c.overdueBillsCount
         }));
 
         const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
         const wb: XLSX.WorkBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Cortes');
+        XLSX.utils.book_append_sheet(wb, ws, 'Listado_Mora');
 
         const timestamp = new Date().toISOString().split('T')[0];
-        XLSX.writeFile(wb, `Reporte_Cortes_${timestamp}.xlsx`);
+        XLSX.writeFile(wb, `Reporte_Mora_${timestamp}.xlsx`);
+        toast.success('Reporte exportado correctamente');
     }
 
 
 
     viewPartner(partnerId: string): void {
         this.router.navigate(['/partners', partnerId]);
+    }
+
+    getStatusLabel(status: string): string {
+        const s = status?.toUpperCase();
+        if (s?.includes('ACTIV')) return 'Activa';
+        if (s?.includes('CORT')) return 'Cortada';
+        if (s?.includes('SUSP')) return 'Suspendida';
+        if (s?.includes('INACT')) return 'Inactiva';
+        return status;
+    }
+
+    getStatusClass(status: string): string {
+        const s = status?.toUpperCase();
+
+        // CORTADA - ROJO INTENSO
+        if (s?.includes('CORT')) {
+            return 'bg-rose-500 text-white border-rose-600 shadow-sm shadow-rose-200 dark:bg-rose-500/80 dark:border-rose-400';
+        }
+
+        // ACTIVA - VERDE ESMERALDA
+        if (s?.includes('ACTIV')) {
+            return 'bg-emerald-500 text-white border-emerald-600 shadow-sm shadow-emerald-200 dark:bg-emerald-500/80 dark:border-emerald-400';
+        }
+
+        // SUSPENDIDA - NARANJA / AMBAR
+        if (s?.includes('SUSP')) {
+            return 'bg-amber-400 text-amber-950 border-amber-500 shadow-sm shadow-amber-100 dark:bg-amber-500/30 dark:text-amber-200 dark:border-amber-500/50';
+        }
+
+        // INACTIVA - SLATE / GRIS INDIGO
+        if (s?.includes('INACT')) {
+            return 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700';
+        }
+
+        return 'bg-slate-50 text-slate-500 border-slate-100';
     }
 }

@@ -25,7 +25,21 @@
     </div>
 
     <ul class="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
-      <!-- Opción de perfil comentada como en el original -->
+      <li>
+        <a routerLink="/profile" (click)="closeDropdown()"
+          class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
+          <svg class="fill-gray-500 group-hover:fill-brand-500 dark:fill-gray-400" width="20" height="20"
+            viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M10 10.8333C12.3012 10.8333 14.1667 8.96785 14.1667 6.66667C14.1667 4.36548 12.3012 2.5 10 2.5C7.69882 2.5 5.83333 4.36548 5.83333 6.66667C5.83333 8.96785 7.69882 10.8333 10 10.8333Z"
+              fill=""></path>
+            <path
+              d="M10 12.5C6.77834 12.5 4.16667 15.1117 4.16667 18.3333C4.16667 18.7936 4.53974 19.1667 5 19.1667H15C15.4603 19.1667 15.8333 18.7936 15.8333 18.3333C15.8333 15.1117 13.2217 12.5 10 12.5Z"
+              fill=""></path>
+          </svg>
+          Cambiar Contraseña
+        </a>
+      </li>
     </ul>
     <button (click)="logout()"
       class="flex items-center w-full gap-3 px-3 py-2 mt-3 font-medium text-left text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">

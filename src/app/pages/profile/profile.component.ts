@@ -1,22 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
-import { UserMetaCardComponent } from '../../shared/components/user-profile/user-meta-card/user-meta-card.component';
-import { UserInfoCardComponent } from '../../shared/components/user-profile/user-info-card/user-info-card.component';
-import { UserAddressCardComponent } from '../../shared/components/user-profile/user-address-card/user-address-card.component';
+import { ChangePasswordCardComponent } from '../../shared/components/user-profile/change-password-card/change-password-card.component';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-profile',
+  standalone: true,
   imports: [
     CommonModule,
     PageBreadcrumbComponent,
-    UserMetaCardComponent,
-    UserInfoCardComponent,
-    UserAddressCardComponent,
+    ChangePasswordCardComponent,
   ],
   templateUrl: './profile.component.html',
   styles: ``
 })
 export class ProfileComponent {
+  currentUserId: string;
 
+  constructor(private authService: AuthService) {
+    const userInfo = this.authService.getUserInfo();
+    this.currentUserId = userInfo?.id || userInfo?.userId || userInfo?.sub || '';
+  }
 }

@@ -356,6 +356,7 @@ export interface PaymentReceiptFullDto {
 
 export interface DebtReportDto {
   partnerId: string;
+  partnerNumber?: number;
   partnerName: string;
   partnerIdentificationNumber: string;
   waterConnectionNumber?: string;
@@ -420,6 +421,7 @@ export interface DailyMovementReportDto {
   totalIncome: number;
   totalExpense: number;
   grandTotal: number;
+  generatedAt?: string;
 }
 
 export interface MonthlyReadingItemDto {

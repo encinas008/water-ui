@@ -204,7 +204,7 @@ export const routes: Routes = [
       {
         path: 'water-bills',
         component: BillsListComponent,
-        title: 'Facturas de Agua | Sistema de Agua'
+        title: 'Efectuar Cobro | Sistema de Agua'
       },
       {
         path: 'water-bills/generate',

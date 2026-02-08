@@ -118,13 +118,13 @@
     <!-- Table Header (Static) -->
     <div class="bg-slate-100/30 dark:bg-meta-4/20 px-7 py-4">
       <div class="grid grid-cols-12 gap-4 items-center text-xs font-black text-slate-500 uppercase tracking-widest">
-        <div class="col-span-3">Descripción de Caja</div>
+        <div class="col-span-2 text-center">Descripción de Caja</div>
         <div class="col-span-2">Responsable</div>
         <div class="col-span-2 text-center">Apertura</div>
         <div class="col-span-2 text-center text-slate-400">Cierre</div>
         <div class="col-span-1 text-right">Inicial</div>
         <div class="col-span-1 text-center font-bold">Estado</div>
-        <div class="col-span-1 text-right">Acción</div>
+        <div class="col-span-2 text-right">Acciones</div>
       </div>
     </div>
 
@@ -142,7 +142,7 @@
         class="group relative grid grid-cols-12 gap-4 items-center px-7 py-5 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/20 transition-all">
 
         <!-- Description & Icon -->
-        <div class="col-span-3 flex items-center gap-3">
+        <div class="col-span-2 flex items-center gap-3">
           <div
             class="h-10 w-10 flex-shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,21 +203,23 @@
         </div>
 
         <!-- Actions -->
-        <div class="col-span-1 flex justify-end gap-1.5">
+        <div class="col-span-2 flex justify-end gap-1.5">
           <button (click)="viewDetails(balance.id)"
-            class="h-9 w-9 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-800 hover:text-white dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-white dark:hover:text-slate-900 transition-all flex items-center justify-center shadow-sm"
+            class="h-9 px-3 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-800 hover:text-white dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-white dark:hover:text-slate-900 transition-all flex items-center justify-center gap-2 shadow-sm"
             title="Ver detalles">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
             </svg>
+            <span class="text-xs font-bold">Ver Detalles</span>
           </button>
 
           <button *ngIf="balance.active && !balance.closeTime" (click)="closeBalance(balance.id)"
-            class="h-9 w-9 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-500 dark:hover:text-white transition-all flex items-center justify-center shadow-sm"
+            class="h-9 px-3 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white dark:bg-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-500 dark:hover:text-white transition-all flex items-center justify-center gap-2 shadow-sm"
             title="Cerrar balance">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
+            <span class="text-xs font-bold">Cerrar Balance</span>
           </button>
         </div>
       </div>

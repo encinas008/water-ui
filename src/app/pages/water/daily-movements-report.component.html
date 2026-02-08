@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in no-print">
     <app-page-breadcrumb [pageTitle]="'Resumen de Movimientos'"
         [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
@@ -16,6 +16,25 @@
                 <app-date-picker [id]="'endDate'" [defaultDate]="endDate" (dateChange)="onEndDateChange($event)"
                     [altFormat]="'d/m/Y'" [useAltInput]="true" [dateFormat]="'Y-m-d'"></app-date-picker>
             </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button (click)="exportToExcel()" [disabled]="!report || isLoading"
+                class="flex items-center gap-2 rounded-xl bg-emerald-600 py-3 px-6 font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 hover:shadow-emerald-600/30 active:scale-95 disabled:opacity-50">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+            </button>
+            <button (click)="printReport()" [disabled]="!report || isLoading"
+                class="flex items-center gap-2 rounded-xl bg-indigo-600 py-3 px-6 font-bold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/30 active:scale-95 disabled:opacity-50">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Imprimir
+            </button>
         </div>
     </div>
 
@@ -222,72 +241,102 @@
     </div>
 </div>
 
-<!-- Print Only styles -->
+<!-- Print Only styles and section -->
+<div class="print-only hidden p-8 bg-white text-black min-h-screen font-sans" *ngIf="report">
+    <div class="text-center mb-8 uppercase border-b-2 border-black pb-4">
+        <h1 class="text-2xl font-black mb-1">Resumen de Movimientos</h1>
+        <p class="text-lg font-bold">Desde: {{ startDate | date:'dd/MM/yyyy' }} - Hasta: {{ endDate | date:'dd/MM/yyyy'
+            }}</p>
+        <p class="text-xs mt-2">Generado el: {{ report.generatedAt | date:'dd/MM/yyyy HH:mm' }}</p>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="border-2 border-black p-4 text-center">
+            <p class="text-[10px] uppercase font-black mb-1">Total Ingresos</p>
+            <p class="text-xl font-black">{{ formatCurrency(report.totalIncome) }}</p>
+        </div>
+        <div class="border-2 border-black p-4 text-center">
+            <p class="text-[10px] uppercase font-black mb-1">Total Egresos</p>
+            <p class="text-xl font-black">{{ formatCurrency(report.totalExpense) }}</p>
+        </div>
+        <div class="border-2 border-black p-4 text-center bg-gray-100">
+            <p class="text-[10px] uppercase font-black mb-1">Utilidad Neta</p>
+            <p class="text-xl font-black">{{ formatCurrency(report.grandTotal) }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-8">
+        <!-- Detalle de Ingresos -->
+        <div>
+            <h3 class="font-black uppercase text-sm mb-2 border-b border-black">Detalle de Ingresos</h3>
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="border-b border-black">
+                        <th class="text-left py-1">Concepto</th>
+                        <th class="text-right py-1">Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let c of getIncomeConcepts()" class="border-b border-gray-200">
+                        <td class="py-1">{{ c.name }}</td>
+                        <td class="text-right py-1">{{ formatCurrency(c.amount) }}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="font-black">
+                        <td class="pt-2">TOTAL INGRESOS</td>
+                        <td class="text-right pt-2">{{ formatCurrency(report.totalIncome) }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Detalle de Egresos -->
+        <div>
+            <h3 class="font-black uppercase text-sm mb-2 border-b border-black">Detalle de Egresos</h3>
+            <table class="w-full text-xs">
+                <thead>
+                    <tr class="border-b border-black">
+                        <th class="text-left py-1">Concepto</th>
+                        <th class="text-right py-1">Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let c of getExpenseConcepts()" class="border-b border-gray-200">
+                        <td class="py-1">{{ c.name }}</td>
+                        <td class="text-right py-1">{{ formatCurrency(c.amount) }}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="font-black">
+                        <td class="pt-2">TOTAL EGRESOS</td>
+                        <td class="text-right pt-2">{{ formatCurrency(report.totalExpense) }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-24 flex justify-around text-center uppercase text-[10px] font-black">
+        <div>
+            <div class="border-t-2 border-black w-48 mb-1"></div>
+            <p>Firma Tesorería</p>
+        </div>
+        <div>
+            <div class="border-t-2 border-black w-48 mb-1"></div>
+            <p>Sello OTB / Comunidad</p>
+        </div>
+    </div>
+</div>
+
 <style>
     @media print {
-        body * {
-            visibility: hidden;
-        }
-
-        .mx-auto,
-        .mx-auto * {
-            visibility: visible;
-        }
-
-        .mx-auto {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 20px !important;
-        }
-
-        button,
-        input,
-        .app-page-breadcrumb {
+        .no-print {
             display: none !important;
         }
 
-        .rounded-3xl,
-        .rounded-\[2rem\],
-        .rounded-\[2\.5rem\],
-        .rounded-\[3rem\] {
-            border-radius: 0 !important;
-            border: 1px solid #eee !important;
-            box-shadow: none !important;
-        }
-
-        .bg-gradient-to-br {
-            background: #f8fafc !important;
-            color: #333 !important;
-        }
-
-        .text-emerald-100,
-        .text-rose-100,
-        .text-white\/70 {
-            color: #666 !important;
-        }
-
-        .text-4xl {
-            font-size: 24pt !important;
-            color: #000 !important;
-        }
-
-        .grid {
+        .print-only {
             display: block !important;
-        }
-
-        .mb-8 {
-            margin-bottom: 20px !important;
-        }
-
-        .lg\:grid-cols-2>*+* {
-            margin-top: 20px !important;
-        }
-
-        .bg-white {
-            background: white !important;
         }
     }
 </style>
