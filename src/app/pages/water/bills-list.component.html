@@ -102,7 +102,6 @@
         <option value="PENDING">Pendientes</option>
         <option value="PARTIAL_PAID">Pagos Parciales</option>
         <option value="PAID">Pagadas</option>
-        <option value="OVERDUE">Vencidas</option>
         <option value="CANCELLED">Anuladas</option>
       </select>
     </div>
@@ -135,7 +134,7 @@
           'px-2.5 py-1 rounded-lg text-xs font-black tracking-widest uppercase shadow-sm border ml-2': true,
           'bg-emerald-50 text-emerald-600 border-emerald-100': filterStatus === 'PAID',
           'bg-amber-50 text-amber-600 border-amber-100': filterStatus === 'PENDING',
-          'bg-rose-50 text-rose-600 border-rose-100': filterStatus === 'OVERDUE' || filterStatus === 'CANCELLED',
+          'bg-rose-50 text-rose-600 border-rose-100': filterStatus === 'CANCELLED',
           'bg-blue-50 text-blue-600 border-blue-100': filterStatus === 'PARTIAL_PAID',
           'bg-slate-50 text-slate-600 border-slate-200': !filterStatus
         }">
@@ -257,6 +256,13 @@
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+            </button>
+            <button *ngIf="isSuperAdmin && bill.statusCode === 'PENDING'" (click)="openAddConceptModal(bill)"
+              class="h-8 w-8 flex items-center justify-center rounded-lg text-amber-500 hover:text-white hover:bg-amber-500 transition-colors"
+              title="Agregar Concepto">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
             </button>
             <button *ngIf="bill.statusCode !== 'CANCELLED'" (click)="onCancelBill(bill)"
@@ -422,6 +428,9 @@
                     </th>
                     <th class="text-right py-4 px-6 font-bold text-slate-500 uppercase tracking-wider text-xs">Importe
                     </th>
+                    <th *ngIf="isSuperAdmin && billDetail.bill.statusCode === 'PENDING'"
+                      class="text-right py-4 px-6 font-bold text-slate-500 uppercase tracking-wider text-xs w-10">
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -430,6 +439,16 @@
                     <td class="py-4 px-6 text-slate-700 dark:text-slate-300 font-medium">{{ concept.conceptName }}</td>
                     <td class="py-4 px-6 text-right font-bold text-slate-800 dark:text-white">BOB {{ concept.amount |
                       number:'1.2-2' }}</td>
+                    <td *ngIf="isSuperAdmin && billDetail.bill.statusCode === 'PENDING'" class="py-1 px-4 text-right">
+                      <button (click)="onDeleteConcept(billDetail.bill, concept.id)"
+                        class="h-8 w-8 flex items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                        title="Eliminar Concepto">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -595,9 +614,70 @@
 
   <!-- Modal Footer -->
   <div class="bg-slate-50 dark:bg-slate-800/50 p-6 flex justify-end border-t border-slate-100 dark:border-strokedark">
+    <app-button *ngIf="isSuperAdmin && billDetail?.bill?.statusCode === 'PENDING'"
+      (click)="billDetail && openAddConceptModal(billDetail.bill)" [variant]="'primary'"
+      [className]="'bg-primary text-white font-bold px-6 py-2 rounded-xl shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all mr-4'">
+      Agregar Concepto
+    </app-button>
     <app-button (click)="closeBillDetailModal()" [variant]="'outline'"
       [className]="'bg-white border-2 border-slate-200 text-slate-600 font-bold px-6 py-2 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all'">
       Cerrar Ventana
     </app-button>
+  </div>
+</app-modal>
+
+<!-- Modal Agregar Concepto (Solo SUPER_ADMIN) -->
+<app-modal [isOpen]="showAddConceptModal" (close)="closeAddConceptModal()"
+  [className]="'max-w-md flex flex-col overflow-hidden'">
+  <div class="p-8">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-black text-slate-800 dark:text-white">Nuevo Concepto</h2>
+      <button (click)="closeAddConceptModal()"
+        class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <p class="text-slate-500 text-sm mb-6">Agrega un cargo adicional a la factura <span
+        class="font-bold text-primary">#{{ selectedBillForConcept?.billNumber }}</span>.</p>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Nombre del Concepto</label>
+        <input type="text" [(ngModel)]="newConceptData.conceptName" placeholder="Ej: Multa por daños, Aporte extra..."
+          class="w-full rounded-xl border-2 border-slate-100 bg-white py-3 px-4 font-medium text-slate-700 outline-none focus:border-primary transition-all shadow-sm focus:ring-4 focus:ring-primary/5 dark:bg-boxdark dark:border-slate-700 dark:text-white" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Monto (BOB)</label>
+        <input type="number" [(ngModel)]="newConceptData.amount" placeholder="0.00"
+          class="w-full rounded-xl border-2 border-slate-100 bg-white py-3 px-4 font-black text-slate-700 outline-none focus:border-primary transition-all shadow-sm focus:ring-4 focus:ring-primary/5 dark:bg-boxdark dark:border-slate-700 dark:text-white" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Fecha de Asignación</label>
+        <input type="date" [(ngModel)]="newConceptData.assignedDate"
+          class="w-full rounded-xl border-2 border-slate-100 bg-white py-3 px-4 font-medium text-slate-700 outline-none focus:border-primary transition-all shadow-sm focus:ring-4 focus:ring-primary/5 dark:bg-boxdark dark:border-slate-700 dark:text-white" />
+      </div>
+    </div>
+
+    <div class="mt-8 flex flex-col gap-3">
+      <app-button (click)="submitNewConcept()" [disabled]="isSavingConcept"
+        [className]="'w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 flex items-center justify-center gap-2 border-none active:scale-95'">
+        <svg *ngIf="isSavingConcept" class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        {{ isSavingConcept ? 'Guardando...' : 'Agregar a la Factura' }}
+      </app-button>
+      <button (click)="closeAddConceptModal()"
+        class="w-full py-3 text-slate-400 font-bold hover:text-slate-600 transition-all uppercase tracking-widest text-[10px]">
+        Cancelar
+      </button>
+    </div>
   </div>
 </app-modal>

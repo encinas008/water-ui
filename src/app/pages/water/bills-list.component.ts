@@ -72,6 +72,16 @@ export class BillsListComponent implements OnInit {
   billDetail: WaterBillDetailDto | null = null;
   isLoadingBillDetail = false;
 
+  // Modal agregar concepto (Solo SUPER_ADMIN)
+  showAddConceptModal = false;
+  isSavingConcept = false;
+  selectedBillForConcept: WaterBillOutputDto | null = null;
+  newConceptData = {
+    conceptName: '',
+    amount: 0,
+    assignedDate: new Date().toISOString().split('T')[0]
+  };
+
   constructor(
     private waterBillService: WaterBillService,
     private waterPaymentService: WaterPaymentService,
@@ -207,6 +217,13 @@ export class BillsListComponent implements OnInit {
       default:
         return 'info';
     }
+  }
+
+  get isSuperAdmin(): boolean {
+    const userInfo = this.authService.getUserInfo();
+    const role = userInfo?.role?.trim().toUpperCase() || '';
+    const normalized = role.replace(/\s+/g, '_');
+    return normalized === 'SUPER_ADMIN' || normalized === 'SUPER_ADMINISTRADOR';
   }
 
   formatBillingMonth(bill: WaterBillOutputDto): string {
@@ -437,6 +454,113 @@ export class BillsListComponent implements OnInit {
     ];
     const index = name.charCodeAt(0) % colors.length;
     return colors[index];
+  }
+
+  openAddConceptModal(bill: WaterBillOutputDto): void {
+    this.selectedBillForConcept = bill;
+    this.newConceptData = {
+      conceptName: '',
+      amount: 0,
+      assignedDate: new Date().toISOString().split('T')[0]
+    };
+    this.showAddConceptModal = true;
+  }
+
+  closeAddConceptModal(): void {
+    this.showAddConceptModal = false;
+    this.selectedBillForConcept = null;
+  }
+
+  submitNewConcept(): void {
+    if (!this.selectedBillForConcept || !this.newConceptData.conceptName || this.newConceptData.amount <= 0) {
+      toast.error('Por favor completa todos los campos correctamente');
+      return;
+    }
+
+    this.isSavingConcept = true;
+    this.waterBillService.addConcept(this.selectedBillForConcept.id, this.newConceptData).subscribe({
+      next: (updatedBill) => {
+        toast.success('Concepto agregado exitosamente');
+        this.isSavingConcept = false;
+        this.showAddConceptModal = false;
+
+        // Actualizar la factura en la lista local para reflejar el nuevo total
+        const index = this.bills.findIndex(b => b.id === updatedBill.id);
+        if (index !== -1) {
+          this.bills = [
+            ...this.bills.slice(0, index),
+            updatedBill,
+            ...this.bills.slice(index + 1)
+          ];
+        }
+
+        // Recargar estadísticas para actualizar el monto pendiente total si corresponde
+        this.waterBillService.getBillStats(this.searchQuery, this.filterStatus).subscribe({
+          next: (stats) => {
+            this.totalPendingAmount = stats.totalPendingAmount;
+            this.pendingBillsCount = stats.pendingBillsCount;
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error al agregar concepto:', error);
+        toast.error('Error al agregar el concepto a la factura');
+        this.isSavingConcept = false;
+      }
+    });
+  }
+
+  onDeleteConcept(bill: WaterBillOutputDto, conceptId: string): void {
+    if (!this.isSuperAdmin || bill.statusCode !== 'PENDING') return;
+
+    Swal.fire({
+      title: '¿Eliminar concepto?',
+      text: 'El monto total de la factura y la deuda del socio serán actualizados.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.waterBillService.deleteConcept(bill.id, conceptId).subscribe({
+          next: (updatedBill) => {
+            toast.success('Concepto eliminado exitosamente');
+
+            // 1. Actualizar el modal de detalle si está abierto
+            if (this.billDetail && this.billDetail.bill.id === updatedBill.id) {
+              this.billDetail = {
+                ...this.billDetail,
+                bill: updatedBill
+              };
+            }
+
+            // 2. Actualizar la factura en la lista principal
+            const index = this.bills.findIndex(b => b.id === updatedBill.id);
+            if (index !== -1) {
+              this.bills = [
+                ...this.bills.slice(0, index),
+                updatedBill,
+                ...this.bills.slice(index + 1)
+              ];
+            }
+
+            // 3. Recargar estadísticas
+            this.waterBillService.getBillStats(this.searchQuery, this.filterStatus).subscribe({
+              next: (stats) => {
+                this.totalPendingAmount = stats.totalPendingAmount;
+                this.pendingBillsCount = stats.pendingBillsCount;
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Error al eliminar concepto:', error);
+            toast.error('No se pudo eliminar el concepto');
+          }
+        });
+      }
+    });
   }
 }
 

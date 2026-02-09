@@ -153,6 +153,12 @@ export interface BillConceptItemDto {
   amount: number;
 }
 
+export interface AddBillConceptDto {
+  conceptName: string;
+  amount: number;
+  assignedDate: string;
+}
+
 export interface WaterBillOutputDto {
   id: string;
   billNumber: string;

@@ -9,7 +9,8 @@ import {
   GenerateMonthlyBillsResponseDto,
   PageResponse,
   WaterBillStatsDto,
-  DetailedDebtorsReportDto
+  DetailedDebtorsReportDto,
+  AddBillConceptDto
 } from '../models/water-system.models';
 import { environment } from '../../../environments/environment';
 
@@ -212,6 +213,34 @@ export class WaterBillService {
     return this.http.post<WaterBillOutputDto>(`${this.apiUrl}/${id}/cancel`, {}, { headers, params }).pipe(
       catchError(error => {
         console.error('❌ Error al anular factura:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Agregar un nuevo concepto a una factura existente
+   * POST /water-bills/{id}/concepts
+   */
+  addConcept(billId: string, concept: AddBillConceptDto): Observable<WaterBillOutputDto> {
+    const headers = this.getHeaders();
+    return this.http.post<WaterBillOutputDto>(`${this.apiUrl}/${billId}/concepts`, concept, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al agregar concepto a la factura:', error);
+        throw error;
+      })
+    );
+  }
+
+  /**
+   * Eliminar un concepto de una factura existente
+   * DELETE /water-bills/{id}/concepts/{conceptId}
+   */
+  deleteConcept(billId: string, conceptId: string): Observable<WaterBillOutputDto> {
+    const headers = this.getHeaders();
+    return this.http.delete<WaterBillOutputDto>(`${this.apiUrl}/${billId}/concepts/${conceptId}`, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al eliminar concepto de la factura:', error);
         throw error;
       })
     );
