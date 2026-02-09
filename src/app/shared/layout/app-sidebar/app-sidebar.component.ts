@@ -12,7 +12,7 @@ type NavItem = {
   icon: string;
   path?: string;
   new?: boolean;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: { name: string; path: string; pro?: boolean; new?: boolean; roles?: string[] }[];
   roles?: string[];
 };
 
@@ -33,7 +33,7 @@ export class AppSidebarComponent {
       name: "Dashboard",
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 3.25C4.25736 3.25 3.25 4.25736 3.25 5.5V8.99998C3.25 10.2426 4.25736 11.25 5.5 11.25H9C10.2426 11.25 11.25 10.2426 11.25 8.99998V5.5C11.25 4.25736 10.2426 3.25 9 3.25H5.5ZM4.75 5.5C4.75 5.08579 5.08579 4.75 5.5 4.75H9C9.41421 4.75 9.75 5.08579 9.75 5.5V8.99998C9.75 9.41419 9.41421 9.74998 9 9.74998H5.5C5.08579 9.74998 4.75 9.41419 4.75 8.99998V5.5ZM5.5 12.75C4.25736 12.75 3.25 13.7574 3.25 15V18.5C3.25 19.7426 4.25736 20.75 5.5 20.75H9C10.2426 20.75 11.25 19.7427 11.25 18.5V15C11.25 13.7574 10.2426 12.75 9 12.75H5.5ZM4.75 15C4.75 14.5858 5.08579 14.25 5.5 14.25H9C9.41421 14.25 9.75 14.5858 9.75 15V18.5C9.75 18.9142 9.41421 19.25 9 19.25H5.5C5.08579 19.25 4.75 18.9142 4.75 18.5V15ZM12.75 5.5C12.75 4.25736 13.7574 3.25 15 3.25H18.5C19.7426 3.25 20.75 4.25736 20.75 5.5V8.99998C20.75 10.2426 19.7426 11.25 18.5 11.25H15C13.7574 11.25 12.75 10.2426 12.75 8.99998V5.5ZM15 4.75C14.5858 4.75 14.25 5.08579 14.25 5.5V8.99998C14.25 9.41419 14.5858 9.74998 15 9.74998H18.5C18.9142 9.74998 19.25 9.41419 19.25 8.99998V5.5C19.25 5.08579 18.9142 4.75 18.5 4.75H15ZM15 12.75C13.7574 12.75 12.75 13.7574 12.75 15V18.5C12.75 19.7426 13.7574 20.75 15 20.75H18.5C19.7426 20.75 20.75 19.7427 20.75 18.5V15C20.75 13.7574 19.7426 12.75 18.5 12.75H15ZM14.25 15C14.25 14.5858 14.5858 14.25 15 14.25H18.5C18.9142 14.25 19.25 14.5858 19.25 15V18.5C19.25 18.9142 18.9142 19.25 18.5 19.25H15C14.5858 19.25 14.25 18.9142 14.25 18.5V15Z" fill="currentColor"></path></svg>`,
       path: "/water-dashboard",
-      roles: ['ADMINISTRADOR', 'CAJERO', 'LECTOR DE MEDIDORES']
+      roles: ['ADMINISTRADOR', 'SUPER_ADMIN']
     },
     {
       name: "Usuarios",
@@ -43,6 +43,15 @@ export class AppSidebarComponent {
         { name: "Nuevo Usuario", path: "/users/add", pro: false }
       ],
       roles: ['ADMINISTRADOR']
+    },
+    {
+      name: "Roles",
+      icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="currentColor"/></svg>`,
+      subItems: [
+        { name: "Lista de Roles", path: "/roles", pro: false },
+        { name: "Nuevo Rol", path: "/roles/add", pro: false }
+      ],
+      roles: ['SUPER_ADMIN']
     },
     {
       name: "Socios",
@@ -76,9 +85,9 @@ export class AppSidebarComponent {
       icon: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" fill="currentColor"/></svg>`,
       subItems: [
         { name: "Lista de Lecturas", path: "/water-readings", pro: false },
-        // { name: "Nueva Lectura", path: "/water-readings/add", pro: false }
+        { name: "Nueva Lectura", path: "/water-readings/add", pro: false, roles: ['SUPER_ADMIN'] }
       ],
-      roles: ['ADMINISTRADOR', 'LECTOR DE MEDIDORES']
+      roles: ['ADMINISTRADOR', 'LECTOR DE MEDIDORES', 'SUPER_ADMIN']
     },
     {
       name: "Efectuar Cobro",
@@ -135,16 +144,59 @@ export class AppSidebarComponent {
   // Others nav items
   othersItems: NavItem[] = [];
 
+  /**
+   * Obtiene la lista de ítems de navegación filtrados según el rol del usuario.
+   */
+  /**
+   * Obtiene la lista de ítems de navegación filtrados según el rol del usuario.
+   */
   get filteredNavItems(): NavItem[] {
     const userInfo = this.authService.getUserInfo();
-    const userRole = userInfo?.role;
+    const rawRole = userInfo?.role;
+    const userRole = rawRole?.trim()?.toUpperCase() || '';
 
-    if (!userRole) return this.navItems;
+    // Función auxiliar para verificar si alguno de las roles permitidas coincide con el usuario
+    const hasAccess = (allowedRoles?: string[]): boolean => {
+      // Si no hay restricciones, el acceso es público (para usuarios logueados)
+      if (!allowedRoles || allowedRoles.length === 0) return true;
+      if (!userRole) return false;
 
-    return this.navItems.filter(item => {
-      if (!item.roles) return true;
-      return item.roles.includes(userRole.toUpperCase());
-    });
+      const normalizedUserRole = userRole.replace(/\s+/g, '_');
+
+      // SUPER_ADMIN tiene acceso a TODO por defecto
+      if (normalizedUserRole === 'SUPER_ADMIN' || normalizedUserRole === 'SUPER_ADMINISTRADOR') return true;
+
+      return allowedRoles.some(role => {
+        const normalizedAllowed = role.trim().toUpperCase().replace(/\s+/g, '_');
+
+        // Coincidencia exacta (normalizada)
+        if (normalizedAllowed === normalizedUserRole) return true;
+
+        // Alias comunes
+        if (normalizedAllowed === 'ADMINISTRADOR' && normalizedUserRole === 'ADMIN') return true;
+        if (normalizedAllowed === 'ADMIN' && normalizedUserRole === 'ADMINISTRADOR') return true;
+
+        return false;
+      });
+    };
+
+    return this.navItems
+      .filter(item => hasAccess(item.roles))
+      .map(item => {
+        // Clonamos para evitar mutar el array original
+        const filteredItem = { ...item };
+
+        if (filteredItem.subItems) {
+          filteredItem.subItems = filteredItem.subItems.filter(sub => hasAccess(sub.roles));
+        }
+
+        return filteredItem;
+      })
+      .filter(item => {
+        // Un ítem es válido si tiene un path (es un link directo)
+        // o si tiene sub-ítems visibles (es un dropdown)
+        return !!item.path || (!!item.subItems && item.subItems.length > 0);
+      });
   }
 
   openSubmenu: string | null | number = null;

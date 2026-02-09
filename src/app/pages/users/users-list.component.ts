@@ -9,6 +9,7 @@ import { SwitchComponent } from '../../shared/components/form/input/switch.compo
 import { ScrollingModule } from '@angular/cdk/scrolling'; // Added
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component'; // Added
 import { ButtonComponent } from '../../shared/components/ui/button/button.component'; // Added
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-users-list',
@@ -30,7 +31,17 @@ export class UsersListComponent implements OnInit {
   searchQuery: string = ''; // Added
   isLoading = false;
 
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService,
+    private authService: AuthService
+  ) { }
+
+  get canAddUser(): boolean {
+    const userInfo = this.authService.getUserInfo();
+    const userRole = userInfo?.role?.trim()?.toUpperCase() || '';
+    const normalized = userRole.replace(/\s+/g, '_');
+    return normalized === 'ADMINISTRADOR' || normalized === 'ADMIN' || normalized === 'SUPER_ADMIN' || normalized === 'SUPER_ADMINISTRADOR';
+  }
 
   ngOnInit(): void {
     this.loadUsers();

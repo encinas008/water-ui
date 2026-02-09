@@ -52,11 +52,11 @@
               [className]="'font-bold rounded-xl border-2 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-all'">
               Volver
             </app-button>
-            <app-button *ngIf="isAdmin" variant="primary" size="md" (btnClick)="onEdit()"
+            <app-button *ngIf="canEdit" variant="primary" size="md" (btnClick)="onEdit()"
               [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold rounded-xl border-none'">
               Editar
             </app-button>
-            <app-button *ngIf="isAdmin" variant="outline" size="md" (btnClick)="onDelete()"
+            <app-button *ngIf="canDelete" variant="outline" size="md" (btnClick)="onDelete()"
               [className]="'font-bold rounded-xl border-2 border-rose-100 text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition-all'">
               Eliminar
             </app-button>

@@ -81,7 +81,7 @@
                 <span class="ml-2 hidden sm:inline">Actualizar</span>
             </app-button>
 
-            <app-button (click)="navigateToAddReading()" [variant]="'primary'"
+            <app-button *ngIf="canAddReading" (click)="navigateToAddReading()" [variant]="'primary'"
                 [className]="'bg-primary text-white hover:bg-primary-dark transition-all shadow-lg shadow-primary/30 font-bold px-6 py-3 rounded-xl border-none active:scale-95 flex items-center justify-center'">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />

@@ -35,9 +35,21 @@ export class PartnerDetailComponent implements OnInit {
     private router: Router
   ) { }
 
-  get isAdmin(): boolean {
+  get canEdit(): boolean {
     const userInfo = this.authService.getUserInfo();
-    return userInfo?.role?.toUpperCase() === 'ADMINISTRADOR';
+    const userRole = userInfo?.role?.trim()?.toUpperCase() || '';
+    const normalized = userRole.replace(/\s+/g, '_');
+    return normalized === 'ADMINISTRADOR' || normalized === 'ADMIN' ||
+      normalized === 'CAJERO' ||
+      normalized === 'SUPER_ADMIN' || normalized === 'SUPER_ADMINISTRADOR';
+  }
+
+  get canDelete(): boolean {
+    const userInfo = this.authService.getUserInfo();
+    const userRole = userInfo?.role?.trim()?.toUpperCase() || '';
+    const normalized = userRole.replace(/\s+/g, '_');
+    return normalized === 'ADMINISTRADOR' || normalized === 'ADMIN' ||
+      normalized === 'SUPER_ADMIN' || normalized === 'SUPER_ADMINISTRADOR';
   }
 
   ngOnInit(): void {

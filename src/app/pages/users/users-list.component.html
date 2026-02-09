@@ -30,7 +30,7 @@
         <span class="ml-2 hidden sm:inline">Actualizar</span>
       </app-button>
 
-      <a routerLink="/users/add"
+      <a *ngIf="canAddUser" routerLink="/users/add"
         class="bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-6 py-3 rounded-xl border-none active:scale-95 flex items-center justify-center cursor-pointer no-underline">
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -209,7 +209,7 @@
           {{ searchQuery ? 'No encontramos resultados para "' + searchQuery + '"' : 'Comienza agregando tu primer
           usuario.' }}
         </p>
-        <a *ngIf="!searchQuery" routerLink="/users/add"
+        <a *ngIf="!searchQuery && canAddUser" routerLink="/users/add"
           class="mt-6 bg-brand-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-brand-600 transition-all no-underline inline-block">
           + Nuevo Usuario
         </a>

@@ -57,6 +57,13 @@ export class ReadingsListComponent implements OnInit {
     private authService: AuthService
   ) { }
 
+  get canAddReading(): boolean {
+    const userInfo = this.authService.getUserInfo();
+    const userRole = userInfo?.role?.trim()?.toUpperCase() || '';
+    const normalized = userRole.replace(/\s+/g, '_');
+    return normalized === 'SUPER_ADMIN' || normalized === 'SUPER_ADMINISTRADOR';
+  }
+
   ngOnInit(): void {
     this.searchSubject.pipe(
       debounceTime(500),

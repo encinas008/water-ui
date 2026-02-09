@@ -1,0 +1,84 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in">
+    <app-page-breadcrumb [pageTitle]="isEditMode ? 'Editar Rol' : 'Crear Rol'" />
+
+    <div class="space-y-6">
+        <div
+            class="rounded-3xl border border-slate-100 bg-white shadow-sm dark:border-strokedark dark:bg-boxdark animate-fade-in">
+            <div class="border-b border-slate-100 px-7 py-5 dark:border-slate-800">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-white">
+                    Información del Rol
+                </h2>
+                <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
+                    Defina el código, nombre y descripción del rol
+                </p>
+            </div>
+            <div class="p-7">
+                <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <!-- Código -->
+                    <div>
+                        <app-label>
+                            <span class="font-bold text-slate-700 dark:text-slate-300">Código</span>
+                            <span class="text-rose-500 ml-1">*</span>
+                        </app-label>
+                        <app-input-field formControlName="code" placeholder="Ej: ADMINISTRADOR"
+                            [error]="!!(roleForm.get('code')?.invalid && roleForm.get('code')?.touched)">
+                        </app-input-field>
+                        <p *ngIf="roleForm.get('code')?.invalid && roleForm.get('code')?.touched"
+                            class="mt-2 text-xs font-bold text-rose-500">
+                            El código es requerido.
+                        </p>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div>
+                        <app-label>
+                            <span class="font-bold text-slate-700 dark:text-slate-300">Nombre</span>
+                            <span class="text-rose-500 ml-1">*</span>
+                        </app-label>
+                        <app-input-field formControlName="name" placeholder="Ej: Administrador del Sistema"
+                            [error]="!!(roleForm.get('name')?.invalid && roleForm.get('name')?.touched)">
+                        </app-input-field>
+                        <p *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched"
+                            class="mt-2 text-xs font-bold text-rose-500">
+                            El nombre es requerido.
+                        </p>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="col-span-full">
+                        <app-label>
+                            <span class="font-bold text-slate-700 dark:text-slate-300">Descripción</span>
+                        </app-label>
+                        <textarea formControlName="description" rows="4"
+                            placeholder="Describa las responsabilidades de este rol..."
+                            class="w-full rounded-xl border border-slate-300 bg-transparent px-5 py-3 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-boxdark dark:text-white transition-all"></textarea>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div
+                        class="col-span-full flex flex-col gap-4 sm:flex-row sm:justify-end py-4 border-t border-slate-100 dark:border-slate-800 mt-4 pt-8">
+                        <app-button variant="primary" size="md" type="submit" [disabled]="loading || roleForm.invalid"
+                            [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-8 py-3 rounded-xl border-none active:scale-95'">
+                            <span *ngIf="!loading">{{ isEditMode ? 'Actualizar Rol' : 'Crear Rol' }}</span>
+                            <span *ngIf="loading" class="flex items-center">
+                                <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                    viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                {{ isEditMode ? 'Actualizando...' : 'Guardando...' }}
+                            </span>
+                        </app-button>
+                        <app-button variant="secondary" size="md" type="button" routerLink="/roles"
+                            [className]="'font-bold rounded-xl bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20 border-none active:scale-95 transition-all px-6 py-3'">
+                            Cancelar
+                        </app-button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

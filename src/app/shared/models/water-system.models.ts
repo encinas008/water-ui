@@ -713,6 +713,12 @@ export interface RoleOutputDto {
   code: string;
 }
 
+export interface RoleInputDto {
+  name: string;
+  description?: string;
+  code: string;
+}
+
 export interface UserOutputDto {
   username: string;
   profileId: string;

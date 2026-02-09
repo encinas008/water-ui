@@ -108,8 +108,8 @@ export class AddUserComponent implements OnInit {
   }
 
   loadRoles() {
-    this.roleService.getAllRoles().subscribe(roles => {
-      this.roleOptions = roles.map(r => ({ value: r.name, label: r.name })); // Use Name as value per backend requirement
+    this.roleService.getAll().subscribe(roles => {
+      this.roleOptions = roles.map(r => ({ value: r.name, label: r.name }));
     });
   }
 

@@ -303,6 +303,22 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/users/add-user.component').then(m => m.AddUserComponent),
         title: 'Editar Usuario | Sistema'
       },
+      // Roles
+      {
+        path: 'roles',
+        loadComponent: () => import('./pages/roles/role-list/role-list.component').then(m => m.RoleListComponent),
+        title: 'Lista de Roles | Sistema'
+      },
+      {
+        path: 'roles/add',
+        loadComponent: () => import('./pages/roles/role-form/role-form.component').then(m => m.RoleFormComponent),
+        title: 'Nuevo Rol | Sistema'
+      },
+      {
+        path: 'roles/edit/:id',
+        loadComponent: () => import('./pages/roles/role-form/role-form.component').then(m => m.RoleFormComponent),
+        title: 'Editar Rol | Sistema'
+      },
       // Settings
       {
         path: 'settings/billing-config',
