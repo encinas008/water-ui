@@ -123,7 +123,8 @@ export class AddReadingComponent implements OnInit, OnDestroy {
           const isAllowedStatus = !p.connectionStatusCode ||
             p.connectionStatusCode === 'ACTIVE' ||
             p.connectionStatusCode === 'CUT_OFF' ||
-            p.connectionStatusCode === 'SUSPENDED';
+            p.connectionStatusCode === 'SUSPENDED' ||
+            p.connectionStatusCode === 'INACTIVE';
           return isAllowedStatus;
         });
         console.log('✅ Socios permitidos para lectura:', this.filteredPartners.length);

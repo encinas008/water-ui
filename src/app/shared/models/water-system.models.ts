@@ -267,7 +267,7 @@ export interface WaterPaymentOutputDto {
   billNumber: string;
   partnerId: string;
   partnerName: string;
-
+  partnerNumber?: number;
   paymentDate: string;
   amount: number;
 

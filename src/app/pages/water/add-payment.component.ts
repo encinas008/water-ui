@@ -144,6 +144,7 @@ export class AddPaymentComponent implements OnInit {
     // Si la factura ya trae las multas y el total procesado desde el backend, usarlos directamente
     // Esto evita doble cobro y errores de redondeo o filtrado en el frontend
     if (bill.pendingFines) {
+      this.isLoadingPendingFines = false; // Asegurar que no quede bloqueado de una carga anterior
       this.pendingFines = {
         partnerId: bill.partnerId,
         month: 0, // No se usa en el template
@@ -295,17 +296,27 @@ export class AddPaymentComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-    if (!this.selectedBill || !this.paymentDate || !this.amount || this.amount <= 0 || !this.paymentTypeId || !this.cashBalanceId) {
+    const hasBill = !!this.selectedBill;
+    const hasDate = !!this.paymentDate;
+    const hasAmount = this.amount !== null && this.amount > 0;
+    const hasPaymentType = !!this.paymentTypeId;
+    const hasCashBalance = !!this.cashBalanceId;
+
+    if (!hasBill || !hasDate || !hasAmount || !hasPaymentType || !hasCashBalance) {
       return false;
     }
 
     // Calcular monto máximo permitido (Factura + Multas)
-    let maxAmount = this.selectedBill.remainingBalance;
+    let maxAmount = this.selectedBill!.remainingBalance;
     if (this.pendingFines) {
       maxAmount += this.pendingFines.totalFines;
     }
 
-    return this.amount <= maxAmount;
+    // Usar una pequeña tolerancia para errores de precisión decimal o redondear a 2 decimales
+    const roundedAmount = Math.round(this.amount! * 100);
+    const roundedMax = Math.round(maxAmount * 100);
+
+    return roundedAmount <= roundedMax;
   }
 
   onSubmit(): void {

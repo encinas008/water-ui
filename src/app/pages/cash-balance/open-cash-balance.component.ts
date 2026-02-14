@@ -43,7 +43,7 @@ export class OpenCashBalanceComponent implements OnInit {
   }
 
   isFormValid(): boolean {
-    return !!(this.moneyToOpenCashBalance && this.moneyToOpenCashBalance >= 0 && this.userInfo?.userId);
+    return (this.moneyToOpenCashBalance !== null && this.moneyToOpenCashBalance >= 0 && !!this.userInfo?.userId);
   }
 
   onSubmit(): void {

@@ -68,4 +68,14 @@ export class ReportService {
         }
         return this.http.get<import('../models/water-system.models').PartnerConsumptionStatsDto>(`${this.apiUrl}/partner-consumption/${partnerId}`, { params });
     }
+
+    getMonthlyBillsReport(year: number, month: number, status: string): Observable<import('../models/water-system.models').WaterBillOutputDto[]> {
+        let params = new HttpParams()
+            .set('year', year.toString())
+            .set('month', month.toString());
+        if (status && status !== 'ALL') {
+            params = params.set('status', status);
+        }
+        return this.http.get<import('../models/water-system.models').WaterBillOutputDto[]>(`${this.apiUrl}/monthly-bills`, { params });
+    }
 }

@@ -26,6 +26,7 @@ export class BillingConfigComponent implements OnInit {
     mantenimientoSuspendida = 5;
     multaRetrasoAull = 5;
     multaRetrasoClasico = 5;
+    multaConexionPasiva = 5;
 
     constructor(private billingConfigService: BillingConfigService) { }
 
@@ -76,6 +77,9 @@ export class BillingConfigComponent implements OnInit {
                 case 'MULTA_RETRASO_CLASICO':
                     this.multaRetrasoClasico = config.configValue;
                     break;
+                case 'MULTA_CONEXION_PASIVA':
+                    this.multaConexionPasiva = config.configValue;
+                    break;
             }
         });
     }
@@ -83,7 +87,7 @@ export class BillingConfigComponent implements OnInit {
     saveConfigs(): void {
         if (this.aporteDeporte < 0 || this.aporteOTB < 0 || this.tarifaBasica < 0 ||
             this.multaExcesoM3 < 0 || this.multaCorte < 0 || this.mantenimientoSuspendida < 0 ||
-            this.multaRetrasoAull < 0 || this.multaRetrasoClasico < 0) {
+            this.multaRetrasoAull < 0 || this.multaRetrasoClasico < 0 || this.multaConexionPasiva < 0) {
             toast.error('Todos los valores deben ser mayores o iguales a cero');
             return;
         }
@@ -97,7 +101,8 @@ export class BillingConfigComponent implements OnInit {
             this.billingConfigService.updateConfig('MULTA_CORTE', this.multaCorte),
             this.billingConfigService.updateConfig('MANTENIMIENTO_SUSPENDIDA', this.mantenimientoSuspendida),
             this.billingConfigService.updateConfig('MULTA_RETRASO_AULL', this.multaRetrasoAull),
-            this.billingConfigService.updateConfig('MULTA_RETRASO_CLASICO', this.multaRetrasoClasico)
+            this.billingConfigService.updateConfig('MULTA_RETRASO_CLASICO', this.multaRetrasoClasico),
+            this.billingConfigService.updateConfig('MULTA_CONEXION_PASIVA', this.multaConexionPasiva)
         ];
 
         // Execute all updates
@@ -123,6 +128,7 @@ export class BillingConfigComponent implements OnInit {
         this.mantenimientoSuspendida = 5;
         this.multaRetrasoAull = 5;
         this.multaRetrasoClasico = 5;
+        this.multaConexionPasiva = 5;
 
         toast.info('Valores restablecidos a su configuración original');
     }
@@ -135,6 +141,7 @@ export class BillingConfigComponent implements OnInit {
             this.multaCorte >= 0 &&
             this.mantenimientoSuspendida >= 0 &&
             this.multaRetrasoAull >= 0 &&
-            this.multaRetrasoClasico >= 0;
+            this.multaRetrasoClasico >= 0 &&
+            this.multaConexionPasiva >= 0;
     }
 }

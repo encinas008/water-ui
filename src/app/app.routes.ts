@@ -227,6 +227,11 @@ export const routes: Routes = [
         title: 'Reporte de Deudores | Sistema de Agua'
       },
       {
+        path: 'reports/monthly-bills',
+        loadComponent: () => import('./pages/water/monthly-bills-report.component').then(m => m.MonthlyBillsReportComponent),
+        title: 'Reporte Mensual de Facturas | Sistema de Agua'
+      },
+      {
         path: 'reports/cutoff-candidates',
         loadComponent: () => import('./pages/water/cutoff-report.component').then(m => m.CutoffReportComponent),
         title: 'Candidatos a Corte | Sistema de Agua'

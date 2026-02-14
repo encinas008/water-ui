@@ -1,0 +1,270 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 no-print">
+    <app-page-breadcrumb [pageTitle]="'Reporte Mensual de Facturas'"
+        [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+
+    <!-- Filtros -->
+    <div class="mb-6 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-strokedark dark:bg-boxdark">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div>
+                <label for="year" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Año</label>
+                <div class="relative">
+                    <select id="year" [(ngModel)]="selectedYear" (change)="onFilterChange()"
+                        class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-white py-3 px-4 font-medium text-slate-700 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5 dark:border-slate-700 dark:bg-boxdark dark:text-white">
+                        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label for="month" class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Mes</label>
+                <div class="relative">
+                    <select id="month" [(ngModel)]="selectedMonth" (change)="onFilterChange()"
+                        class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-white py-3 px-4 font-medium text-slate-700 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5 dark:border-slate-700 dark:bg-boxdark dark:text-white">
+                        <option *ngFor="let month of months" [value]="month.value">{{ month.name }}</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label for="status"
+                    class="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Estado</label>
+                <div class="relative">
+                    <select id="status" [(ngModel)]="selectedStatus" (change)="onFilterChange()"
+                        class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-white py-3 px-4 font-medium text-slate-700 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5 dark:border-slate-700 dark:bg-boxdark dark:text-white">
+                        <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.name }}</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-end">
+                <button (click)="loadReport()"
+                    class="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-100 py-3 px-6 font-bold text-slate-700 transition-all hover:bg-slate-200 active:scale-95 dark:bg-slate-800 dark:text-white">
+                    <svg [class.animate-spin]="isLoading" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Generar Reporte
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div *ngIf="bills.length > 0 && !isLoading" class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-strokedark dark:bg-boxdark">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-0.5">Total Facturas</p>
+            <p class="text-2xl font-black text-slate-800 dark:text-white">{{ bills.length }}</p>
+        </div>
+
+        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-strokedark dark:bg-boxdark">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-0.5">Importe Total</p>
+            <p class="text-2xl font-black text-slate-800 dark:text-white">Bs {{ getTotalAmount() | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-strokedark dark:bg-boxdark">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-0.5">Total Pagado</p>
+            <p class="text-2xl font-black text-emerald-600">Bs {{ getTotalPaid() | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm dark:border-strokedark dark:bg-boxdark">
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-0.5">Total Pendiente</p>
+            <p class="text-2xl font-black text-rose-600">Bs {{ getTotalPending() | number:'1.2-2' }}</p>
+        </div>
+    </div>
+
+    <!-- Tabla de resultados -->
+    <div
+        class="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden dark:border-strokedark dark:bg-boxdark">
+        <div class="border-b border-slate-200 p-6 dark:border-slate-700">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white/90">
+                    Facturas de {{ getMonthName(selectedMonth) }} {{ selectedYear }} ({{ getStatusName(selectedStatus)
+                    }})
+                </h3>
+                <div class="flex gap-3">
+                    <button (click)="exportToExcel()"
+                        class="flex items-center gap-2 rounded-xl bg-emerald-600 py-3 px-6 font-bold text-white shadow-lg shadow-emerald/20 transition-all hover:bg-emerald/90 hover:shadow-emerald/30 active:scale-95">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Exportar Excel
+                    </button>
+                    <button (click)="printReport()"
+                        class="flex items-center gap-2 rounded-xl bg-indigo-600 py-3 px-6 font-bold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/30 active:scale-95">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        Imprimir Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="isLoading" class="p-20 text-center">
+            <div
+                class="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent mb-4">
+            </div>
+            <p class="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 animate-pulse">
+                Cargando reporte...</p>
+        </div>
+
+        <div *ngIf="!isLoading && bills.length === 0" class="p-20 text-center">
+            <svg class="mx-auto h-16 w-16 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="mt-4 text-sm font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wide">No se
+                encontraron facturas en este período</p>
+        </div>
+
+        <div *ngIf="!isLoading && bills.length > 0" class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-500 dark:text-gray-400">
+                <thead
+                    class="bg-slate-50 text-xs font-black uppercase text-slate-500 tracking-wider dark:bg-slate-800 dark:text-gray-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-4">Socio</th>
+                        <th scope="col" class="px-6 py-4">Nro Factura</th>
+                        <th scope="col" class="px-6 py-4">Estado</th>
+                        <th scope="col" class="px-6 py-4 text-right">Monto (Bs)</th>
+                        <th scope="col" class="px-6 py-4 text-right">Pagado (Bs)</th>
+                        <th scope="col" class="px-6 py-4 text-right font-bold">Saldo (Bs)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tr *ngFor="let item of bills"
+                        class="bg-white hover:bg-slate-50/50 transition-colors dark:bg-boxdark dark:hover:bg-slate-800/20">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-800 dark:text-white">{{ item.partnerName }}</div>
+                            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Socio #{{
+                                item.partnerNumber || 'N/A' }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-mono text-xs font-black text-slate-600 dark:text-slate-400">{{
+                                item.billNumber }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span [ngClass]="{
+                                'bg-emerald-50 text-emerald-600': item.statusCode === 'PAID',
+                                'bg-rose-50 text-rose-600': item.statusCode === 'PENDING' || item.statusCode === 'OVERDUE',
+                                'bg-amber-50 text-amber-600': item.statusCode === 'PARTIAL_PAID',
+                                'bg-slate-100 text-slate-400': item.statusCode === 'CANCELLED'
+                            }" class="inline-flex rounded-lg px-2 py-1 text-[10px] font-black uppercase">
+                                {{ item.statusName }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">{{ item.totalAmount | number:'1.2-2' }}</td>
+                        <td class="px-6 py-4 text-right text-emerald-600">{{ item.paidAmount | number:'1.2-2' }}</td>
+                        <td class="px-6 py-4 text-right font-bold" [class.text-rose-600]="item.remainingBalance > 0">
+                            {{ item.remainingBalance | number:'1.2-2' }}
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot class="bg-slate-50 dark:bg-slate-800 font-black">
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 text-right uppercase tracking-widest text-slate-500">Totales:
+                        </td>
+                        <td class="px-6 py-4 text-right">{{ getTotalAmount() | number:'1.2-2' }}</td>
+                        <td class="px-6 py-4 text-right text-emerald-600">{{ getTotalPaid() | number:'1.2-2' }}</td>
+                        <td class="px-6 py-4 text-right text-rose-600">{{ getTotalPending() | number:'1.2-2' }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Print View -->
+<div class="print-only hidden p-10 bg-white text-black min-h-screen font-sans">
+    <div class="text-center mb-10 uppercase relative">
+        <div class="absolute left-0 top-0 text-left text-[10px] font-bold">
+            <p>COMUNIDAD GUADALUPE</p>
+            <p>SISTEMA DE AGUA POTABLE</p>
+        </div>
+        <h1 class="text-2xl font-black underline decoration-2 underline-offset-4">Reporte Mensual de Facturas</h1>
+        <p class="text-lg font-bold mt-2">PERÍODO: {{ getMonthName(selectedMonth) }} {{ selectedYear }}</p>
+        <p class="text-sm font-bold">ESTADO: {{ getStatusName(selectedStatus) }}</p>
+        <div class="absolute right-0 top-0 text-right text-[10px] font-bold">
+            <p>Fecha Generación: {{ currentYear }}-{{ currentMonth }}-{{ 1 | number:'2.0' }}</p>
+        </div>
+    </div>
+
+    <table class="w-full border-collapse border-2 border-black text-[10px]">
+        <thead>
+            <tr class="bg-slate-200 uppercase font-bold border-b-2 border-black">
+                <th class="border border-black px-2 py-2">SOCIO #</th>
+                <th class="border border-black px-2 py-2 text-left">NOMBRE COMPLETO</th>
+                <th class="border border-black px-2 py-2">NRO FACTURA</th>
+                <th class="border border-black px-2 py-2">ESTADO</th>
+                <th class="border border-black px-2 py-2 text-right">TOTAL (BS)</th>
+                <th class="border border-black px-2 py-2 text-right">PAGADO (BS)</th>
+                <th class="border border-black px-2 py-2 text-right">SALDO (BS)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of bills">
+                <td class="border border-black px-2 py-1 text-center font-bold">{{ item.partnerNumber || 'N/A' }}</td>
+                <td class="border border-black px-2 py-1 uppercase">{{ item.partnerName }}</td>
+                <td class="border border-black px-2 py-1 text-center font-mono">{{ item.billNumber }}</td>
+                <td class="border border-black px-2 py-1 text-center uppercase text-[8px]">{{ item.statusName }}</td>
+                <td class="border border-black px-2 py-1 text-right">{{ item.totalAmount | number:'1.2-2' }}</td>
+                <td class="border border-black px-2 py-1 text-right">{{ item.paidAmount | number:'1.2-2' }}</td>
+                <td class="border border-black px-2 py-1 text-right font-bold">{{ item.remainingBalance | number:'1.2-2'
+                    }}</td>
+            </tr>
+        </tbody>
+        <tfoot class="bg-slate-100 font-bold">
+            <tr>
+                <td colspan="4" class="border border-black px-2 py-2 text-right uppercase">Totales:</td>
+                <td class="border border-black px-2 py-2 text-right">{{ getTotalAmount() | number:'1.2-2' }}</td>
+                <td class="border border-black px-2 py-2 text-right">{{ getTotalPaid() | number:'1.2-2' }}</td>
+                <td class="border border-black px-2 py-2 text-right">{{ getTotalPending() | number:'1.2-2' }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="mt-20 flex justify-around text-center uppercase text-[10px] font-bold">
+        <div class="flex flex-col items-center">
+            <div class="border-t border-black w-48 mb-2"></div>
+            <p>Firma Responsable</p>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="border-t border-black w-48 mb-2"></div>
+            <p>Visto Bueno</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .print-only {
+            display: block !important;
+        }
+
+        @page {
+            size: letter;
+            margin: 1cm;
+        }
+    }
+</style>
