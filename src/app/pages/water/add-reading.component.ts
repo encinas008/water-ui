@@ -218,7 +218,7 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       this.selectedPartner &&
       this.readingDate &&
       this.currentReading !== null &&
-      this.currentReading > 0
+      this.currentReading >= 0
     );
 
     console.log('🔍 Validación del formulario:', {

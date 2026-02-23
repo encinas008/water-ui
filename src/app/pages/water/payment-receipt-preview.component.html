@@ -24,6 +24,9 @@
                     <h2 class="text-xl font-bold">SISTEMA DE AGUA POTABLE</h2>
                     <p class="text-lg font-semibold">"{{ receipt.communityName }}"</p>
                     <p class="text-lg font-bold mt-2">{{ receipt.receiptType }}</p>
+                    <div *ngIf="receipt.isReprint" class="mt-2 text-red-600 font-bold text-sm uppercase">
+                        *** RE-IMPRESIÓN / DUPLICADO ***
+                    </div>
                 </div>
 
                 <div class="mb-4">
@@ -85,6 +88,9 @@
                     <h2 class="text-xl font-bold">SISTEMA DE AGUA POTABLE</h2>
                     <p class="text-lg font-semibold">"{{ receipt.communityName }}"</p>
                     <p class="text-lg font-bold mt-2">COPIA ARCHIVO</p>
+                    <div *ngIf="receipt.isReprint" class="mt-2 text-red-600 font-bold text-sm uppercase">
+                        *** RE-IMPRESIÓN / DUPLICADO ***
+                    </div>
                 </div>
 
                 <div class="mb-4">
@@ -137,6 +143,8 @@
                     <p class="text-lg font-bold">IMPORTE TOTAL: {{ receipt.totalAmount | number:'1.2-2' }} BS.</p>
                     <p class="text-sm mt-1">{{ receipt.totalAmountInWords }}</p>
                     <p class="text-xs mt-1">00/100</p>
+                    <p *ngIf="receipt.cashierName" class="text-xs mt-2 font-bold uppercase">Cajero: {{
+                        receipt.cashierName }}</p>
                 </div>
             </div>
         </div>

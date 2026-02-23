@@ -25,7 +25,8 @@
                   class="text-rose-500 ml-1">*</span>
               </app-label>
               <app-input-field type="text" name="name" [value]="name" (valueChange)="onNameInput($event)"
-                placeholder="Ingrese el nombre de la reunión" required (keydownEnter)="onSubmit()"></app-input-field>
+                placeholder="Ingrese el nombre de la reunión" required (keydownEnter)="onSubmit()"
+                [disabled]="isLoading || isLocked"></app-input-field>
             </div>
 
             <!-- Tipo de Reunión -->
@@ -35,7 +36,7 @@
                   class="text-rose-500 ml-1">*</span>
               </app-label>
               <div class="relative">
-                <select [(ngModel)]="meetingTypeCode" name="meetingTypeCode" [disabled]="isEditMode"
+                <select [(ngModel)]="meetingTypeCode" name="meetingTypeCode" [disabled]="isEditMode || isLocked"
                   class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-5 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:cursor-not-allowed">
                   <option [value]="''">Seleccione un tipo</option>
                   <option *ngFor="let type of meetingTypes" [value]="type.code">
@@ -63,7 +64,7 @@
                 <div class="relative">
                   <app-date-picker id="meetingDate" placeholder="Seleccione una fecha" [dateFormat]="'Y-m-d'"
                     [defaultDate]="meetingDateObject" [locale]="'es'" [firstDayOfWeek]="1"
-                    (dateChange)="onDateChange($event)"></app-date-picker>
+                    (dateChange)="onDateChange($event)" [disabled]="isLoading || isLocked"></app-date-picker>
                   @if (meetingDateDisplay) {
                   <div
                     class="mt-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
@@ -85,6 +86,7 @@
                   <!-- Hora (1-12) -->
                   <div class="relative">
                     <select [(ngModel)]="hour" name="hour" (change)="onHourOrAmPmChange()"
+                      [disabled]="isLoading || isLocked"
                       class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-4 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white"
                       [class.border-rose-500]="isInvalidTime()">
                       <option *ngFor="let h of getAvailableHours()" [value]="h" [disabled]="isHourDisabled(h)">
@@ -95,7 +97,7 @@
 
                   <!-- Minuto (0-59) -->
                   <div class="relative">
-                    <select [(ngModel)]="minute" name="minute"
+                    <select [(ngModel)]="minute" name="minute" [disabled]="isLoading || isLocked"
                       class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-4 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white">
                       <option *ngFor="let m of minutes" [value]="m">{{ formatMinute(m) }}</option>
                     </select>
@@ -104,6 +106,7 @@
                   <!-- AM/PM -->
                   <div class="relative">
                     <select [(ngModel)]="amPm" name="amPm" (change)="onHourOrAmPmChange()"
+                      [disabled]="isLoading || isLocked"
                       class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-4 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white"
                       [class.border-rose-500]="isInvalidTime()">
                       <option *ngFor="let option of amPmOptions" [value]="option">{{ option }}</option>
@@ -135,7 +138,8 @@
                   class="text-rose-500 ml-1">*</span>
               </app-label>
               <app-input-field type="text" name="fine" [value]="fine" (valueChange)="onFineChange($event)"
-                appNumberLimit [maxLimit]="9999999.99" [minLimit]="1" placeholder="0.00"></app-input-field>
+                appNumberLimit [maxLimit]="9999999.99" [minLimit]="1" placeholder="0.00"
+                [disabled]="isLoading || isLocked"></app-input-field>
             </div>
 
             <!-- Minutos de espera -->
@@ -144,7 +148,7 @@
                 <span class="font-bold text-slate-700 dark:text-slate-300">Minutos de espera</span>
               </app-label>
               <div class="relative">
-                <select [(ngModel)]="waitingMinutes" name="waitingMinutes"
+                <select [(ngModel)]="waitingMinutes" name="waitingMinutes" [disabled]="isLoading || isLocked"
                   class="w-full appearance-none rounded-xl border-2 border-slate-100 bg-transparent py-3 px-5 font-medium text-slate-700 outline-none transition-all focus:border-brand-500 focus:ring-4 focus:ring-brand-500/5 dark:border-slate-700 dark:bg-boxdark dark:text-white">
                   <option *ngFor="let option of waitingMinutesOptions" [value]="option">
                     {{ option }} minutos
@@ -166,13 +170,13 @@
               <span class="font-bold text-slate-700 dark:text-slate-300">Descripción</span>
             </app-label>
             <app-text-area placeholder="Ingrese la descripción de la reunión" [value]="description"
-              (valueChange)="description = $event" [rows]="3"></app-text-area>
+              (valueChange)="description = $event" [rows]="3" [disabled]="isLoading || isLocked"></app-text-area>
           </div>
 
           <!-- Botones de Acción -->
           <div
             class="flex flex-col gap-4 sm:flex-row sm:justify-end pt-6 border-t border-slate-100 dark:border-slate-800">
-            <app-button variant="primary" size="md" type="submit" [disabled]="!isFormValid || isLoading"
+            <app-button variant="primary" size="md" type="submit" [disabled]="!isFormValid || isLoading || isLocked"
               [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-8 py-3 rounded-xl border-none active:scale-95'">
               <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar Cambios' : 'Crear Reunión' }}</span>
               <span *ngIf="isLoading" class="flex items-center">

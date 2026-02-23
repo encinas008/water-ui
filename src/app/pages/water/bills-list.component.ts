@@ -392,7 +392,7 @@ export class BillsListComponent implements OnInit {
 
   reprintPayment(paymentId: string): void {
     this.isLoadingReprint = true;
-    this.waterPaymentService.downloadReceiptPdf(paymentId).then(() => {
+    this.waterPaymentService.downloadReceiptPdf(paymentId, true).then(() => {
       this.isLoadingReprint = false;
       this.showAlertMessage('Recibo generado exitosamente', 'success');
     }).catch((error) => {

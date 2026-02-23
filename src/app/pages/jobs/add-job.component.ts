@@ -47,6 +47,7 @@ export class AddJobComponent implements OnInit {
   // Edit mode
   isEditMode: boolean = false;
   jobId: string | null = null;
+  isLocked: boolean = false;
 
   constructor(
     private jobService: JobService,
@@ -146,6 +147,12 @@ export class AddJobComponent implements OnInit {
         this.startDateDisplay = this.formatDateToMMMDYYYY(dateObj);
         this.description = job.description || '';
         this.fine = job.fine?.toString() || '';
+        this.isLocked = job.locked;
+
+        if (this.isLocked) {
+          toast.warning('Este trabajo está bloqueado y no puede ser editado.');
+        }
+
         this.isLoading = false;
       },
       error: (error) => {

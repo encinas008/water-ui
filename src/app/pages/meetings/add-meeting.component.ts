@@ -61,6 +61,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
   // Edit mode
   isEditMode: boolean = false;
   meetingId: string | null = null;
+  isLocked: boolean = false;
   private routeSubscription: Subscription = new Subscription();
 
   // Opciones para selectores
@@ -178,6 +179,12 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
         this.description = meeting.description || '';
         this.fine = meeting.fine?.toString() || '';
         this.waitingMinutes = meeting.waitingMinutes || 0;
+        this.isLocked = meeting.locked;
+
+        if (this.isLocked) {
+          toast.warning('Esta reunión está bloqueada y no puede ser editada.');
+        }
+
         this.isLoading = false;
       },
       error: (error) => {

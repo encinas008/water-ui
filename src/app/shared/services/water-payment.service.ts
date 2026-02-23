@@ -95,9 +95,11 @@ export class WaterPaymentService {
    * Generar recibo completo de pago (con conceptos desglosados)
    * GET /water-payments/receipt-full/{id}?receiptType=NOTA DE PAGO
    */
-  getFullPaymentReceipt(id: string, receiptType: string = 'NOTA DE PAGO'): Observable<PaymentReceiptFullDto> {
+  getFullPaymentReceipt(id: string, receiptType: string = 'NOTA DE PAGO', isReprint: boolean = false): Observable<PaymentReceiptFullDto> {
     const headers = this.getHeaders();
-    const params = new HttpParams().set('receiptType', receiptType);
+    const params = new HttpParams()
+      .set('receiptType', receiptType)
+      .set('isReprint', isReprint.toString());
     return this.http.get<PaymentReceiptFullDto>(
       `${this.apiUrl}/receipt-full/${id}`,
       { headers, params }
@@ -183,9 +185,9 @@ export class WaterPaymentService {
    * Descargar PDF de recibo de pago
    * GET /water-payments/{id}/receipt-pdf
    */
-  downloadReceiptPdf(paymentId: string): Promise<void> {
+  downloadReceiptPdf(paymentId: string, isReprint: boolean = false): Promise<void> {
     const headers = this.getHeaders().set("Accept", "application/pdf");
-    const reportUrl = `${environment.apiUrl}/reports/${paymentId}/receipt-pdf`;
+    const reportUrl = `${environment.apiUrl}/reports/${paymentId}/receipt-pdf?isReprint=${isReprint}`;
 
     return this.http
       .get(reportUrl, { headers: headers, responseType: "blob" })

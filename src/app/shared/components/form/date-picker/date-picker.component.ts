@@ -51,6 +51,7 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy, OnChanges 
   @Input() allowInput: boolean = true; // Permitir entrada manual de fecha
   @Input() clickOpens: boolean = true; // Abrir al hacer clic
   @Input() inline: boolean = false; // Mostrar calendario inline
+  @Input() disabled: boolean = false; // Deshabilitar el componente
   @Output() dateChange = new EventEmitter<any>();
 
   @ViewChild('dateInput', { static: false }) dateInput!: ElementRef<HTMLInputElement>;
@@ -101,12 +102,27 @@ export class DatePickerComponent implements AfterViewInit, OnDestroy, OnChanges 
       options.altInputClass = 'form-input'; // Clase CSS para el input alternativo
     }
 
+    options.clickOpens = this.clickOpens && !this.disabled;
+
     this.flatpickrInstance = flatpickr(this.dateInput.nativeElement, options);
+
+    if (this.disabled) {
+      this.dateInput.nativeElement.disabled = true;
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['defaultDate'] && this.flatpickrInstance && !changes['defaultDate'].firstChange) {
       this.setDate(changes['defaultDate'].currentValue);
+    }
+    if (changes['disabled'] && !changes['disabled'].firstChange) {
+      this.updateDisabledState();
+    }
+  }
+
+  private updateDisabledState(): void {
+    if (this.dateInput?.nativeElement) {
+      this.dateInput.nativeElement.disabled = this.disabled;
     }
   }
 

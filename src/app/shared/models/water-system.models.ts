@@ -184,6 +184,9 @@ export interface WaterBillOutputDto {
   statusCode: string;
   statusName: string;
 
+  partnerStatusCode?: string;
+  partnerStatusName?: string;
+
   dueDate: string;
   paidDate?: string;
   isOverdue: boolean;
@@ -354,6 +357,8 @@ export interface PaymentReceiptFullDto {
   totalAmount: number;  // IMPORTE TOTAL
   totalAmountInWords: string;  // Total en palabras (ej: "Son Veinte Bolivianos.")
   communityName?: string;  // Nombre de la comunidad
+  cashierName?: string;
+  isReprint?: boolean;
 }
 
 // ============================================
@@ -678,6 +683,7 @@ export interface JobOutputDto {
   active: boolean;
   createdAt: string;  // OffsetDateTime en backend
   updatedAt?: string;  // OffsetDateTime? en backend
+  locked: boolean;
 }
 
 export interface JobInputDto {
@@ -890,6 +896,7 @@ export interface MeetingOutputDto {
   active: boolean;
   createdAt: string;
   updatedAt?: string;
+  locked: boolean;
 }
 
 export interface MeetingInputDto {
