@@ -12,10 +12,14 @@ export class ReportService {
 
     constructor(private http: HttpClient) { }
 
-    getDailyMovements(startDate: string, endDate: string): Observable<DailyMovementReportDto> {
-        const params = new HttpParams()
+    getDailyMovements(startDate: string, endDate: string, userId?: string): Observable<DailyMovementReportDto> {
+        let params = new HttpParams()
             .set('startDate', startDate)
             .set('endDate', endDate);
+
+        if (userId) {
+            params = params.set('userId', userId);
+        }
 
         return this.http.get<DailyMovementReportDto>(`${this.apiUrl}/movements`, { params });
     }
@@ -34,6 +38,13 @@ export class ReportService {
 
     getCutoffCandidatesReport(): Observable<import('../models/water-system.models').DebtReportDto[]> {
         return this.http.get<import('../models/water-system.models').DebtReportDto[]>(`${this.apiUrl}/cutoff-candidates`);
+    }
+
+    getReadingObservationsReport(year: number, month: number): Observable<import('../models/water-system.models').ReadingObservationsReportDto> {
+        const params = new HttpParams()
+            .set('year', year.toString())
+            .set('month', month.toString());
+        return this.http.get<import('../models/water-system.models').ReadingObservationsReportDto>(`${this.apiUrl}/reading-observations`, { params });
     }
 
     getMissingReadingsReport(year: number, month: number): Observable<import('../models/water-system.models').MissingReadingItemDto[]> {

@@ -108,6 +108,15 @@
 
     <!-- Actions -->
     <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+      <app-button *ngIf="isSuperAdmin" (click)="navigateToGenerateBills()" [variant]="'primary'"
+        [className]="'bg-emerald-600 text-white hover:bg-emerald-700 border-emerald-600 transition-all font-bold px-4 py-3 rounded-xl shadow-lg border-none active:scale-95 flex items-center justify-center'">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <span class="ml-2 hidden sm:inline">Generar Facturas</span>
+      </app-button>
+
       <app-button (click)="resetAndLoadBills()" [variant]="'secondary'"
         [className]="'bg-indigo-600 text-white hover:bg-indigo-700 border-indigo-600 transition-all font-bold px-4 py-3 rounded-xl shadow-lg border-none active:scale-95 flex items-center justify-center'">
         <svg [ngClass]="{'animate-spin': isLoading}" class="h-5 w-5" fill="none" stroke="currentColor"
@@ -220,8 +229,7 @@
 
           <!-- Total -->
           <div class="col-span-2 text-right">
-            <p class="font-black text-slate-800 dark:text-white">BOB {{ (bill.totalPayableAmount || bill.totalAmount) |
-              number:'1.2-2' }}</p>
+            <p class="font-black text-slate-800 dark:text-white">BOB {{ bill.totalAmount | number:'1.2-2' }}</p>
           </div>
 
           <!-- Status -->
@@ -322,8 +330,8 @@
           <div class="flex justify-between items-end border-t border-slate-50 dark:border-slate-800 pt-3 mt-1">
             <div>
               <p class="text-xs text-slate-400 font-bold uppercase">Total a Pagar</p>
-              <p class="text-xl font-black text-slate-800 dark:text-white">BOB {{ (bill.totalPayableAmount ||
-                bill.totalAmount) | number:'1.2-2' }}</p>
+              <p class="text-xl font-black text-slate-800 dark:text-white">BOB {{ bill.totalAmount | number:'1.2-2' }}
+              </p>
             </div>
             <div class="flex gap-2">
               <button
@@ -492,49 +500,6 @@
             </div>
           </div>
 
-          <!-- Multas -->
-          <div *ngIf="billDetail.bill.pendingFines && billDetail.bill.pendingFines.length > 0">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-              <span class="w-1.5 h-6 bg-amber-500 rounded-full"></span>
-              Multas y Recargos
-            </h3>
-            <div
-              class="bg-white dark:bg-boxdark rounded-2xl border border-amber-100 dark:border-amber-900/30 overflow-hidden relative">
-              <div class="absolute top-0 right-0 w-16 h-16 bg-amber-50 rounded-bl-full -mr-8 -mt-8 z-0"></div>
-
-              <table class="w-full text-sm relative z-10">
-                <thead class="bg-amber-50/30 dark:bg-amber-900/10">
-                  <tr class="border-b border-amber-100 dark:border-amber-900/20">
-                    <th class="text-left py-4 px-6 font-bold text-amber-600/70 uppercase tracking-wider text-xs">Detalle
-                    </th>
-                    <th class="text-left py-4 px-6 font-bold text-amber-600/70 uppercase tracking-wider text-xs">Fecha
-                    </th>
-                    <th class="text-right py-4 px-6 font-bold text-amber-600/70 uppercase tracking-wider text-xs">Monto
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let fine of billDetail.bill.pendingFines"
-                    class="border-b border-amber-50 dark:border-amber-900/10 last:border-0 hover:bg-amber-50/20 transition-colors">
-                    <td class="py-4 px-6 text-slate-700 dark:text-slate-300">
-                      <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 mr-2">{{
-                        fine.type }}</span>
-                      <span class="font-medium">{{ fine.name }}</span>
-                    </td>
-                    <td class="py-4 px-6 text-slate-500 text-xs font-medium">{{ fine.date | date:'dd/MM/yyyy' }}</td>
-                    <td class="py-4 px-6 text-right font-bold text-rose-500">BOB {{ fine.fine | number:'1.2-2' }}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div
-                class="bg-amber-50/50 dark:bg-amber-900/20 px-6 py-4 flex justify-between items-center border-t border-amber-100 dark:border-amber-900/20">
-                <span class="font-bold text-amber-600 uppercase text-xs tracking-widest">Total Multas</span>
-                <span class="font-black text-lg text-amber-600 dark:text-amber-400">BOB {{
-                  billDetail.bill.totalFinesAmount | number:'1.2-2' }}</span>
-              </div>
-            </div>
-          </div>
-
           <!-- Totales -->
           <div class="bg-slate-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
             <!-- Decorator -->
@@ -543,9 +508,8 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
               <div>
                 <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Total General</p>
-                <p class="text-2xl font-black">BOB {{ (billDetail.bill.totalPayableAmount ||
-                  billDetail.bill.totalAmount) | number:'1.2-2' }}</p>
-                <p class="text-slate-500 text-xs mt-1">Consumo + Multas</p>
+                <p class="text-2xl font-black">BOB {{ billDetail.bill.totalAmount | number:'1.2-2' }}</p>
+                <p class="text-slate-500 text-xs mt-1">Total Factura</p>
               </div>
 
               <div>

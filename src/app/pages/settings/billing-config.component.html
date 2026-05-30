@@ -102,8 +102,8 @@
                             class="w-full pl-14 pr-4 py-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
                             placeholder="50.00">
                     </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Monto aplicado al cortar el servicio (mora > 3
-                        meses)</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Monto aplicado <strong>una sola vez</strong>
+                        al cambiar a estado CORTADO (manual o automáticamente por mora >= 3 meses)</p>
                 </div>
 
                 <!-- Pago por Mantenimiento (Suspendida) -->
@@ -173,6 +173,40 @@
                     </div>
                     <p class="text-xs text-slate-500 dark:text-slate-400">Monto mensual para socios con estado inactivo
                     </p>
+                </div>
+
+                <!-- Recargo por Corte Recurrente -->
+                <div class="space-y-3">
+                    <label
+                        class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        Cargo Recurrente (Corte)
+                    </label>
+                    <div class="relative">
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">Bs</span>
+                        <input type="number" [(ngModel)]="cargoPorCorteRecurrente" name="cargoPorCorteRecurrente"
+                            min="0" step="0.01"
+                            class="w-full pl-14 pr-4 py-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                            placeholder="50.00">
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Monto del recargo para socios cortados</p>
+                </div>
+
+                <!-- Intervalo del Recargo -->
+                <div class="space-y-3">
+                    <label
+                        class="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                        Meses entre Recargo
+                    </label>
+                    <div class="relative">
+                        <span
+                            class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-lg">Mes</span>
+                        <input type="number" [(ngModel)]="mesesParaCargoCorte" name="mesesParaCargoCorte" min="1"
+                            class="w-full pl-16 pr-4 py-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-white font-bold text-lg outline-none transition-all focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                            placeholder="3">
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Frecuencia del recargo por corte (ej. cada 3
+                        meses)</p>
                 </div>
 
             </div>

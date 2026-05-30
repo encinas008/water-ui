@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { ButtonComponent } from '../../shared/components/ui/button/button.component';
 import { WaterBillService } from '../../shared/services/water-bill.service';
-import { GenerateMonthlyBillsRequestDto } from '../../shared/models/water-system.models';
+import { GenerateMonthlyBillsRequestDto, WaterBillGenerationPreviewDto, WaterBillPreviewItemDto } from '../../shared/models/water-system.models';
 import { toast } from 'ngx-sonner';
 
 @Component({
@@ -15,57 +15,98 @@ import { toast } from 'ngx-sonner';
   templateUrl: './generate-bills.component.html',
   styles: ``
 })
-export class GenerateBillsComponent {
+export class GenerateBillsComponent implements OnInit {
   breadcrumbItems = [
     { label: 'Dashboard', link: '/' },
     { label: 'Facturas', link: '/water-bills' },
     { label: 'Generar Facturas', link: '/water-bills/generate' }
   ];
 
-  billingPeriodStart = '';
-  billingPeriodEnd = '';
-  ratePerM3: number = 2.50;
-  dueDate = '';
-  additionalCharges: number = 0;
-  notes = '';
+  generateMonth: number = new Date().getMonth() + 1;
+  generateYear: number = new Date().getFullYear();
+  currentMonthLimit: number = new Date().getMonth() + 1;
 
-  isLoading = false;
-  generationResult: any = null;
+  months = [
+    { value: 1, name: 'Enero' },
+    { value: 2, name: 'Febrero' },
+    { value: 3, name: 'Marzo' },
+    { value: 4, name: 'Abril' },
+    { value: 5, name: 'Mayo' },
+    { value: 6, name: 'Junio' },
+    { value: 7, name: 'Julio' },
+    { value: 8, name: 'Agosto' },
+    { value: 9, name: 'Septiembre' },
+    { value: 10, name: 'Octubre' },
+    { value: 11, name: 'Noviembre' },
+    { value: 12, name: 'Diciembre' }
+  ];
 
-  constructor(private waterBillService: WaterBillService, private router: Router) {
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    const dueDay = new Date(today.getFullYear(), today.getMonth() + 1, 15);
+  isLoadingPreview = false;
+  isGenerating = false;
+  previewData: WaterBillGenerationPreviewDto | null = null;
 
-    this.billingPeriodStart = firstDay.toISOString().split('T')[0];
-    this.billingPeriodEnd = lastDay.toISOString().split('T')[0];
-    this.dueDate = dueDay.toISOString().split('T')[0];
-  }
+  constructor(private waterBillService: WaterBillService, private router: Router) {}
 
-  onSubmit(): void {
-    this.isLoading = true;
-    this.generationResult = null;
+  ngOnInit(): void {}
 
-    const request: GenerateMonthlyBillsRequestDto = {
-      billingPeriodStart: this.billingPeriodStart,
-      billingPeriodEnd: this.billingPeriodEnd,
-      ratePerM3: this.ratePerM3,
-      dueDate: this.dueDate,
-      additionalCharges: this.additionalCharges || undefined,
-      notes: this.notes || undefined
-    };
+  onPreview(): void {
+    if (!this.generateMonth || !this.generateYear) {
+      toast.error('Por favor completa el mes y año.');
+      return;
+    }
 
-    this.waterBillService.generateMonthlyBills(request).subscribe({
-      next: (response) => {
-        this.isLoading = false;
-        this.generationResult = response;
-        toast.success(`Se generaron ${response.billsGenerated} facturas exitosamente`);
+    this.isLoadingPreview = true;
+    this.previewData = null;
+
+    this.waterBillService.previewMonthlyBills(this.generateYear, this.generateMonth).subscribe({
+      next: (data) => {
+        this.previewData = data;
+        this.isLoadingPreview = false;
+        
+        if (data.toGenerateCount === 0) {
+          toast.warning('No hay socios con lecturas para el mes elegido.');
+        } else {
+          toast.success(`Se encontraron ${data.toGenerateCount} socios listos para facturar.`);
+        }
       },
       error: (error) => {
-        this.isLoading = false;
+        this.isLoadingPreview = false;
+        console.error('Error al cargar la previsualización:', error);
+        toast.error('Error al cargar la previsualización de facturas');
+      }
+    });
+  }
+
+  onGenerate(): void {
+    if (!this.previewData || this.previewData.toGenerateCount === 0) {
+      toast.error('No hay facturas para generar.');
+      return;
+    }
+
+    const startOfMonth = new Date(this.generateYear, this.generateMonth - 1, 1);
+    const endOfMonth = new Date(this.generateYear, this.generateMonth, 0);
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 15);
+
+    const request: GenerateMonthlyBillsRequestDto = {
+      billingPeriodStart: startOfMonth.getFullYear() + '-' + String(startOfMonth.getMonth() + 1).padStart(2, '0') + '-01',
+      billingPeriodEnd: endOfMonth.getFullYear() + '-' + String(endOfMonth.getMonth() + 1).padStart(2, '0') + '-' + String(endOfMonth.getDate()).padStart(2, '0'),
+      ratePerM3: 2.50,
+      dueDate: dueDate.getFullYear() + '-' + String(dueDate.getMonth() + 1).padStart(2, '0') + '-' + String(dueDate.getDate()).padStart(2, '0')
+    };
+
+    this.isGenerating = true;
+
+    this.waterBillService.generateMonthlyBills(request).subscribe({
+      next: (bills: any[]) => {
+        this.isGenerating = false;
+        toast.success(`Se generaron ${bills.length} facturas exitosamente`);
+        this.router.navigate(['/water-bills']);
+      },
+      error: (error) => {
+        this.isGenerating = false;
         console.error('Error al generar facturas:', error);
-        toast.error(error.error?.message || 'Error al generar facturas');
+        toast.error('Error al generar facturas');
       }
     });
   }
@@ -73,7 +114,4 @@ export class GenerateBillsComponent {
   onCancel(): void {
     this.router.navigate(['/water-bills']);
   }
-
-
 }
-

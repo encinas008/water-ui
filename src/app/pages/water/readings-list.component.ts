@@ -158,7 +158,55 @@ export class ReadingsListComponent implements OnInit {
   }
 
   viewReading(reading: WaterMeterReadingOutputDto): void {
-    this.router.navigate(['/water-readings', reading.id]);
+    const readerSpan = reading.readerUserName
+      ? `<span>Registrado por: <b>${reading.readerUserName}</b></span>`
+      : `<span>Registrado por: <b>Sistema</b></span>`;
+
+    const observationText = reading.observation && reading.observation.trim() !== ''
+      ? reading.observation
+      : '<em>Sin observaciones registradas.</em>';
+
+    Swal.fire({
+      title: 'Detalles de la Lectura',
+      html: `
+        <div class="text-left space-y-3 p-2">
+          <div class="flex justify-between border-b border-slate-100 pb-2">
+            <span class="font-bold text-slate-500 text-sm">Socio:</span>
+            <span class="text-slate-800 font-medium">${reading.partnerName} (${reading.partnerNumber})</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 pb-2">
+            <span class="font-bold text-slate-500 text-sm">Fecha:</span>
+            <span class="text-slate-800">${new Date(reading.readingDate + 'T00:00:00').toLocaleDateString()}</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 pb-2">
+            <span class="font-bold text-slate-500 text-sm">Lectura Anterior:</span>
+            <span class="text-slate-800">${reading.previousReading}</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 pb-2">
+            <span class="font-bold text-slate-500 text-sm">Lectura Actual:</span>
+            <span class="text-slate-800 font-bold">${reading.currentReading}</span>
+          </div>
+          <div class="flex justify-between border-b border-slate-100 pb-2">
+            <span class="font-bold text-slate-500 text-sm">Consumo:</span>
+            <span class="text-primary font-black">${reading.consumption} m³</span>
+          </div>
+          <div class="flex flex-col mt-4 pt-2">
+            <span class="font-bold text-slate-500 text-sm mb-2">Observaciones:</span>
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 min-h-[60px] whitespace-pre-wrap text-sm italic">
+              ${observationText}
+            </div>
+          </div>
+          <div class="flex justify-between mt-4 pt-2 text-xs text-slate-400">
+            ${readerSpan}
+          </div>
+        </div>
+      `,
+      confirmButtonText: 'Cerrar',
+      confirmButtonColor: '#3b82f6',
+      showCloseButton: true,
+      focusConfirm: false,
+      width: '32em'
+    });
   }
 
   editReading(reading: WaterMeterReadingOutputDto): void {

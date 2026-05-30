@@ -6,7 +6,8 @@ import {
   WaterBillDetailDto,
   WaterBillSummaryDto,
   GenerateMonthlyBillsRequestDto,
-  GenerateMonthlyBillsResponseDto,
+  WaterBillGenerationPreviewDto,
+
   PageResponse,
   WaterBillStatsDto,
   DetailedDebtorsReportDto,
@@ -36,13 +37,29 @@ export class WaterBillService {
     return headers;
   }
 
+
+  previewMonthlyBills(year: number, month: number): Observable<WaterBillGenerationPreviewDto> {
+    const headers = this.getHeaders();
+    let params = new HttpParams().set('year', year.toString()).set('month', month.toString());
+
+    return this.http.get<WaterBillGenerationPreviewDto>(
+      `${this.apiUrl}/generate-monthly/preview`,
+      { headers, params }
+    ).pipe(
+      catchError(error => {
+        console.error('❌ Error al obtener preview de facturas:', error);
+        throw error;
+      })
+    );
+  }
+
   /**
    * Generar facturas mensuales para todos los socios con lectura
    * POST /water-bills/generate-monthly
    */
-  generateMonthlyBills(request: GenerateMonthlyBillsRequestDto): Observable<GenerateMonthlyBillsResponseDto> {
+  generateMonthlyBills(request: GenerateMonthlyBillsRequestDto): Observable<WaterBillOutputDto[]> {
     const headers = this.getHeaders();
-    return this.http.post<GenerateMonthlyBillsResponseDto>(
+    return this.http.post<WaterBillOutputDto[]>(
       `${this.apiUrl}/generate-monthly`,
       request,
       { headers }

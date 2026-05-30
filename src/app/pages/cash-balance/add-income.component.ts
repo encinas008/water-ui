@@ -197,8 +197,15 @@ export class AddIncomeComponent implements OnInit {
         this.cashFlowService.createCashFlow(income).subscribe({
             next: (response) => {
                 this.isLoading = false;
-                toast.success('Ingreso registrado exitosamente');
-                this.router.navigate(['/cash-balances', this.cashBalanceId]);
+                toast.success('Ingreso registrado exitosamente. Generando comprobante...');
+
+                // Imprimir comprobante automáticamente
+                this.waterPaymentService.downloadCashFlowReceiptPdf(response.id).then(() => {
+                    this.router.navigate(['/cash-balances', this.cashBalanceId]);
+                }).catch(err => {
+                    console.error('Error al imprimir comprobante:', err);
+                    this.router.navigate(['/cash-balances', this.cashBalanceId]);
+                });
             },
             error: (error) => {
                 this.isLoading = false;

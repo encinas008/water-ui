@@ -154,6 +154,24 @@ export class AuthService {
     localStorage.removeItem(this.USER_KEY);
   }
 
+  // Verificar si es administrador
+  isAdmin(): boolean {
+    const userInfo = this.getUserInfo();
+    if (!userInfo || !userInfo.role) return false;
+
+    const role = userInfo.role.trim().toUpperCase().replace(/\s+/g, '_');
+    return role === 'ADMINISTRADOR' || role === 'ADMIN' || this.isSuperAdmin();
+  }
+
+  // Verificar si es super administrador
+  isSuperAdmin(): boolean {
+    const userInfo = this.getUserInfo();
+    if (!userInfo || !userInfo.role) return false;
+
+    const role = userInfo.role.trim().toUpperCase().replace(/\s+/g, '_');
+    return role === 'SUPER_ADMIN' || role === 'SUPER_ADMINISTRADOR';
+  }
+
   // Obtener headers con autenticación
   getAuthHeaders(): HttpHeaders {
     const token = this.getToken();

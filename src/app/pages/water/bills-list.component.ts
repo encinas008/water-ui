@@ -82,6 +82,8 @@ export class BillsListComponent implements OnInit {
     assignedDate: new Date().toISOString().split('T')[0]
   };
 
+
+
   constructor(
     private waterBillService: WaterBillService,
     private waterPaymentService: WaterPaymentService,
@@ -509,6 +511,9 @@ export class BillsListComponent implements OnInit {
       }
     });
   }
+
+
+
 
   onDeleteConcept(bill: WaterBillOutputDto, conceptId: string): void {
     if (!this.isSuperAdmin || bill.statusCode !== 'PENDING') return;

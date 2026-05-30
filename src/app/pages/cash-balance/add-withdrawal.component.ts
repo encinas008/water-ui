@@ -230,8 +230,15 @@ export class AddWithdrawalComponent implements OnInit {
     this.cashFlowService.createCashFlow(withdrawal).subscribe({
       next: (response) => {
         this.isLoading = false;
-        toast.success('Egreso registrado exitosamente');
-        this.router.navigate(['/cash-balances', this.cashBalanceId]);
+        toast.success('Egreso registrado exitosamente. Generando comprobante...');
+
+        // Imprimir comprobante automáticamente
+        this.waterPaymentService.downloadCashFlowReceiptPdf(response.id).then(() => {
+          this.router.navigate(['/cash-balances', this.cashBalanceId]);
+        }).catch(err => {
+          console.error('Error al imprimir comprobante:', err);
+          this.router.navigate(['/cash-balances', this.cashBalanceId]);
+        });
       },
       error: (error) => {
         this.isLoading = false;

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportService } from '../../shared/services/report.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { DailyMovementReportDto } from '../../shared/models/water-system.models';
 import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
 import { DatePickerComponent } from '../../shared/components/form/date-picker/date-picker.component';
@@ -25,11 +26,24 @@ export class DailyMovementReportComponent implements OnInit {
     endDate: string = '';
     report: DailyMovementReportDto | null = null;
     isLoading = false;
+    filterByCurrentUser = false;
+    currentUserId: string = '';
+    currentUserName: string = '';
+    isAdmin = false;
 
-    constructor(private reportService: ReportService) {
+    constructor(private reportService: ReportService, private authService: AuthService) {
         const today = new Date().toISOString().split('T')[0];
         this.startDate = today;
         this.endDate = today;
+
+        const userInfo = this.authService.getUserInfo();
+        this.currentUserId = userInfo?.userId || userInfo?.id || '';
+        this.currentUserName = userInfo?.name || 'Mi Usuario';
+
+        this.isAdmin = this.authService.isAdmin();
+        if (!this.isAdmin) {
+            this.filterByCurrentUser = true;
+        }
     }
 
     ngOnInit(): void {
@@ -39,7 +53,10 @@ export class DailyMovementReportComponent implements OnInit {
     loadReport(): void {
         if (!this.startDate || !this.endDate) return;
         this.isLoading = true;
-        this.reportService.getDailyMovements(this.startDate, this.endDate).subscribe({
+
+        const userId = this.filterByCurrentUser ? this.currentUserId : undefined;
+
+        this.reportService.getDailyMovements(this.startDate, this.endDate, userId).subscribe({
             next: (data) => {
                 this.report = data;
                 if (this.report && !this.report.generatedAt) {
@@ -62,6 +79,12 @@ export class DailyMovementReportComponent implements OnInit {
 
     onEndDateChange(event: any): void {
         this.endDate = event.dateStr;
+        this.loadReport();
+    }
+
+    toggleUserFilter(): void {
+        if (!this.isAdmin) return;
+        this.filterByCurrentUser = !this.filterByCurrentUser;
         this.loadReport();
     }
 

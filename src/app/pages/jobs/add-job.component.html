@@ -25,7 +25,7 @@
               </app-label>
               <app-input-field type="text" name="name" [value]="name" (valueChange)="onNameInput($event)"
                 placeholder="Ingrese el nombre del trabajo" required (keydownEnter)="onSubmit()"
-                [disabled]="isLoading || isLocked"></app-input-field>
+                [disabled]="isLoading || !canModify()"></app-input-field>
             </div>
 
             <!-- Fecha Inicio -->
@@ -37,7 +37,7 @@
               <div class="relative">
                 <app-date-picker id="startDate" placeholder="Seleccione una fecha" [dateFormat]="'Y-m-d'"
                   [defaultDate]="startDateObject" [locale]="'es'" [firstDayOfWeek]="1"
-                  (dateChange)="onDateChange($event)" [disabled]="isLoading || isLocked"></app-date-picker>
+                  (dateChange)="onDateChange($event)" [disabled]="isLoading || !canModify()"></app-date-picker>
                 @if (startDateDisplay) {
                 <div
                   class="mt-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
@@ -59,7 +59,7 @@
               </app-label>
               <app-input-field type="text" name="fine" [value]="fine" (valueChange)="onFineChange($event)"
                 appNumberLimit [maxLimit]="9999999.99" [minLimit]="1" placeholder="0.00"
-                [disabled]="isLoading || isLocked"></app-input-field>
+                [disabled]="isLoading || !canModify()"></app-input-field>
             </div>
           </div>
 
@@ -69,13 +69,13 @@
               <span class="font-bold text-slate-700 dark:text-slate-300">Descripción</span>
             </app-label>
             <app-text-area placeholder="Ingrese la descripción del trabajo" [value]="description"
-              (valueChange)="description = $event" [rows]="5" [disabled]="isLoading || isLocked"></app-text-area>
+              (valueChange)="description = $event" [rows]="5" [disabled]="isLoading || !canModify()"></app-text-area>
           </div>
 
           <!-- Botones de Acción -->
           <div
             class="flex flex-col gap-4 sm:flex-row sm:justify-end pt-6 border-t border-slate-100 dark:border-slate-800">
-            <app-button variant="primary" size="md" type="submit" [disabled]="!isFormValid || isLoading || isLocked"
+            <app-button variant="primary" size="md" type="submit" [disabled]="!isFormValid || isLoading || !canModify()"
               [className]="'bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/30 font-bold px-8 py-3 rounded-xl border-none active:scale-95'">
               <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar Cambios' : 'Crear Trabajo' }}</span>
               <span *ngIf="isLoading" class="flex items-center">

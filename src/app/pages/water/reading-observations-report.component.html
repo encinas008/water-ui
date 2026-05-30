@@ -1,0 +1,184 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 no-print">
+    <app-page-breadcrumb [pageTitle]="'Lecturas Faltantes'" [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+
+    <!-- Header Actions and Filters -->
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-wrap gap-3">
+            <div>
+                <label class="mb-2.5 block text-black dark:text-white">Año</label>
+                <div class="relative z-20 bg-white dark:bg-form-input">
+                    <select [(ngModel)]="selectedYear"
+                        class="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
+                        <option *ngFor="let year of years" [ngValue]="year">{{ year }}</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="mb-2.5 block text-black dark:text-white">Mes</label>
+                <div class="relative z-20 bg-white dark:bg-form-input">
+                    <select [(ngModel)]="selectedMonth"
+                        class="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
+                        <option *ngFor="let m of months" [ngValue]="m.value">{{ m.label }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <!-- Invisible label for alignment -->
+                <label class="mb-2.5 block text-transparent select-none">Buscar</label>
+                <button (click)="loadReport()" [disabled]="isLoading"
+                    class="inline-flex w-full items-center justify-center gap-2.5 rounded-md bg-blue-600 py-3 px-10 text-center font-medium text-white hover:bg-opacity-90 disabled:opacity-50">
+                    <svg [class.animate-spin]="isLoading" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
+                        <path d="M16 21h5v-5"></path>
+                    </svg>
+                    Buscar
+                </button>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button (click)="exportToExcel()" [disabled]="!partners.length || isLoading"
+                class="flex items-center gap-2 rounded-xl bg-emerald-600 py-3 px-6 font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 hover:shadow-emerald-600/30 active:scale-95 disabled:opacity-50">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+            </button>
+            <button (click)="printReport()" [disabled]="!partners.length || isLoading"
+                class="flex items-center gap-2 rounded-xl bg-indigo-600 py-3 px-6 font-bold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/30 active:scale-95 disabled:opacity-50">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Imprimir
+            </button>
+        </div>
+    </div>
+
+    <!-- Results Table -->
+    <div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <div class="py-6 px-4 md:px-6 xl:px-7.5 border-b border-stroke dark:border-strokedark">
+            <h4 class="text-xl font-semibold text-black dark:text-white">
+                Lecturas con Observación - {{ months[selectedMonth-1].label }} {{ selectedYear }}
+            </h4>
+            <p class="text-sm text-body mt-1">Total: {{ partners.length }} lecturas</p>
+        </div>
+
+        <div
+            class="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-6 md:px-6 2xl:px-7.5 bg-gray-50 dark:bg-meta-4">
+            <div class="col-span-1 flex items-center">
+                <p class="font-medium">Socio</p>
+            </div>
+            <div class="col-span-1 flex items-center text-center">
+                <p class="font-medium">Lectura</p>
+            </div>
+            <div class="col-span-4 flex items-center">
+                <p class="font-medium">Observación</p>
+            </div>
+        </div>
+
+        <div *ngIf="isLoading" class="p-10 text-center">
+            <div
+                class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]">
+            </div>
+            <p class="mt-2 text-body">Cargando...</p>
+        </div>
+
+        <div *ngIf="!isLoading && partners.length === 0" class="p-10 text-center">
+            <p class="text-body font-medium">No se encontraron lecturas con observaciones registradas en este periodo.
+            </p>
+        </div>
+
+        <div *ngFor="let p of partners"
+            class="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-6 md:px-6 2xl:px-7.5 hover:bg-gray-50 dark:hover:bg-meta-4/50">
+            <div class="col-span-1 flex flex-col items-start gap-1 justify-center">
+                <span class="text-sm font-bold text-black dark:text-white">{{ p.partnerName }}</span>
+                <span class="text-xs text-body">N°: {{ p.partnerNumber }}</span>
+            </div>
+            <div class="col-span-1 flex flex-col items-start gap-1 justify-center text-center">
+                <span class="text-sm font-bold text-black dark:text-white">{{ p.readingValue || 0 }}</span>
+                <span class="text-xs text-body">{{ p.readingDate | date:'dd/MM/yyyy' }}</span>
+                <span class="text-[10px] text-primary font-black">{{ p.consumption || 0}} m³</span>
+            </div>
+            <div class="col-span-4 flex flex-col items-start justify-center pl-2">
+                <span
+                    class="text-sm text-black dark:text-white italic w-full whitespace-pre-wrap break-words leading-tight bg-slate-50 dark:bg-boxdark-2 p-2 border border-slate-100 dark:border-strokedark rounded-md">{{
+                    p.observation }}</span>
+                <span class="text-[9px] text-slate-400 mt-1 uppercase" *ngIf="p.readerUserName">Registrado por: {{
+                    p.readerUserName }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Print Version -->
+<div class="print-only hidden p-8 bg-white text-black min-h-screen font-sans">
+    <div class="text-center mb-6 uppercase border-b-2 border-black pb-4">
+        <h1 class="text-2xl font-black mb-2">Reporte de Lecturas con Observación</h1>
+        <h2 class="text-lg font-bold">Periodo: {{ months[selectedMonth-1].label }} {{ selectedYear }}</h2>
+        <p class="text-sm mt-2">Generado el: {{ currentDate | date:'dd/MM/yyyy HH:mm' }}</p>
+    </div>
+
+    <div class="flex justify-between mb-4 text-sm font-bold">
+        <span>Total Lecturas con Observación: {{ partners.length }}</span>
+    </div>
+
+    <table class="w-full border-collapse border border-black text-xs">
+        <thead>
+            <tr class="bg-gray-100 uppercase font-black text-center text-xs">
+                <th class="border border-black px-2 py-1 w-12">N°</th>
+                <th class="border border-black px-2 py-1 w-48 text-left">Socio</th>
+                <th class="border border-black px-2 py-1 w-24">Lectura</th>
+                <th class="border border-black px-2 py-1 w-24">Fecha</th>
+                <th class="border border-black px-2 py-1 text-left">Observación</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let p of partners">
+                <td class="border border-black px-2 py-2 text-center">{{ p.partnerNumber }}</td>
+                <td class="border border-black px-2 py-2 font-bold">{{ p.partnerName }}</td>
+                <td class="border border-black px-2 py-2 text-right">
+                    <b>{{ p.readingValue || 0 }}</b> <br>
+                    <span class="text-[9px]">{{ p.consumption || 0}} m³</span>
+                </td>
+                <td class="border border-black px-2 py-2 text-center">{{ p.readingDate | date:'dd/MM/yyyy' }}</td>
+                <td class="border border-black px-2 py-2 font-mono whitespace-pre-wrap leading-tight text-left">{{
+                    p.observation }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .print-only {
+            display: block !important;
+        }
+
+        @page {
+            margin: 0.5cm;
+        }
+
+        table {
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+    }
+</style>
