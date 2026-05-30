@@ -229,7 +229,7 @@
 
           <!-- Total -->
           <div class="col-span-2 text-right">
-            <p class="font-black text-slate-800 dark:text-white">BOB {{ bill.totalAmount | number:'1.2-2' }}</p>
+            <p class="font-black text-slate-800 dark:text-white">BOB {{ (bill.totalPayableAmount || bill.totalAmount) | number:'1.2-2' }}</p>
           </div>
 
           <!-- Status -->
