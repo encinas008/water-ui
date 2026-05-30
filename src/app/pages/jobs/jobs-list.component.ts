@@ -11,6 +11,7 @@ import { JobOutputDto, PageResponse } from '../../shared/models/water-system.mod
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { toast } from 'ngx-sonner';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-jobs-list',
@@ -63,7 +64,8 @@ export class JobsListComponent implements OnInit {
 
   constructor(
     private jobService: JobService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -160,10 +162,16 @@ export class JobsListComponent implements OnInit {
   }
 
   onEdit(job: JobOutputDto): void {
+    if (job.locked && !this.authService.isAdmin()) {
+      return;
+    }
     this.router.navigate(['/jobs/edit', job.id]);
   }
 
   onDelete(job: JobOutputDto): void {
+    if (job.locked && !this.authService.isAdmin()) {
+      return;
+    }
     if (confirm(`¿Estás seguro de que deseas eliminar el trabajo "${job.name}"?`)) {
       this.jobService.deleteJob(job.id).subscribe({
         next: () => {
@@ -218,6 +226,11 @@ export class JobsListComponent implements OnInit {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(amount);
+  }
+
+  // Verificar si puede editar o eliminar (si es admin puede aunque esté bloqueado)
+  canModify(job: JobOutputDto): boolean {
+    return !job.locked || this.authService.isAdmin();
   }
 }
 

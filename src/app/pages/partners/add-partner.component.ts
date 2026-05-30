@@ -440,7 +440,19 @@ export class AddPartnerComponent implements OnInit {
         next: (response) => {
           this.isLoading = false;
           toast.success('Socio creado exitosamente');
-          this.router.navigate(['/partners']);
+
+          // Si se registró un pago de instalación, imprimir el recibo automáticamente
+          if (response.lastPaymentId) {
+            toast.info('Generando comprobante de instalación...');
+            this.waterPaymentService.downloadReceiptPdf(response.lastPaymentId).then(() => {
+              this.router.navigate(['/partners']);
+            }).catch(err => {
+              console.error('Error al imprimir comprobante de instalación:', err);
+              this.router.navigate(['/partners']);
+            });
+          } else {
+            this.router.navigate(['/partners']);
+          }
         },
         error: (error) => {
           this.isLoading = false;

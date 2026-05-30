@@ -12,6 +12,7 @@ import { JobService } from '../../shared/services/job.service';
 import { JobInputDto, JobUpdateDto } from '../../shared/models/water-system.models';
 import { toast } from 'ngx-sonner';
 import { NumberLimitDirective } from '../../shared/directives/number-limit.directive';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-add-job',
@@ -53,7 +54,8 @@ export class AddJobComponent implements OnInit {
     private jobService: JobService,
     private router: Router,
     private route: ActivatedRoute,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private authService: AuthService
   ) {
     // Establecer fecha actual por defecto
     const today = new Date();
@@ -61,6 +63,10 @@ export class AddJobComponent implements OnInit {
     this.startDate = this.formatDateToDDMMYYYY(today);
     this.startDateDisplay = this.formatDateToMMMDYYYY(today);
     this.startDateBackend = this.formatDateToYYYYMMDDFromDate(today);
+  }
+
+  canModify(): boolean {
+    return !this.isLocked || this.authService.isAdmin();
   }
 
   // Convertir fecha a formato "Jun 15, 2015" en español "Jun 15, 2015" -> "Jun 15, 2015"

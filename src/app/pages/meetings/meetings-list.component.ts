@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../shared/components/ui/button/button.compon
 import { BadgeComponent } from '../../shared/components/ui/badge/badge.component';
 import { AssignPartnersModalComponent } from './assign-partners-modal.component';
 import { MeetingService } from '../../shared/services/meeting.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { MeetingOutputDto, PageResponse } from '../../shared/models/water-system.models';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -63,8 +64,13 @@ export class MeetingsListComponent implements OnInit {
 
   constructor(
     private meetingService: MeetingService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) { }
+
+  canModify(meeting: MeetingOutputDto): boolean {
+    return !meeting.locked || this.authService.isAdmin();
+  }
 
   ngOnInit(): void {
     this.searchSubject.pipe(

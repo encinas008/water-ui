@@ -252,6 +252,11 @@ export const routes: Routes = [
         title: 'Lecturas Faltantes | Sistema de Agua'
       },
       {
+        path: 'reports/reading-observations',
+        loadComponent: () => import('./pages/water/reading-observations-report.component').then(m => m.ReadingObservationsReportComponent),
+        title: 'Observaciones de Lecturas | Sistema de Agua'
+      },
+      {
         path: 'reports/partners-status',
         loadComponent: () => import('./pages/water/partner-status-report.component').then(m => m.PartnerStatusReportComponent),
         title: 'Estado de Socios | Sistema de Agua'

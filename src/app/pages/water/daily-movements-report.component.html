@@ -16,6 +16,18 @@
                 <app-date-picker [id]="'endDate'" [defaultDate]="endDate" (dateChange)="onEndDateChange($event)"
                     [altFormat]="'d/m/Y'" [useAltInput]="true" [dateFormat]="'Y-m-d'"></app-date-picker>
             </div>
+
+            <div *ngIf="isAdmin" class="flex flex-col gap-1.5 flex-1 justify-end">
+                <button (click)="toggleUserFilter()"
+                    [ngClass]="filterByCurrentUser ? 'bg-primary text-white border-primary' : 'bg-slate-50 text-slate-600 border-slate-200'"
+                    class="flex items-center justify-center gap-2 rounded-xl py-3 px-4 font-bold transition-all border shadow-sm hover:shadow-md active:scale-95 leading-none h-[42px]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>{{ filterByCurrentUser ? 'Solo Mis Movimientos' : 'Todos los Usuarios' }}</span>
+                </button>
+            </div>
         </div>
 
         <div class="flex items-center gap-3">
@@ -39,13 +51,33 @@
     </div>
 
     <!-- Dashboard Summary -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" *ngIf="report">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" *ngIf="report">
+        <!-- Capital Inicial -->
+        <div
+            class="bg-gradient-to-br from-slate-600 to-slate-800 p-8 rounded-[2rem] text-white shadow-xl shadow-slate-500/20 relative overflow-hidden group">
+            <div
+                class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700">
+            </div>
+            <p class="text-slate-100 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Capital Inicial
+            </p>
+            <p class="text-4xl font-black relative z-10">{{ formatCurrency(report.initialCash || 0) }}</p>
+            <div class="mt-4 flex items-center gap-2 text-slate-100/80 text-xs font-bold relative z-10">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Aperturas de Caja
+            </div>
+        </div>
+
+        <!-- Ingresos -->
         <div
             class="bg-gradient-to-br from-emerald-500 to-emerald-600 p-8 rounded-[2rem] text-white shadow-xl shadow-emerald-500/20 relative overflow-hidden group">
             <div
                 class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700">
             </div>
-            <p class="text-emerald-100 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Total Ingresos
+            <p class="text-emerald-100 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Ventas/Ingresos
             </p>
             <p class="text-4xl font-black relative z-10">{{ formatCurrency(report.totalIncome) }}</p>
             <div class="mt-4 flex items-center gap-2 text-emerald-100/80 text-xs font-bold relative z-10">
@@ -53,41 +85,43 @@
                     <path d="M5 10l7-7m0 0l7 7m-7-7v18" stroke-width="3" stroke-linecap="round"
                         stroke-linejoin="round" />
                 </svg>
-                Entrada de efectivo
+                Entrada del periodo
             </div>
         </div>
 
+        <!-- Egresos -->
         <div
             class="bg-gradient-to-br from-rose-500 to-rose-600 p-8 rounded-[2rem] text-white shadow-xl shadow-rose-500/20 relative overflow-hidden group">
             <div
                 class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700">
             </div>
-            <p class="text-rose-100 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Total Egresos</p>
+            <p class="text-rose-100 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Total Gastos</p>
             <p class="text-4xl font-black relative z-10">{{ formatCurrency(report.totalExpense) }}</p>
             <div class="mt-4 flex items-center gap-2 text-rose-100/80 text-xs font-bold relative z-10">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M19 14l-7 7m0 0l-7-7m7 7V3" stroke-width="3" stroke-linecap="round"
                         stroke-linejoin="round" />
                 </svg>
-                Salida de efectivo
+                Salida del periodo
             </div>
         </div>
 
-        <div [ngClass]="report.grandTotal >= 0 ? 'from-blue-600 to-indigo-700' : 'from-amber-500 to-orange-600'"
+        <!-- Balance Consolidado -->
+        <div [ngClass]="(report.totalBalance || 0) >= 0 ? 'from-blue-600 to-indigo-700' : 'from-amber-500 to-orange-600'"
             class="bg-gradient-to-br p-8 rounded-[2rem] text-white shadow-xl shadow-blue-500/20 relative overflow-hidden group">
             <div
                 class="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700">
             </div>
-            <p class="text-white/70 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Saldo Neto
-                (Utilidad)</p>
-            <p class="text-4xl font-black relative z-10">{{ formatCurrency(report.grandTotal) }}</p>
+            <p class="text-white/70 text-xs font-black uppercase tracking-widest mb-1 relative z-10">Balance Consolidado
+            </p>
+            <p class="text-4xl font-black relative z-10">{{ formatCurrency(report.totalBalance || 0) }}</p>
             <div class="mt-4 flex items-center gap-2 text-white/80 text-xs font-bold relative z-10">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                         d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                Balance del periodo
+                Efectivo Total en Cajas
             </div>
         </div>
     </div>

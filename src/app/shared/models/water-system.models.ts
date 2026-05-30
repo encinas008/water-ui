@@ -126,6 +126,7 @@ export interface WaterMeterReadingOutputDto {
   currentReading: number;
   consumption: number;  // Backend usa 'consumption' no 'consumptionM3'
 
+  readerUserName: string;
   observation?: string;  // Backend usa 'observation' no 'notes'
   imageUrl?: string;
 
@@ -225,6 +226,23 @@ export interface WaterBillStatsDto {
   totalPendingAmount: number;
   totalOverdueAmount: number;
   totalPaidAmount: number;
+}
+
+export interface WaterBillPreviewItemDto {
+  partnerId: string;
+  partnerName: string;
+  partnerNumber: string;
+  hasReading: boolean;
+  readingValue?: number;
+}
+
+export interface WaterBillGenerationPreviewDto {
+  month: number;
+  year: number;
+  toGenerateCount: number;
+  missingReadingsCount: number;
+  toGenerate: WaterBillPreviewItemDto[];
+  missingReadings: WaterBillPreviewItemDto[];
 }
 
 export interface GenerateMonthlyBillsRequestDto {
@@ -432,6 +450,8 @@ export interface DailyMovementReportDto {
   totalIncome: number;
   totalExpense: number;
   grandTotal: number;
+  initialCash?: number;
+  totalBalance?: number;
   generatedAt?: string;
 }
 
@@ -461,7 +481,7 @@ export interface PartnerStatusItemDto {
 
 export interface PartnerStatusReportDto {
   statusSummary: Record<string, number>;
-  results: PartnerStatusItemDto[];
+  items: PartnerStatusItemDto[];
 }
 
 export interface MissingReadingItemDto {
@@ -1022,4 +1042,21 @@ export interface PartnerConsumptionStatsDto {
   partnerName: string;
   partnerNumber: number;
   monthlyConsumption: MonthlyConsumptionDto[];
+}
+
+export interface ReadingObservationItemDto {
+  partnerNumber?: number;
+  partnerName: string;
+  readingValue: number;
+  readingDate: string;
+  consumption: number;
+  observation: string;
+  readerUserName?: string;
+}
+
+export interface ReadingObservationsReportDto {
+  year: number;
+  month: number;
+  monthName: string;
+  items: ReadingObservationItemDto[];
 }
