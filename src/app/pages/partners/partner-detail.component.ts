@@ -130,8 +130,11 @@ export class PartnerDetailComponent implements OnInit {
     }
   }
 
-  getStatusLabel(status: string | undefined): string {
-    switch (status) {
+  getStatusLabel(partner: PartnerOutputDto | null | undefined): string {
+    if (!partner) return 'Sin estado';
+    if (partner.connectionStatusName) return partner.connectionStatusName;
+    
+    switch (partner.connectionStatusCode) {
       case 'ACTIVE':
         return 'Activa';
       case 'SUSPENDED':

@@ -102,6 +102,7 @@
         <option value="PENDING">Pendientes</option>
         <option value="PARTIAL_PAID">Pagos Parciales</option>
         <option value="PAID">Pagadas</option>
+        <option value="WAIVED">Condonadas</option>
         <option value="CANCELLED">Anuladas</option>
       </select>
     </div>
@@ -239,7 +240,8 @@
               'bg-emerald-50 text-emerald-600 border-emerald-100': bill.statusCode === 'PAID',
               'bg-amber-50 text-amber-600 border-amber-100': bill.statusCode === 'PENDING',
               'bg-rose-50 text-rose-600 border-rose-100': bill.statusCode === 'OVERDUE' || bill.statusCode === 'CANCELLED',
-              'bg-blue-50 text-blue-600 border-blue-100': bill.statusCode === 'PARTIAL_PAID'
+              'bg-blue-50 text-blue-600 border-blue-100': bill.statusCode === 'PARTIAL_PAID',
+              'bg-purple-50 text-purple-600 border-purple-100': bill.statusCode === 'WAIVED'
             }">
               {{ bill.statusName }}
             </span>
@@ -267,6 +269,15 @@
                   d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </button>
+            <button
+              *ngIf="(bill.remainingBalance > 0 || bill.statusCode === 'PENDING' || bill.statusCode === 'PARTIAL_PAID') && bill.statusCode !== 'PAID' && bill.statusCode !== 'CANCELLED'"
+              (click)="onWaiveBill(bill)"
+              class="h-8 w-8 flex items-center justify-center rounded-lg text-purple-500 hover:text-white hover:bg-purple-500 transition-colors"
+              title="Condonar Factura">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </button>
             <button *ngIf="bill.paidAmount > 0" (click)="onReprintBill(bill)"
               class="h-8 w-8 flex items-center justify-center rounded-lg text-blue-500 hover:text-white hover:bg-blue-500 transition-colors"
               title="Reimprimir">
@@ -282,7 +293,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
             </button>
-            <button *ngIf="bill.statusCode !== 'CANCELLED'" (click)="onCancelBill(bill)"
+            <button *ngIf="bill.statusCode === 'PAID'" (click)="onCancelBill(bill)"
               class="h-8 w-8 flex items-center justify-center rounded-lg text-rose-500 hover:text-white hover:bg-rose-500 transition-colors"
               title="Anular">
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -321,7 +332,8 @@
               'bg-emerald-50 text-emerald-600': bill.statusCode === 'PAID',
               'bg-amber-50 text-amber-600': bill.statusCode === 'PENDING',
               'bg-rose-50 text-rose-600': bill.statusCode === 'OVERDUE' || bill.statusCode === 'CANCELLED',
-              'bg-blue-50 text-blue-600': bill.statusCode === 'PARTIAL_PAID'
+              'bg-blue-50 text-blue-600': bill.statusCode === 'PARTIAL_PAID',
+              'bg-purple-50 text-purple-600': bill.statusCode === 'WAIVED'
             }">
               {{ bill.statusName }}
             </span>
@@ -339,6 +351,15 @@
                 (click)="registerPayment(bill)"
                 class="px-4 py-2 bg-emerald-500 text-white rounded-lg text-sm font-bold shadow-sm shadow-emerald-200">
                 Pagar
+              </button>
+              <button
+                *ngIf="(bill.remainingBalance > 0 || bill.statusCode === 'PENDING' || bill.statusCode === 'PARTIAL_PAID') && bill.statusCode !== 'PAID' && bill.statusCode !== 'CANCELLED'"
+                (click)="onWaiveBill(bill)"
+                class="px-3 py-2 bg-purple-100 text-purple-600 hover:bg-purple-500 hover:text-white rounded-lg text-sm font-bold transition-colors"
+                title="Condonar Factura">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
               </button>
               <button (click)="viewBill(bill)"
                 class="px-3 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold">

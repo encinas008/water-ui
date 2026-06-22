@@ -392,6 +392,53 @@ export class BillsListComponent implements OnInit {
     });
   }
 
+  onWaiveBill(bill: WaterBillOutputDto): void {
+    const userInfo = this.authService.getUserInfo();
+    const userId = userInfo ? userInfo.userId || userInfo.id : null;
+
+    if (!userId) {
+      toast.error('Sesión no válida. Por favor inicia sesión nuevamente.');
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Condonar factura?',
+      text: `¿Deseas condonar la factura ${bill.billNumber}? La factura aparecerá como pagada y se restará la deuda al socio, pero NO generará un ingreso en caja.`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#8b5cf6', // Violet/purple color to distinguish from regular payment
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Sí, condonar',
+      cancelButtonText: 'Cancelar',
+      heightAuto: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.isLoading = true;
+        this.waterBillService.waiveBill(bill.id, userId).subscribe({
+          next: () => {
+            toast.success('Factura condonada exitosamente');
+            this.resetAndLoadBills();
+          },
+          error: (error) => {
+            this.isLoading = false;
+            console.error('❌ Error al condonar factura:', error);
+
+            let message = 'Error al condonar la factura';
+            if (error.error) {
+              if (typeof error.error === 'string') {
+                message = error.error;
+              } else if (error.error.message) {
+                message = error.error.message;
+              }
+            }
+
+            toast.error(message);
+          }
+        });
+      }
+    });
+  }
+
   reprintPayment(paymentId: string): void {
     this.isLoadingReprint = true;
     this.waterPaymentService.downloadReceiptPdf(paymentId, true).then(() => {

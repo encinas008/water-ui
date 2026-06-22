@@ -89,4 +89,25 @@ export class ReportService {
         }
         return this.http.get<import('../models/water-system.models').WaterBillOutputDto[]>(`${this.apiUrl}/monthly-bills`, { params });
     }
+
+    getIncomeReport(startDate: string, endDate: string): Observable<import('../models/water-system.models').IncomeReportDto> {
+        const params = new HttpParams()
+            .set('startDate', startDate)
+            .set('endDate', endDate);
+        return this.http.get<import('../models/water-system.models').IncomeReportDto>(`${this.apiUrl}/income`, { params });
+    }
+
+    getExpenseReport(startDate: string, endDate: string): Observable<import('../models/water-system.models').ExpenseReportDto> {
+        const params = new HttpParams()
+            .set('startDate', startDate)
+            .set('endDate', endDate);
+        return this.http.get<import('../models/water-system.models').ExpenseReportDto>(`${this.apiUrl}/expenses`, { params });
+    }
+
+    getWaivedReport(startDate: string, endDate: string): Observable<import('../models/water-system.models').WaivedReportDto> {
+        const params = new HttpParams()
+            .set('startDate', startDate)
+            .set('endDate', endDate);
+        return this.http.get<import('../models/water-system.models').WaivedReportDto>(`${this.apiUrl}/waived`, { params });
+    }
 }

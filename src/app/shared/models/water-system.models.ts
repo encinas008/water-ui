@@ -1060,3 +1060,49 @@ export interface ReadingObservationsReportDto {
   monthName: string;
   items: ReadingObservationItemDto[];
 }
+
+export interface IncomeReportDto {
+  items: IncomeReportItemDto[];
+  totalIncome: number;
+}
+
+export interface IncomeReportItemDto {
+  nro: number;
+  fecha: string;
+  nombreSocio: string;
+  numeroSocio: number;
+  tarifaBasica: number;
+  aporteOtb: number;
+  aporteDeporte: number;
+  otros: number;
+  total: number;
+  responsable: string;
+}
+
+export interface ExpenseReportDto {
+  items: ExpenseReportItemDto[];
+  totalExpense: number;
+}
+
+export interface ExpenseReportItemDto {
+  nro: number;
+  fecha: string;
+  detalle: string;
+  total: number;
+  responsable: string;
+}
+
+export interface WaivedReportDto {
+  items: WaivedReportItemDto[];
+  totalWaived: number;
+}
+
+export interface WaivedReportItemDto {
+  nro: number;
+  fecha: string;
+  nombreSocio: string;
+  numeroSocio: number;
+  mesFacturado: string;
+  totalCondonado: number;
+  responsable: string;
+}

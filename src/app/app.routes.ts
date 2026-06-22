@@ -266,6 +266,21 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/water/excess-consumption-report.component').then(m => m.ExcessConsumptionReportComponent),
         title: 'Exceso de Consumo | Sistema de Agua'
       },
+      {
+        path: 'reports/income',
+        loadComponent: () => import('./pages/water/income-report.component').then(m => m.IncomeReportComponent),
+        title: 'Reporte de Ingresos | Sistema de Agua'
+      },
+      {
+        path: 'reports/expenses',
+        loadComponent: () => import('./pages/water/expense-report.component').then(m => m.ExpenseReportComponent),
+        title: 'Reporte de Egresos | Sistema de Agua'
+      },
+      {
+        path: 'reports/waived',
+        loadComponent: () => import('./pages/water/waived-report.component').then(m => m.WaivedReportComponent),
+        title: 'Reporte de Condonados | Sistema de Agua'
+      },
       // Cash Balance Routes
       {
         path: 'cash-balances',
