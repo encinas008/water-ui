@@ -4,9 +4,3 @@ export const environment = {
   apiUrl: 'http://localhost:8085/api',  // Cambiar por tu URL de producción
   allowEditReadingDate: true // En producción, la fecha no debe ser editable
 };
-
-
-
-
-
-

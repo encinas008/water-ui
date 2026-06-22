@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, catchError } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import {
   WaterBillOutputDto,
   WaterBillDetailDto,
@@ -230,7 +230,21 @@ export class WaterBillService {
     return this.http.post<WaterBillOutputDto>(`${this.apiUrl}/${id}/cancel`, {}, { headers, params }).pipe(
       catchError(error => {
         console.error('❌ Error al anular factura:', error);
-        throw error;
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Condona una factura
+   */
+  waiveBill(id: string, userId: string): Observable<WaterBillOutputDto> {
+    const headers = this.getHeaders();
+    const params = new HttpParams().set('userId', userId);
+    return this.http.post<WaterBillOutputDto>(`${this.apiUrl}/${id}/waive`, {}, { headers, params }).pipe(
+      catchError(error => {
+        console.error('❌ Error al condonar factura:', error);
+        return throwError(() => error);
       })
     );
   }

@@ -1,0 +1,187 @@
+<div class="mx-auto max-w-screen-2xl p-4 md:p-6 2xl:p-10 animate-fade-in no-print">
+    <app-page-breadcrumb [pageTitle]="'Reporte de Condonados'"
+        [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
+
+    <!-- Filtros y Acciones -->
+    <div
+        class="mb-8 flex flex-col gap-6 md:flex-row md:items-center md:justify-between bg-white dark:bg-boxdark p-6 rounded-3xl border border-slate-100 dark:border-strokedark shadow-sm">
+        <div class="flex flex-col md:flex-row gap-4 flex-1">
+            <div class="flex flex-col gap-1.5 flex-1">
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Fecha Inicio</label>
+                <app-date-picker [id]="'startDate'" [defaultDate]="startDate" (dateChange)="onStartDateChange($event)"
+                    [altFormat]="'d/m/Y'" [useAltInput]="true" [dateFormat]="'Y-m-d'"></app-date-picker>
+            </div>
+            <div class="flex flex-col gap-1.5 flex-1">
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Fecha Fin</label>
+                <app-date-picker [id]="'endDate'" [defaultDate]="endDate" (dateChange)="onEndDateChange($event)"
+                    [altFormat]="'d/m/Y'" [useAltInput]="true" [dateFormat]="'Y-m-d'"></app-date-picker>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button (click)="loadReport()" [disabled]="isLoading"
+                class="flex items-center gap-2 rounded-xl bg-slate-100 py-3 px-6 font-bold text-slate-700 transition-all hover:bg-slate-200 active:scale-95 dark:bg-slate-800 dark:text-white">
+                <svg [class.animate-spin]="isLoading" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Buscar
+            </button>
+
+            <button (click)="exportToExcel()" [disabled]="!report || isLoading"
+                class="flex items-center gap-2 rounded-xl bg-emerald-600 py-3 px-6 font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 hover:shadow-emerald-600/30 active:scale-95 disabled:opacity-50">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Excel
+            </button>
+            <button (click)="printReport()" [disabled]="!report || isLoading"
+                class="flex items-center gap-2 rounded-xl bg-indigo-600 py-3 px-6 font-bold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/30 active:scale-95 disabled:opacity-50">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                Imprimir
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-32">
+        <div class="relative">
+            <div class="h-20 w-20 rounded-full border-4 border-slate-100 dark:border-slate-800"></div>
+            <div
+                class="absolute inset-0 h-20 w-20 rounded-full border-4 border-primary border-t-transparent animate-spin">
+            </div>
+        </div>
+        <p class="mt-6 text-slate-500 font-bold animate-pulse uppercase tracking-[0.2em] text-xs">Cargando reporte...</p>
+    </div>
+
+    <!-- Main Table Container -->
+    <div *ngIf="!isLoading && report"
+        class="bg-white dark:bg-boxdark rounded-3xl border border-slate-200 dark:border-strokedark shadow-sm overflow-hidden">
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <tr class="text-[10px] font-black uppercase text-slate-500 tracking-wider">
+                        <th class="px-4 py-4 text-center">Nº</th>
+                        <th class="px-4 py-4 text-center">Fecha Condonación</th>
+                        <th class="px-4 py-4">Nombre Socio</th>
+                        <th class="px-4 py-4 text-center">Nº Socio</th>
+                        <th class="px-4 py-4">Mes Facturado</th>
+                        <th class="px-4 py-4">Responsable</th>
+                        <th class="px-4 py-4 text-right">Total Condonado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <tr *ngFor="let item of report.items" class="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                        <td class="px-4 py-3 text-sm font-black text-slate-800 dark:text-white text-center">{{ item.nro }}</td>
+                        <td class="px-4 py-3 text-xs text-slate-500 text-center">{{ formatDate(item.fecha) }}</td>
+                        <td class="px-4 py-3 text-sm font-bold text-slate-700 dark:text-slate-300 uppercase">{{ item.nombreSocio }}</td>
+                        <td class="px-4 py-3 text-sm font-black text-slate-800 dark:text-white text-center">{{ item.numeroSocio }}</td>
+                        <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-400">{{ item.mesFacturado }}</td>
+                        <td class="px-4 py-3 text-xs text-slate-500">{{ item.responsable }}</td>
+                        <td class="px-4 py-3 text-sm font-black text-emerald-600 text-right">{{ item.totalCondonado.toFixed(2) }}</td>
+                    </tr>
+                    <tr *ngIf="report.items.length === 0">
+                        <td colspan="7" class="p-10 text-center text-slate-400 font-bold uppercase tracking-widest italic opacity-50">
+                            No hay facturas condonadas en este periodo
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Global Footer -->
+        <div class="bg-emerald-600 text-white p-6 flex justify-between items-center shadow-2xl relative z-20">
+            <div class="flex items-center gap-4">
+                <div class="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-sm">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em] opacity-80">Total Condonado Periodo</span>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="text-3xl font-black tracking-tighter">{{ formatCurrency(report.totalWaived) }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Printable Version (Stable) -->
+<div class="print-only hidden p-5 bg-white text-black min-h-screen font-sans" *ngIf="report">
+    <div class="text-center mb-6 uppercase">
+        <h1 class="text-xl font-black">Reporte de Condonados</h1>
+        <p class="text-lg font-bold">Desde: {{ startDate | date:'dd/MM/yyyy' }} - Hasta: {{ endDate | date:'dd/MM/yyyy' }}</p>
+    </div>
+
+    <table class="w-full border-collapse border-2 border-black text-[10px]">
+        <thead>
+            <tr class="bg-slate-100 uppercase font-black text-center">
+                <th class="border-2 border-black px-1 py-1 w-10">Nº</th>
+                <th class="border-2 border-black px-1 py-1 w-20">Fecha Condonación</th>
+                <th class="border-2 border-black px-2 py-1 text-left">Nombre Socio</th>
+                <th class="border-2 border-black px-1 py-1 w-16">Nº Socio</th>
+                <th class="border-2 border-black px-1 py-1 w-24">Mes Facturado</th>
+                <th class="border-2 border-black px-1 py-1">Responsable</th>
+                <th class="border-2 border-black px-1 py-1 w-24">Total Condonado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of report.items" class="text-center">
+                <td class="border border-black px-1 py-1">{{ item.nro }}</td>
+                <td class="border border-black px-1 py-1">{{ formatDate(item.fecha) }}</td>
+                <td class="border border-black px-2 py-1 text-left font-bold">{{ item.nombreSocio }}</td>
+                <td class="border border-black px-1 py-1">{{ item.numeroSocio }}</td>
+                <td class="border border-black px-1 py-1">{{ item.mesFacturado }}</td>
+                <td class="border border-black px-1 py-1">{{ item.responsable }}</td>
+                <td class="border border-black px-1 py-1 text-right font-bold">{{ item.totalCondonado.toFixed(2) }}</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr class="font-black bg-slate-100">
+                <td colspan="5" class="border-2 border-black px-2 py-2 text-right uppercase text-xs">MONTO TOTAL:</td>
+                <td colspan="2" class="border-2 border-black px-2 py-2 text-right text-xs">BOB {{ report.totalWaived.toFixed(2) }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="mt-20 flex justify-around text-center uppercase text-[8px] font-black">
+        <div>
+            <div class="border-t-2 border-black w-48 mb-1"></div>
+            <p>Firma Tesorería</p>
+        </div>
+        <div>
+            <div class="border-t-2 border-black w-48 mb-1"></div>
+            <p>Sello OTB / Comunidad</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        .print-only {
+            display: block !important;
+        }
+
+        table {
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+    }
+</style>

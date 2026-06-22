@@ -138,14 +138,17 @@ export class WaterReadingService {
   checkReadingExistsForMonth(partnerId: string, readingDate: string): Observable<boolean> {
     return this.getReadingsByPartner(partnerId).pipe(
       map((readings) => {
-        const date = new Date(readingDate);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1; // getMonth() retorna 0-11
+        // Parse date parts directly from the string (YYYY-MM-DD) to avoid
+        // UTC offset shifting the month when using `new Date(dateString)`
+        const [yearStr, monthStr] = readingDate.split('-');
+        const year = parseInt(yearStr, 10);
+        const month = parseInt(monthStr, 10); // 1-12
 
         return readings.some(reading => {
-          const readingDateObj = new Date(reading.readingDate);
-          return readingDateObj.getFullYear() === year &&
-            readingDateObj.getMonth() + 1 === month;
+          const [rYearStr, rMonthStr] = reading.readingDate.split('-');
+          const rYear = parseInt(rYearStr, 10);
+          const rMonth = parseInt(rMonthStr, 10); // 1-12
+          return rYear === year && rMonth === month;
         });
       }),
       catchError(error => {

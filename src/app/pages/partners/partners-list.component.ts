@@ -229,8 +229,11 @@ export class PartnersListComponent implements OnInit {
     }
   }
 
-  getStatusLabel(status: string | undefined): string {
-    switch (status) {
+  getStatusLabel(partner: PartnerOutputDto): string {
+    if (partner.connectionStatusName) {
+      return partner.connectionStatusName;
+    }
+    switch (partner.connectionStatusCode) {
       case 'ACTIVE':
         return 'Activa';
       case 'SUSPENDED':

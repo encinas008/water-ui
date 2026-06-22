@@ -52,7 +52,7 @@ export class WaterDashboardComponent implements OnInit {
   public partnerChartOptions: Partial<ChartOptions> | any;
 
   breadcrumbItems = [
-    { label: 'Dashboard de Agua', link: '/water-dashboard' }
+    { label: 'Sistema de Gestión de Agua', link: '/water-dashboard' }
   ];
 
   stats?: DashboardStatsDto;

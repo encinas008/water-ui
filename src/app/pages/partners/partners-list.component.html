@@ -112,7 +112,7 @@
                         'bg-rose-50 text-rose-600 border-rose-100': partner.connectionStatusCode === 'CUT_OFF',
                         'bg-slate-50 text-slate-600 border-slate-100': partner.connectionStatusCode === 'INACTIVE'
                       }">
-              {{ getStatusLabel(partner.connectionStatusCode) }}
+              {{ getStatusLabel(partner) }}
             </span>
           </div>
 
@@ -191,7 +191,7 @@
                             'bg-rose-50 text-rose-600': partner.connectionStatusCode === 'CUT_OFF',
                             'bg-slate-50 text-slate-600': partner.connectionStatusCode === 'INACTIVE'
                         }">
-                {{ getStatusLabel(partner.connectionStatusCode) }}
+                {{ getStatusLabel(partner) }}
               </span>
               <span class="text-xs font-bold" [ngClass]="{
                             'text-rose-500': partner.currentDebt && partner.currentDebt > 0,

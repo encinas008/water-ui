@@ -365,7 +365,17 @@ export class AddPaymentComponent implements OnInit {
       error: (error) => {
         this.isLoading = false;
         console.error('Error al registrar pago:', error);
-        toast.error(error.error?.message || 'Error al registrar el pago');
+        
+        let message = 'Error al registrar el pago';
+        if (error.error) {
+          if (typeof error.error === 'string') {
+            message = error.error;
+          } else if (error.error.message) {
+            message = error.error.message;
+          }
+        }
+        
+        toast.error(message);
       }
     });
   }
