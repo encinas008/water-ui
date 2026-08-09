@@ -281,9 +281,13 @@ export class WaterBillService {
    * Obtener reporte detallado de deudores (completo)
    * GET /water-reports/debtors
    */
-  getDebtorsReport(): Observable<DetailedDebtorsReportDto> {
+  getDebtorsReport(search?: string): Observable<DetailedDebtorsReportDto> {
     const headers = this.getHeaders();
-    return this.http.get<DetailedDebtorsReportDto>(`${this.reportUrl}/debtors`, { headers }).pipe(
+    let params = new HttpParams();
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+    return this.http.get<DetailedDebtorsReportDto>(`${this.reportUrl}/debtors`, { headers, params }).pipe(
       catchError(error => {
         console.error('❌ Error al obtener reporte de deudores:', error);
         throw error;

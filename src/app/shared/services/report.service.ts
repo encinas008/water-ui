@@ -40,6 +40,12 @@ export class ReportService {
         return this.http.get<import('../models/water-system.models').DebtReportDto[]>(`${this.apiUrl}/cutoff-candidates`);
     }
 
+    getMoraCandidatesReport(months: number = 3): Observable<import('../models/water-system.models').DebtReportDto[]> {
+        const params = new HttpParams()
+            .set('months', months.toString());
+        return this.http.get<import('../models/water-system.models').DebtReportDto[]>(`${this.apiUrl}/mora-candidates`, { params });
+    }
+
     getReadingObservationsReport(year: number, month: number): Observable<import('../models/water-system.models').ReadingObservationsReportDto> {
         const params = new HttpParams()
             .set('year', year.toString())

@@ -53,7 +53,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
   description: string = '';
   fine: string | number = '';
   waitingMinutes: number = 15;
-  waitingMinutesOptions: number[] = [10, 15, 20, 30];
+  waitingMinutesOptions: number[] = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
   // UI State
   isLoading: boolean = false;
@@ -66,7 +66,7 @@ export class AddMeetingComponent implements OnInit, OnDestroy {
 
   // Opciones para selectores
   hours: number[] = Array.from({ length: 12 }, (_, i) => i + 1); // 1-12
-  minutes: number[] = [0, 15, 30, 45]; // Solo intervalos de 15 minutos
+  minutes: number[] = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
   amPmOptions: string[] = ['AM', 'PM'];
 
   // Fecha mínima (hoy) para bloquear fechas pasadas

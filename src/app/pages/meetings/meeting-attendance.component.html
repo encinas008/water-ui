@@ -160,21 +160,47 @@
                       }">
                   {{ isPresent(partner.partnerId) ? 'Presente' : 'Ausente' }}
                 </span>
+                <button *ngIf="authService.isAdmin()" (click)="toggleAttendance(partner.partnerId)"
+                  class="ml-2 rounded p-1 text-gray-500 hover:bg-gray-100 hover:text-brand-600 dark:hover:bg-gray-800 transition-colors"
+                  [title]="isPresent(partner.partnerId) ? 'Marcar Ausente' : 'Marcar Presente'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                  </svg>
+                </button>
               </div>
             </td>
 
             <!-- Hora Entrada -->
             <td class="px-4 py-4 text-center">
-              <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ getAttendance(partner.partnerId).checkInTime || '--:--' }}
-              </span>
+              <div class="flex items-center justify-center gap-2">
+                <span class="text-sm text-gray-700 dark:text-gray-300">
+                  {{ getAttendance(partner.partnerId).checkInTime || '--:--' }}
+                </span>
+                <button *ngIf="authService.isAdmin() && canMarkCheckIn(partner.partnerId)" 
+                  (click)="markCheckIn(partner.partnerId)"
+                  class="rounded bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 dark:bg-brand-900/30 dark:text-brand-400 transition-colors">
+                  Ingreso
+                </button>
+                <button *ngIf="authService.isAdmin() && canMarkCheckIn(partner.partnerId)" 
+                  (click)="markAsLate(partner.partnerId)"
+                  class="rounded bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700 hover:bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400 transition-colors" title="Llegó con retraso">
+                  Retraso
+                </button>
+              </div>
             </td>
 
             <!-- Hora Salida -->
             <td class="px-4 py-4 text-center">
-              <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ getAttendance(partner.partnerId).checkOutTime || '--:--' }}
-              </span>
+              <div class="flex items-center justify-center gap-2">
+                <span class="text-sm text-gray-700 dark:text-gray-300">
+                  {{ getAttendance(partner.partnerId).checkOutTime || '--:--' }}
+                </span>
+                <button *ngIf="authService.isAdmin() && canMarkCheckOut(partner.partnerId)"
+                  (click)="markCheckOut(partner.partnerId)"
+                  class="rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 transition-colors">
+                  Salida
+                </button>
+              </div>
             </td>
 
             <!-- Multa Retraso -->

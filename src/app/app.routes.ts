@@ -237,6 +237,11 @@ export const routes: Routes = [
         title: 'Candidatos a Corte | Sistema de Agua'
       },
       {
+        path: 'reports/mora-candidates',
+        loadComponent: () => import('./pages/water/mora-report.component').then(m => m.MoraReportComponent),
+        title: 'Socios en Mora | Sistema de Agua'
+      },
+      {
         path: 'reports/movements',
         loadComponent: () => import('./pages/water/daily-movements-report.component').then(m => m.DailyMovementReportComponent),
         title: 'Movimientos por Fecha | Sistema de Agua'

@@ -40,16 +40,30 @@ export class DebtorsReportComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        this.loadReport();
+        // Do not load all records by default
     }
 
     loadReport(): void {
+        if (!this.searchQuery || !this.searchQuery.trim()) {
+            toast.warning('Por favor ingrese un nombre o número de socio para buscar');
+            return;
+        }
+
         this.isLoading = true;
-        this.waterBillService.getDebtorsReport().subscribe({
+        this.waterBillService.getDebtorsReport(this.searchQuery).subscribe({
             next: (data) => {
                 this.report = data;
                 this.allGroupedItems = this.groupItems(data.items);
-                this.applyFilter();
+                this.filteredGroupedItems = this.allGroupedItems;
+                
+                if (this.filteredGroupedItems.length === 0) {
+                    toast.info('No se encontraron deudas para el socio buscado');
+                }
+
+                const uiSum = this.getTotalFilteredDebt();
+                console.log(`📊 [REPORTE] Suma de SUBTOTAL SOCIO en UI: Bs ${uiSum.toLocaleString('es-BO', { minimumFractionDigits: 2 })}`);
+                console.log(`👥 [REPORTE] Socios deudores listados: ${this.filteredGroupedItems.length}`);
+
                 this.isLoading = false;
                 this.cdr.detectChanges();
             },
@@ -86,23 +100,11 @@ export class DebtorsReportComponent implements OnInit {
     }
 
     onSearch(): void {
-        this.applyFilter();
+        this.loadReport();
     }
 
     applyFilter(): void {
-        const query = this.searchQuery.toLowerCase().trim();
-        if (!query) {
-            this.filteredGroupedItems = this.allGroupedItems;
-        } else {
-            this.filteredGroupedItems = this.allGroupedItems.filter(group =>
-                group.partnerName.toLowerCase().includes(query) ||
-                group.partnerNumber.toString().includes(query)
-            );
-        }
-
-        const uiSum = this.getTotalFilteredDebt();
-        console.log(`📊 [REPORTE] Suma de SUBTOTAL SOCIO en UI: Bs ${uiSum.toLocaleString('es-BO', { minimumFractionDigits: 2 })}`);
-        console.log(`👥 [REPORTE] Socios deudores listados: ${this.filteredGroupedItems.length}`);
+        // Obsolete, we now filter from the backend
     }
 
     getTotalFilteredDebt(): number {

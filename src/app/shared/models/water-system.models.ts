@@ -395,6 +395,7 @@ export interface DebtReportDto {
   overdueBillsCount: number;
   lastPaymentDate?: string;
   contactPhone?: string;
+  pendingMonths?: string;
 }
 
 export interface ConsumptionReportDto {

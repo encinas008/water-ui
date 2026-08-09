@@ -125,7 +125,12 @@ export class BillsListComponent implements OnInit {
 
     this.waterBillService.getBillsPaginated(this.currentPage, this.pageSize, this.searchQuery, this.filterStatus).subscribe({
       next: (response: PageResponse<WaterBillOutputDto>) => {
-        this.bills = response.content;
+        this.bills = response.content.map(bill => {
+          if (bill.statusCode === 'CANCELLED' || (bill.statusName && bill.statusName.toUpperCase() === 'CANCELADA')) {
+            bill.statusName = 'ANULADA';
+          }
+          return bill;
+        });
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.hasMoreData = !response.last;
@@ -159,7 +164,13 @@ export class BillsListComponent implements OnInit {
 
     this.waterBillService.getBillsPaginated(this.currentPage, this.pageSize, this.searchQuery, this.filterStatus).subscribe({
       next: (response: PageResponse<WaterBillOutputDto>) => {
-        this.bills = [...this.bills, ...response.content];
+        const newBills = response.content.map(bill => {
+          if (bill.statusCode === 'CANCELLED' || (bill.statusName && bill.statusName.toUpperCase() === 'CANCELADA')) {
+            bill.statusName = 'ANULADA';
+          }
+          return bill;
+        });
+        this.bills = [...this.bills, ...newBills];
         this.totalElements = response.totalElements;
         this.totalPages = response.totalPages;
         this.hasMoreData = !response.last;
@@ -272,6 +283,9 @@ export class BillsListComponent implements OnInit {
     this.showBillDetailModal = true;
     this.waterBillService.getBillDetailWithPayments(bill.id).subscribe({
       next: (detail) => {
+        if (detail.bill.statusCode === 'CANCELLED' || (detail.bill.statusName && detail.bill.statusName.toUpperCase() === 'CANCELADA')) {
+          detail.bill.statusName = 'ANULADA';
+        }
         this.billDetail = detail;
         this.isLoadingBillDetail = false;
       },

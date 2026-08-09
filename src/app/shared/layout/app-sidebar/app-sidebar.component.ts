@@ -134,6 +134,7 @@ export class AppSidebarComponent {
         { name: "Reporte de Deudores", path: "/reports/debtors", pro: false },
         { name: "Reporte Mensual", path: "/reports/monthly-bills", pro: false },
         { name: "Cortes (4+ meses)", path: "/reports/cutoff-candidates", pro: false },
+        { name: "Socios con Mora (6 meses)", path: "/reports/mora-candidates", pro: false },
         { name: "Resumen de Movimientos", path: "/reports/movements", pro: false },
         { name: "Lecturas por Mes", path: "/reports/readings", pro: false },
         { name: "Lecturas Faltantes", path: "/reports/missing-readings", pro: false },
