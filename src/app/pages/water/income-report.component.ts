@@ -23,6 +23,22 @@ export class IncomeReportComponent implements OnInit {
 
     report: IncomeReportDto | null = null;
     isLoading = false;
+
+    get totalTarifaBasica(): number {
+        return this.report?.items.reduce((sum, item) => sum + item.tarifaBasica, 0) || 0;
+    }
+
+    get totalAporteOtb(): number {
+        return this.report?.items.reduce((sum, item) => sum + item.aporteOtb, 0) || 0;
+    }
+
+    get totalAporteDeporte(): number {
+        return this.report?.items.reduce((sum, item) => sum + item.aporteDeporte, 0) || 0;
+    }
+
+    get totalOtros(): number {
+        return this.report?.items.reduce((sum, item) => sum + item.otros, 0) || 0;
+    }
     
     // Default to current month
     startDate: string = '';
@@ -129,7 +145,7 @@ export class IncomeReportComponent implements OnInit {
                 item.nro,
                 this.formatDate(item.fecha),
                 item.nombreSocio,
-                item.numeroSocio,
+                item.numeroSocio === 0 ? '-' : item.numeroSocio,
                 item.tarifaBasica,
                 item.aporteOtb,
                 item.aporteDeporte,
@@ -141,7 +157,15 @@ export class IncomeReportComponent implements OnInit {
 
         // Global Total
         data.push([]);
-        data.push(['', '', '', '', '', '', '', 'TOTAL INGRESOS:', this.report.totalIncome, '']);
+        data.push([
+            '', '', '', 'TOTALES:', 
+            this.totalTarifaBasica, 
+            this.totalAporteOtb, 
+            this.totalAporteDeporte, 
+            this.totalOtros, 
+            this.report.totalIncome, 
+            ''
+        ]);
 
         // Create workbook and worksheet
         const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(data);

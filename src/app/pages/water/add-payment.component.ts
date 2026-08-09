@@ -188,14 +188,36 @@ export class AddPaymentComponent implements OnInit {
             c.conceptName.toLowerCase().includes('multa')
           );
 
+          const getMonthName = (month: number) => {
+            const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            return months[month - 1] || '';
+          };
+          
+          const formatDateLiteral = (dateStr: string) => {
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return '';
+            const day = parts[2].padStart(2, '0');
+            const month = parseInt(parts[1], 10);
+            const monthName = getMonthName(month);
+            const capitalizedMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+            const year = parts[0];
+            return `${day}/${capitalizedMonth}/${year}`;
+          };
+
           const filteredJobs = data.jobAbsences.filter(fine => {
-            const fineName = fine.name.toLowerCase().trim();
-            return !billedFines.some(c => c.conceptName.toLowerCase().trim().includes(fineName));
+            const formattedDateLower = formatDateLiteral(fine.date).toLowerCase();
+            return !billedFines.some(c => 
+              c.conceptName.toLowerCase().includes(formattedDateLower) && 
+              c.amount === fine.fine
+            );
           });
 
           const filteredMeetings = data.meetingAbsences.filter(fine => {
-            const fineName = fine.name.toLowerCase().trim();
-            return !billedFines.some(c => c.conceptName.toLowerCase().trim().includes(fineName));
+            const formattedDateLower = formatDateLiteral(fine.date).toLowerCase();
+            return !billedFines.some(c => 
+              c.conceptName.toLowerCase().includes(formattedDateLower) && 
+              c.amount === fine.fine
+            );
           });
 
           this.pendingFines = {

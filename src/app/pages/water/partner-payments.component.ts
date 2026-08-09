@@ -114,7 +114,7 @@ export class PartnerPaymentsComponent implements OnInit {
       next: (bills) => {
         // Filtrar solo facturas pendientes
         this.pendingBills = bills
-          .filter(bill => bill.statusCode === 'PENDING' || bill.statusCode === 'PARTIAL_PAID')
+          .filter(bill => bill.statusCode === 'PENDING')
           .sort((a, b) => new Date(a.billingPeriodStart).getTime() - new Date(b.billingPeriodStart).getTime());
         this.isLoadingBills = false;
       },

@@ -10,6 +10,7 @@ import { InputFieldComponent } from '../../shared/components/form/input/input-fi
 import { MeetingService } from '../../shared/services/meeting.service';
 import { MeetingAttendanceService } from '../../shared/services/meeting-attendance.service';
 import { MeetingOutputDto, PartnerAssignmentInfoDto, MeetingAttendanceOutputDto, BulkMeetingAttendanceInputDto, PartnerAttendanceDto } from '../../shared/models/water-system.models';
+import { AuthService } from '../../shared/services/auth.service';
 import { toast } from 'ngx-sonner';
 
 @Component({
@@ -55,7 +56,8 @@ export class MeetingAttendanceComponent implements OnInit {
     private router: Router,
     private meetingService: MeetingService,
     private meetingAttendanceService: MeetingAttendanceService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    public authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -254,6 +256,32 @@ export class MeetingAttendanceComponent implements OnInit {
   canMarkCheckOut(partnerId: string): boolean {
     const attendance = this.partnerAttendanceMap.get(partnerId);
     return attendance?.present === true && !!attendance.checkInTime && !attendance.checkOutTime;
+  }
+
+  markAsLate(partnerId: string): void {
+    const attendance = this.partnerAttendanceMap.get(partnerId);
+    if (attendance && this.meeting) {
+      attendance.present = true;
+      
+      let hour = this.meeting.hour;
+      if (this.meeting.amPm === 'PM' && hour < 12) hour += 12;
+      if (this.meeting.amPm === 'AM' && hour === 12) hour = 0;
+      
+      const totalMinutes = this.meeting.minute + this.meeting.waitingMinutes + 5;
+      const finalMinute = totalMinutes % 60;
+      const additionalHours = Math.floor(totalMinutes / 60);
+      const finalHour = (hour + additionalHours) % 24;
+      
+      const hh = String(finalHour).padStart(2, '0');
+      const mm = String(finalMinute).padStart(2, '0');
+      
+      attendance.checkInTime = `${hh}:${mm}`;
+      this.saveAttendanceForPartner(partnerId, attendance);
+    }
+  }
+
+  isLate(partnerId: string): boolean {
+    return this.getLateFine(partnerId) > 0 || (this.partnerAttendanceMap.get(partnerId)?.checkInTime !== '' && this.partnerAttendanceMap.get(partnerId)?.checkInTime !== undefined && !this.canMarkCheckIn(partnerId));
   }
 
   saveAttendanceForPartner(partnerId: string, attendance: { present: boolean; checkInTime: string; checkOutTime: string }): void {

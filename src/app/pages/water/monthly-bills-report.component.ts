@@ -51,7 +51,7 @@ export class MonthlyBillsReportComponent implements OnInit {
         { value: 'ALL', name: 'Todos los estados' },
         { value: 'PENDING', name: 'Pendientes' },
         { value: 'PAID', name: 'Pagadas' },
-        { value: 'CANCELLED', name: 'Canceladas' },
+        { value: 'CANCELLED', name: 'Anuladas' },
         { value: 'OVERDUE', name: 'Vencidas' },
         { value: 'PARTIAL_PAID', name: 'Pago Parcial' }
     ];
@@ -74,7 +74,12 @@ export class MonthlyBillsReportComponent implements OnInit {
         this.reportService.getMonthlyBillsReport(this.selectedYear, this.selectedMonth, this.selectedStatus)
             .subscribe({
                 next: (data) => {
-                    this.bills = data;
+                    this.bills = data.map(bill => {
+                        if (bill.statusCode === 'CANCELLED' || (bill.statusName && bill.statusName.toUpperCase() === 'CANCELADA')) {
+                            bill.statusName = 'ANULADA';
+                        }
+                        return bill;
+                    });
                     this.isLoading = false;
                 },
                 error: (error) => {

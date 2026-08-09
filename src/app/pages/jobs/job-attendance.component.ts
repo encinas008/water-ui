@@ -11,6 +11,7 @@ import { TextAreaComponent } from '../../shared/components/form/input/text-area.
 import { JobService } from '../../shared/services/job.service';
 import { AttendanceService } from '../../shared/services/attendance.service';
 import { JobOutputDto, PartnerAssignmentInfoDto, AttendanceOutputDto, BulkAttendanceInputDto, PartnerAttendanceDto } from '../../shared/models/water-system.models';
+import { AuthService } from '../../shared/services/auth.service';
 import { toast } from 'ngx-sonner';
 
 @Component({
@@ -58,7 +59,8 @@ export class JobAttendanceComponent implements OnInit {
     private router: Router,
     private jobService: JobService,
     private attendanceService: AttendanceService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    public authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -188,6 +190,59 @@ export class JobAttendanceComponent implements OnInit {
         // No mostrar error si simplemente no hay registros
         this.attendanceRecords = [];
         this.initializeAttendanceMap();
+      }
+    });
+  }
+
+  toggleAttendance(partnerId: string): void {
+    const attendance = this.partnerAttendanceMap.get(partnerId);
+    if (attendance) {
+      attendance.present = !attendance.present;
+      if (!attendance.present) {
+        attendance.checkInTime = '';
+        attendance.checkOutTime = '';
+      }
+      this.saveAttendanceForPartner(partnerId, attendance);
+    }
+  }
+
+  saveAttendanceForPartner(partnerId: string, attendance: { present: boolean; checkInTime: string; checkOutTime: string }): void {
+    if (!this.selectedDateStr) return;
+
+    const existingRecord = this.attendanceRecords.find(
+      a => a.partnerId === partnerId
+    );
+
+    const partnerAttendance: PartnerAttendanceDto = {
+      partnerId,
+      present: attendance.present,
+      checkInTime: attendance.checkInTime ? this.convertToISO(attendance.checkInTime) : undefined,
+      checkOutTime: attendance.checkOutTime ? this.convertToISO(attendance.checkOutTime) : undefined
+    };
+
+    const bulkAttendance: BulkAttendanceInputDto = {
+      jobId: this.jobId,
+      attendanceDate: this.selectedDateStr,
+      attendances: [partnerAttendance]
+    };
+
+    this.attendanceService.bulkCreateAttendance(bulkAttendance).subscribe({
+      next: (savedAttendances) => {
+        if (savedAttendances.length > 0) {
+          const saved = savedAttendances[0];
+          if (!existingRecord) {
+            this.attendanceRecords.push(saved);
+          } else {
+            const index = this.attendanceRecords.findIndex(a => a.id === existingRecord.id);
+            if (index !== -1) {
+              this.attendanceRecords[index] = saved;
+            }
+          }
+        }
+      },
+      error: (error) => {
+        console.error(`Error al guardar asistencia para socio ${partnerId}:`, error);
+        this.loadAttendanceForDate();
       }
     });
   }
