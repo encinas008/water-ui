@@ -47,6 +47,10 @@ export class AddPartnerComponent implements OnInit {
   connectionDate: string = '';
   waterConnectionAddress: string = '';
   isElderly: boolean = false;
+  elderlyPaysMeetingFines: boolean = true;
+  elderlyMeetingFineExplanation: string = '';
+  elderlyPaysJobFines: boolean = true;
+  elderlyJobFineExplanation: string = '';
   notes: string = '';
 
   // Cobro de instalación
@@ -137,6 +141,16 @@ export class AddPartnerComponent implements OnInit {
         return false;
       }
       if (!this.paymentTypeId) {
+        return false;
+      }
+    }
+
+    // Validar exoneraciones si es tercera edad
+    if (this.isElderly) {
+      if (!this.elderlyPaysMeetingFines && (!this.elderlyMeetingFineExplanation || this.elderlyMeetingFineExplanation.trim().length === 0)) {
+        return false;
+      }
+      if (!this.elderlyPaysJobFines && (!this.elderlyJobFineExplanation || this.elderlyJobFineExplanation.trim().length === 0)) {
         return false;
       }
     }
@@ -264,6 +278,10 @@ export class AddPartnerComponent implements OnInit {
         }
         this.waterConnectionAddress = partner.waterConnectionAddress || '';
         this.isElderly = partner.isElderly || false;
+        this.elderlyPaysMeetingFines = partner.elderlyPaysMeetingFines ?? true;
+        this.elderlyMeetingFineExplanation = partner.elderlyMeetingFineExplanation || '';
+        this.elderlyPaysJobFines = partner.elderlyPaysJobFines ?? true;
+        this.elderlyJobFineExplanation = partner.elderlyJobFineExplanation || '';
         this.notes = partner.notes || '';
         this.isLoading = false;
       },
@@ -367,6 +385,18 @@ export class AddPartnerComponent implements OnInit {
       }
     }
 
+    // Validar exoneraciones si es tercera edad
+    if (this.isElderly) {
+      if (!this.elderlyPaysMeetingFines && (!this.elderlyMeetingFineExplanation || this.elderlyMeetingFineExplanation.trim().length === 0)) {
+        toast.error('Debe ingresar un motivo para la exoneración de reuniones');
+        return false;
+      }
+      if (!this.elderlyPaysJobFines && (!this.elderlyJobFineExplanation || this.elderlyJobFineExplanation.trim().length === 0)) {
+        toast.error('Debe ingresar un motivo para la exoneración de trabajos');
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -388,6 +418,10 @@ export class AddPartnerComponent implements OnInit {
       connectionDate: this.connectionDate || undefined,
       waterConnectionAddress: this.waterConnectionAddress?.trim() || undefined,
       isElderly: this.isElderly,
+      elderlyPaysMeetingFines: this.isElderly ? this.elderlyPaysMeetingFines : true,
+      elderlyMeetingFineExplanation: (this.isElderly && !this.elderlyPaysMeetingFines) ? this.elderlyMeetingFineExplanation?.trim() || undefined : undefined,
+      elderlyPaysJobFines: this.isElderly ? this.elderlyPaysJobFines : true,
+      elderlyJobFineExplanation: (this.isElderly && !this.elderlyPaysJobFines) ? this.elderlyJobFineExplanation?.trim() || undefined : undefined,
       notes: this.notes?.trim() || undefined
     };
 
@@ -506,6 +540,10 @@ export class AddPartnerComponent implements OnInit {
     this.connectionDate = `${year}-${month}-${day}`;
     this.waterConnectionAddress = '';
     this.isElderly = false;
+    this.elderlyPaysMeetingFines = true;
+    this.elderlyMeetingFineExplanation = '';
+    this.elderlyPaysJobFines = true;
+    this.elderlyJobFineExplanation = '';
     this.notes = '';
   }
 

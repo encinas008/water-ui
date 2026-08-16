@@ -111,6 +111,40 @@
               </span>
             </p>
           </div>
+
+          <div *ngIf="partner.isElderly" class="col-span-full mt-2 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 p-5">
+            <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-4">Configuración de Multas (Tercera Edad)</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Multas por Reuniones</p>
+                <div class="mt-1">
+                  <span *ngIf="partner.elderlyPaysMeetingFines !== false" class="inline-flex items-center rounded-lg bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 border border-slate-200">
+                    SÍ PAGA
+                  </span>
+                  <div *ngIf="partner.elderlyPaysMeetingFines === false">
+                    <span class="inline-flex items-center rounded-lg bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-100">
+                      EXONERADO
+                    </span>
+                    <p class="text-sm mt-2 text-slate-600 dark:text-slate-400"><span class="font-bold">Motivo:</span> {{ partner.elderlyMeetingFineExplanation || 'No especificado' }}</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Multas por Trabajos</p>
+                <div class="mt-1">
+                  <span *ngIf="partner.elderlyPaysJobFines !== false" class="inline-flex items-center rounded-lg bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 border border-slate-200">
+                    SÍ PAGA
+                  </span>
+                  <div *ngIf="partner.elderlyPaysJobFines === false">
+                    <span class="inline-flex items-center rounded-lg bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 border border-emerald-100">
+                      EXONERADO
+                    </span>
+                    <p class="text-sm mt-2 text-slate-600 dark:text-slate-400"><span class="font-bold">Motivo:</span> {{ partner.elderlyJobFineExplanation || 'No especificado' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
