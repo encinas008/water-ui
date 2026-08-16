@@ -55,6 +55,10 @@ export interface PartnerOutputDto {
   currentDebt?: number;
   lastBillingDate?: string;
   isElderly?: boolean;
+  elderlyPaysMeetingFines?: boolean;
+  elderlyMeetingFineExplanation?: string;
+  elderlyPaysJobFines?: boolean;
+  elderlyJobFineExplanation?: string;
   notes?: string;
 
   active: boolean;
@@ -87,6 +91,10 @@ export interface PartnerInputDto {
   connectionDate?: string;
   waterConnectionAddress?: string;
   isElderly?: boolean;
+  elderlyPaysMeetingFines?: boolean;
+  elderlyMeetingFineExplanation?: string;
+  elderlyPaysJobFines?: boolean;
+  elderlyJobFineExplanation?: string;
   notes?: string;
 
   // Cobro de instalación
