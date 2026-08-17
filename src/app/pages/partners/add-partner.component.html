@@ -130,39 +130,43 @@
               <h4 class="text-sm font-bold text-slate-800 dark:text-white mb-4">Configuración de Multas (Tercera Edad)</h4>
               <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Reuniones -->
-                <div>
-                  <app-label><span class="font-bold text-slate-700 dark:text-slate-300">¿Paga faltas a reuniones?</span></app-label>
-                  <label class="flex items-center gap-3 cursor-pointer mt-2">
-                    <input type="checkbox" name="elderlyPaysMeetingFines" [(ngModel)]="elderlyPaysMeetingFines"
-                      class="h-5 w-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-700 dark:bg-boxdark" />
-                    <span class="text-sm text-slate-700 dark:text-slate-300">
-                      {{ elderlyPaysMeetingFines ? 'Sí, paga multas de reuniones' : 'No, está exonerado' }}
-                    </span>
-                  </label>
-                </div>
-                
-                <div *ngIf="!elderlyPaysMeetingFines">
-                  <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Motivo de exoneración (Reuniones)</span> <span class="text-rose-500 ml-1">*</span></app-label>
-                  <app-input-field type="text" name="elderlyMeetingFineExplanation" [(ngModel)]="elderlyMeetingFineExplanation"
-                    placeholder="Ej: Resolución de directiva #123" [maxlength]="1000" [required]="!elderlyPaysMeetingFines"></app-input-field>
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <app-label><span class="font-bold text-slate-700 dark:text-slate-300">¿Paga faltas a reuniones?</span></app-label>
+                    <label class="flex items-center gap-3 cursor-pointer mt-2">
+                      <input type="checkbox" name="elderlyPaysMeetingFines" [(ngModel)]="elderlyPaysMeetingFines"
+                        class="h-5 w-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-700 dark:bg-boxdark" />
+                      <span class="text-sm text-slate-700 dark:text-slate-300">
+                        {{ elderlyPaysMeetingFines ? 'Sí, paga multas de reuniones' : 'No, está exonerado' }}
+                      </span>
+                    </label>
+                  </div>
+                  
+                  <div *ngIf="!elderlyPaysMeetingFines" class="animate-in fade-in slide-in-from-top-2 duration-200">
+                    <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Motivo de exoneración (Reuniones)</span> <span class="text-rose-500 ml-1">*</span></app-label>
+                    <app-input-field type="text" name="elderlyMeetingFineExplanation" [(ngModel)]="elderlyMeetingFineExplanation"
+                      placeholder="Ej: Resolución de directiva #123" [maxlength]="1000" [required]="!elderlyPaysMeetingFines"></app-input-field>
+                  </div>
                 </div>
 
                 <!-- Trabajos -->
-                <div>
-                  <app-label><span class="font-bold text-slate-700 dark:text-slate-300">¿Paga faltas a trabajos?</span></app-label>
-                  <label class="flex items-center gap-3 cursor-pointer mt-2">
-                    <input type="checkbox" name="elderlyPaysJobFines" [(ngModel)]="elderlyPaysJobFines"
-                      class="h-5 w-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-700 dark:bg-boxdark" />
-                    <span class="text-sm text-slate-700 dark:text-slate-300">
-                      {{ elderlyPaysJobFines ? 'Sí, paga multas de trabajos' : 'No, está exonerado' }}
-                    </span>
-                  </label>
-                </div>
+                <div class="flex flex-col gap-4">
+                  <div>
+                    <app-label><span class="font-bold text-slate-700 dark:text-slate-300">¿Paga faltas a trabajos?</span></app-label>
+                    <label class="flex items-center gap-3 cursor-pointer mt-2">
+                      <input type="checkbox" name="elderlyPaysJobFines" [(ngModel)]="elderlyPaysJobFines"
+                        class="h-5 w-5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 dark:border-slate-700 dark:bg-boxdark" />
+                      <span class="text-sm text-slate-700 dark:text-slate-300">
+                        {{ elderlyPaysJobFines ? 'Sí, paga multas de trabajos' : 'No, está exonerado' }}
+                      </span>
+                    </label>
+                  </div>
 
-                <div *ngIf="!elderlyPaysJobFines">
-                  <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Motivo de exoneración (Trabajos)</span> <span class="text-rose-500 ml-1">*</span></app-label>
-                  <app-input-field type="text" name="elderlyJobFineExplanation" [(ngModel)]="elderlyJobFineExplanation"
-                    placeholder="Ej: Resolución de asamblea" [maxlength]="1000" [required]="!elderlyPaysJobFines"></app-input-field>
+                  <div *ngIf="!elderlyPaysJobFines" class="animate-in fade-in slide-in-from-top-2 duration-200">
+                    <app-label><span class="font-bold text-slate-700 dark:text-slate-300">Motivo de exoneración (Trabajos)</span> <span class="text-rose-500 ml-1">*</span></app-label>
+                    <app-input-field type="text" name="elderlyJobFineExplanation" [(ngModel)]="elderlyJobFineExplanation"
+                      placeholder="Ej: Resolución de asamblea" [maxlength]="1000" [required]="!elderlyPaysJobFines"></app-input-field>
+                  </div>
                 </div>
               </div>
             </div>

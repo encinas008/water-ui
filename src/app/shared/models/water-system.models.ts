@@ -391,6 +391,11 @@ export interface PaymentReceiptFullDto {
 // REPORTES
 // ============================================
 
+export interface MoraDetailDto {
+  billPeriod: string;
+  conceptName: string;
+}
+
 export interface DebtReportDto {
   partnerId: string;
   partnerNumber?: number;
@@ -404,6 +409,7 @@ export interface DebtReportDto {
   lastPaymentDate?: string;
   contactPhone?: string;
   pendingMonths?: string;
+  moraDetails?: MoraDetailDto[];
 }
 
 export interface ConsumptionReportDto {
