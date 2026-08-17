@@ -29,6 +29,7 @@ export class BillingConfigComponent implements OnInit {
     multaConexionPasiva = 5;
     cargoPorCorteRecurrente = 50;
     mesesParaCargoCorte = 3;
+    mesesParaCorte = 3;
 
     constructor(private billingConfigService: BillingConfigService) { }
 
@@ -88,6 +89,9 @@ export class BillingConfigComponent implements OnInit {
                 case 'MESES_PARA_CARGO_CORTE':
                     this.mesesParaCargoCorte = config.configValue;
                     break;
+                case 'MESES_PARA_CORTE':
+                    this.mesesParaCorte = config.configValue;
+                    break;
             }
         });
     }
@@ -96,7 +100,7 @@ export class BillingConfigComponent implements OnInit {
         if (this.aporteDeporte < 0 || this.aporteOTB < 0 || this.tarifaBasica < 0 ||
             this.multaExcesoM3 < 0 || this.multaCorte < 0 || this.mantenimientoSuspendida < 0 ||
             this.multaRetrasoAull < 0 || this.multaRetrasoClasico < 0 || this.multaConexionPasiva < 0 ||
-            this.cargoPorCorteRecurrente < 0 || this.mesesParaCargoCorte <= 0) {
+            this.cargoPorCorteRecurrente < 0 || this.mesesParaCargoCorte <= 0 || this.mesesParaCorte <= 0) {
             toast.error('Todos los valores deben ser mayores o iguales a cero (Meses debe ser mayor a 0)');
             return;
         }
@@ -113,7 +117,8 @@ export class BillingConfigComponent implements OnInit {
             this.billingConfigService.updateConfig('MULTA_RETRASO_CLASICO', this.multaRetrasoClasico),
             this.billingConfigService.updateConfig('MULTA_CONEXION_PASIVA', this.multaConexionPasiva),
             this.billingConfigService.updateConfig('CARGO_POR_CORTE_RECURRENTE', this.cargoPorCorteRecurrente),
-            this.billingConfigService.updateConfig('MESES_PARA_CARGO_CORTE', this.mesesParaCargoCorte)
+            this.billingConfigService.updateConfig('MESES_PARA_CARGO_CORTE', this.mesesParaCargoCorte),
+            this.billingConfigService.updateConfig('MESES_PARA_CORTE', this.mesesParaCorte)
         ];
 
         // Execute all updates
@@ -142,6 +147,7 @@ export class BillingConfigComponent implements OnInit {
         this.multaConexionPasiva = 5;
         this.cargoPorCorteRecurrente = 50;
         this.mesesParaCargoCorte = 3;
+        this.mesesParaCorte = 3;
 
         toast.info('Valores restablecidos a su configuración original');
     }
@@ -157,6 +163,7 @@ export class BillingConfigComponent implements OnInit {
             this.multaRetrasoClasico >= 0 &&
             this.multaConexionPasiva >= 0 &&
             this.cargoPorCorteRecurrente >= 0 &&
-            this.mesesParaCargoCorte > 0;
+            this.mesesParaCargoCorte > 0 &&
+            this.mesesParaCorte > 0;
     }
 }

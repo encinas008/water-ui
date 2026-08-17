@@ -3,8 +3,20 @@
         [breadcrumbItems]="breadcrumbItems"></app-page-breadcrumb>
 
     <!-- Header Actions -->
-    <div
-        class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white dark:bg-boxdark p-6 rounded-3xl border border-slate-100 dark:border-strokedark shadow-sm">
+    <div class="mb-8 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between bg-white dark:bg-boxdark p-6 rounded-3xl border border-slate-100 dark:border-strokedark shadow-sm">
+        
+        <!-- Search Input -->
+        <div class="relative w-full xl:w-96">
+            <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <input type="text" [(ngModel)]="searchTerm"
+                class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white text-sm rounded-xl focus:ring-brand-500 focus:border-brand-500 block pl-11 p-3 font-medium transition-colors"
+                placeholder="Buscar por N° de Socio o Nombre...">
+        </div>
+
         <div class="flex flex-wrap gap-3">
             <button (click)="loadReport()" [disabled]="isLoading"
                 class="flex items-center gap-2 rounded-xl bg-slate-100 py-3 px-6 font-bold text-slate-700 transition-all hover:bg-slate-200 active:scale-95 dark:bg-slate-800 dark:text-white disabled:opacity-50">
@@ -16,7 +28,7 @@
                 Actualizar
             </button>
 
-            <button (click)="exportToExcel()" [disabled]="!candidates.length || isLoading"
+            <button (click)="exportToExcel()" [disabled]="!filteredCandidates.length || isLoading"
                 class="flex items-center gap-2 rounded-xl bg-emerald-600 py-3 px-6 font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 hover:shadow-emerald-600/30 active:scale-95 disabled:opacity-50">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -25,7 +37,7 @@
                 Excel
             </button>
 
-            <button (click)="printReport()" [disabled]="!candidates.length || isLoading"
+            <button (click)="printReport()" [disabled]="!filteredCandidates.length || isLoading"
                 class="flex items-center gap-2 rounded-xl bg-indigo-600 py-3 px-6 font-bold text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-700 hover:shadow-indigo-600/30 active:scale-95 disabled:opacity-50">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -46,7 +58,7 @@
                 <h3 class="text-xl font-bold text-slate-800 dark:text-white">Socios con Multas por Mora</h3>
             </div>
             <div class="px-4 py-1.5 bg-rose-50 dark:bg-rose-500/10 rounded-xl">
-                <span class="text-xs font-black text-rose-600 uppercase tracking-widest">{{ candidates.length }} Socios
+                <span class="text-xs font-black text-rose-600 uppercase tracking-widest">{{ filteredCandidates.length }} Socios
                     Detectados</span>
             </div>
         </div>
@@ -58,7 +70,7 @@
                 <div class="col-span-4">Socio / Propietario</div>
                 <div class="col-span-2 text-center">Celular</div>
                 <div class="col-span-2 text-center">Estado</div>
-                <div class="col-span-3 text-center">Mora Acumulada</div>
+                <div class="col-span-4">Facturas y Moras Generadas</div>
                 <div class="col-span-1 text-right">Acciones</div>
             </div>
         </div>
@@ -70,7 +82,7 @@
             <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Analizando deudas...</p>
         </div>
 
-        <div *ngIf="!isLoading && candidates.length === 0" class="flex flex-col items-center justify-center py-20 px-4">
+        <div *ngIf="!isLoading && filteredCandidates.length === 0" class="flex flex-col items-center justify-center py-20 px-4">
             <div
                 class="h-20 w-20 rounded-3xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-6">
                 <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +93,7 @@
             <p class="text-slate-500 text-center max-w-sm">No hay socios con conceptos de mora en facturas pendientes de los últimos 6 meses.</p>
         </div>
 
-        <div *ngFor="let candidate of candidates; trackBy: trackByPartnerId"
+        <div *ngFor="let candidate of filteredCandidates; trackBy: trackByPartnerId"
             class="group hover:bg-slate-50/80 dark:hover:bg-slate-800/20 transition-all border-b border-slate-50 dark:border-slate-800 last:border-0">
             <div class="grid grid-cols-12 gap-4 items-center px-8 py-5">
                 <!-- Partner Info -->
@@ -118,16 +130,32 @@
                 </div>
 
                 <!-- Debt Info -->
-                <div class="col-span-3 text-center flex flex-col items-center justify-center">
-                    <span class="text-sm font-black text-rose-600 dark:text-rose-400">Bs {{ candidate.totalDebt.toFixed(2) }}</span>
-                    <div class="flex items-center gap-1 mt-0.5">
-                        <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
-                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">
-                            {{ candidate.pendingBillsCount }} Mes(es) Pdte.
-                        </span>
+                <div class="col-span-4 flex flex-col justify-center">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-sm font-black text-rose-600 dark:text-rose-400">Bs {{ candidate.totalDebt.toFixed(2) }}</span>
+                        <div class="flex items-center gap-1">
+                            <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+                            <span class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">
+                                {{ candidate.pendingBillsCount }} Facturas Pdtes.
+                            </span>
+                        </div>
                     </div>
-                    <div *ngIf="candidate.pendingMonths" class="mt-1 text-[9px] text-slate-500 dark:text-slate-400 font-bold truncate max-w-[150px]" [title]="candidate.pendingMonths">
-                        {{ candidate.pendingMonths }}
+                    
+                    <!-- Fines details -->
+                    <div *ngIf="candidate.moraDetails && candidate.moraDetails.length > 0" class="mt-1 flex flex-col gap-1 w-full text-left">
+                        <div *ngFor="let mora of candidate.moraDetails" 
+                             class="flex flex-col bg-rose-50 dark:bg-rose-500/10 px-2.5 py-1.5 rounded-lg border border-rose-100 dark:border-rose-500/20 w-full"
+                             [title]="mora.conceptName">
+                            <span class="text-[8px] font-black text-rose-400 uppercase tracking-widest mb-0.5">Factura: {{ mora.billPeriod }}</span>
+                            <span class="text-[10px] font-bold text-rose-600/90 dark:text-rose-400 leading-tight">{{ mora.conceptName }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Fallback to pending months if no explicit fines exist yet -->
+                    <div *ngIf="(!candidate.moraDetails || candidate.moraDetails.length === 0) && candidate.pendingMonths" 
+                         class="mt-1 text-[9px] text-slate-500 dark:text-slate-400 font-bold truncate max-w-[200px]" 
+                         [title]="candidate.pendingMonths">
+                        Facturas: {{ candidate.pendingMonths }}
                     </div>
                 </div>
 
@@ -168,8 +196,8 @@
                 <th class="border border-black px-2 py-2 text-left">Socio / Propietario</th>
                 <th class="border border-black px-2 py-2 w-24">Celular</th>
                 <th class="border border-black px-2 py-2 w-24">Estado</th>
-                <th class="border border-black px-2 py-2 w-16">Mora</th>
-                <th class="border border-black px-2 py-2 text-left">Facturas</th>
+                <th class="border border-black px-2 py-2 w-16">Facturas</th>
+                <th class="border border-black px-2 py-2 text-left">Moras Generadas</th>
                 <th class="border border-black px-2 py-2 w-24 text-right">Monto (Bs)</th>
             </tr>
         </thead>
@@ -181,7 +209,14 @@
                 <td class="border border-black px-2 py-2 text-center text-[10px]">{{ getStatusLabel(c.connectionStatus)
                     }}</td>
                 <td class="border border-black px-2 py-2 text-center font-bold">{{ c.pendingBillsCount }}</td>
-                <td class="border border-black px-2 py-2 text-left text-[9px]">{{ c.pendingMonths }}</td>
+                <td class="border border-black px-2 py-2 text-left text-[9px]">
+                    <div *ngIf="c.moraDetails && c.moraDetails.length > 0">
+                        <div *ngFor="let m of c.moraDetails" class="mb-1">
+                            <span class="font-black">{{ m.billPeriod }}:</span> {{ m.conceptName }}
+                        </div>
+                    </div>
+                    <div *ngIf="!c.moraDetails || c.moraDetails.length === 0">{{ c.pendingMonths }}</div>
+                </td>
                 <td class="border border-black px-2 py-2 text-right font-bold">{{ c.totalDebt.toFixed(2) }}</td>
             </tr>
         </tbody>

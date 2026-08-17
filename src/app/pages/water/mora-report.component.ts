@@ -7,10 +7,12 @@ import { DebtReportDto } from '../../shared/models/water-system.models';
 import * as XLSX from 'xlsx';
 import { toast } from 'ngx-sonner';
 
+import { FormsModule } from '@angular/forms';
+
 @Component({
     selector: 'app-mora-report',
     standalone: true,
-    imports: [CommonModule, PageBreadcrumbComponent],
+    imports: [CommonModule, PageBreadcrumbComponent, FormsModule],
     templateUrl: './mora-report.component.html',
 })
 export class MoraReportComponent implements OnInit {
@@ -23,6 +25,17 @@ export class MoraReportComponent implements OnInit {
     candidates: DebtReportDto[] = [];
     isLoading = false;
     currentDate = new Date();
+    searchTerm: string = '';
+
+    get filteredCandidates(): DebtReportDto[] {
+        if (!this.searchTerm.trim()) return this.candidates;
+        
+        const term = this.searchTerm.toLowerCase().trim();
+        return this.candidates.filter(c => 
+            c.partnerNumber?.toString() === term || 
+            c.partnerName.toLowerCase().includes(term)
+        );
+    }
 
     constructor(
         private reportService: ReportService,
