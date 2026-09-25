@@ -250,6 +250,20 @@ export class WaterBillService {
   }
 
   /**
+   * Deshace la condonación de una factura
+   * POST /water-bills/{id}/unwaive
+   */
+  unwaiveBill(id: string): Observable<WaterBillOutputDto> {
+    const headers = this.getHeaders();
+    return this.http.post<WaterBillOutputDto>(`${this.apiUrl}/${id}/unwaive`, {}, { headers }).pipe(
+      catchError(error => {
+        console.error('❌ Error al deshacer condonación:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
    * Agregar un nuevo concepto a una factura existente
    * POST /water-bills/{id}/concepts
    */

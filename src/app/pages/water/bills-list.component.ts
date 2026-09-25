@@ -453,6 +453,45 @@ export class BillsListComponent implements OnInit {
     });
   }
 
+  onUnwaiveBill(bill: WaterBillOutputDto): void {
+    Swal.fire({
+      title: '¿Deshacer condonación?',
+      text: `¿Deseas deshacer la condonación de la factura ${bill.billNumber}? La factura volverá a su estado pendiente, se restaurará la deuda al socio y se eliminará el registro de condonación.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f59e0b',
+      cancelButtonColor: '#94a3b8',
+      confirmButtonText: 'Sí, deshacer',
+      cancelButtonText: 'Cancelar',
+      heightAuto: false
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.isLoading = true;
+        this.waterBillService.unwaiveBill(bill.id).subscribe({
+          next: () => {
+            toast.success('Condonación deshecha exitosamente');
+            this.resetAndLoadBills();
+          },
+          error: (error) => {
+            this.isLoading = false;
+            console.error('❌ Error al deshacer condonación:', error);
+
+            let message = 'Error al deshacer la condonación';
+            if (error.error) {
+              if (typeof error.error === 'string') {
+                message = error.error;
+              } else if (error.error.message) {
+                message = error.error.message;
+              }
+            }
+
+            toast.error(message);
+          }
+        });
+      }
+    });
+  }
+
   reprintPayment(paymentId: string): void {
     this.isLoadingReprint = true;
     this.waterPaymentService.downloadReceiptPdf(paymentId, true).then(() => {
