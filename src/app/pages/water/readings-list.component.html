@@ -143,6 +143,11 @@
                             }}</p>
                         <p class="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5">{{
                             getReadingAge(reading) }}</p>
+                        <span *ngIf="reading.resetCounter"
+                            class="mt-1.5 inline-flex items-center gap-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider"
+                            title="Esta lectura reinició el contador desde 0">
+                            Reinicio
+                        </span>
                     </div>
 
                     <!-- Partner -->
@@ -230,7 +235,14 @@
                                 {{ getInitials(reading.partnerName) }}
                             </div>
                             <div>
-                                <p class="font-bold text-slate-800 dark:text-white">{{ reading.partnerName }}</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="font-bold text-slate-800 dark:text-white">{{ reading.partnerName }}</p>
+                                    <span *ngIf="reading.resetCounter"
+                                        class="inline-flex items-center gap-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider"
+                                        title="Esta lectura reinició el contador desde 0">
+                                        Reinicio
+                                    </span>
+                                </div>
                                 <p class="text-xs text-slate-500">{{ reading.readingDate | date:'dd/MM/yyyy' }} • {{
                                     getReadingAge(reading) }}</p>
                             </div>

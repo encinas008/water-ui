@@ -48,6 +48,8 @@ export class AddReadingComponent implements OnInit, OnDestroy {
   readingDateObject: Date = new Date(); // Date object para el date picker
   currentReading: number | null = null;
   observation = '';
+  resetCounter = false;  // Reinicia el contador: lectura anterior = 0 (ej. cambio de medidor)
+  resetReason = '';      // Motivo del reinicio (obligatorio si resetCounter)
 
   // Estados
   isLoading = false;
@@ -214,11 +216,13 @@ export class AddReadingComponent implements OnInit, OnDestroy {
   }
 
   isFormValid(): boolean {
+    const resetReasonValid = !this.resetCounter || (this.resetReason && this.resetReason.trim().length > 0);
     const isValid = !!(
       this.selectedPartner &&
       this.readingDate &&
       this.currentReading !== null &&
-      this.currentReading >= 0
+      this.currentReading >= 0 &&
+      resetReasonValid
     );
 
     console.log('🔍 Validación del formulario:', {
@@ -226,10 +230,20 @@ export class AddReadingComponent implements OnInit, OnDestroy {
       selectedPartner: !!this.selectedPartner,
       readingDate: !!this.readingDate,
       currentReading: this.currentReading,
-      currentReadingValid: this.currentReading !== null && this.currentReading > 0
+      currentReadingValid: this.currentReading !== null && this.currentReading > 0,
+      resetReasonValid
     });
 
     return isValid;
+  }
+
+  onResetCounterToggle(): void {
+    if (!this.resetCounter) {
+      this.resetReason = '';
+    }
+    if (this.resetCounter && this.currentReading !== null && this.currentReading === 0) {
+      toast.info('Recuerde ingresar la lectura nueva del medidor (desde 0).');
+    }
   }
 
   onReadingDateChange(event: any): void {
@@ -312,12 +326,23 @@ export class AddReadingComponent implements OnInit, OnDestroy {
 
   private proceedWithSubmission(): void {
 
+    // Si se reinició el contador, el motivo se guarda en las observaciones para poder
+    // recordar en el tiempo el porqué del reinicio (ej. medidor reemplazado/robado).
+    let observation = this.observation || '';
+    if (this.resetCounter && this.resetReason.trim()) {
+      const reason = this.resetReason.trim();
+      observation = observation
+        ? `${observation} | Motivo reinicio: ${reason}`
+        : `Motivo reinicio: ${reason}`;
+    }
+
     const readingInput: WaterMeterReadingInputDto = {
       partnerId: this.selectedPartner!.id,
       userId: this.authService.getUserInfo().userId,
       readingDate: this.readingDate,
       currentReading: this.currentReading!,
-      observation: this.observation || undefined
+      observation: observation || undefined,
+      resetCounter: this.resetCounter
     };
 
     console.log('📦 DTO a enviar:', readingInput);

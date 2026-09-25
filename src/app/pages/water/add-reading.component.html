@@ -221,6 +221,31 @@
         </div>
       </div>
 
+      <!-- Reinicio de contador -->
+      <div class="mb-8">
+        <label class="flex items-center gap-3 cursor-pointer select-none group">
+          <input type="checkbox" [(ngModel)]="resetCounter" name="resetCounter" id="resetCounter"
+            (change)="onResetCounterToggle()"
+            class="h-5 w-5 rounded-md border-2 border-slate-300 text-primary focus:ring-primary/30 focus:ring-4 accent-primary cursor-pointer" />
+          <span class="text-sm font-bold text-slate-700 dark:text-white group-hover:text-primary transition-colors">
+            Reiniciar contador desde 0 (ej. cambio de medidor)
+          </span>
+        </label>
+        <p *ngIf="resetCounter" class="mt-2 text-xs text-slate-500 dark:text-slate-400 pl-8">
+          Se registrará la lectura tomando la <b>lectura anterior como 0</b>. Se marcará la lectura como
+          "reiniciada" para recordarla en el futuro. Indique el motivo más abajo.
+        </p>
+
+        <div *ngIf="resetCounter" class="mt-4 animate-fade-in">
+          <label for="resetReason" class="mb-3 block text-sm font-bold text-slate-700 dark:text-white">
+            Motivo del reinicio <span class="text-rose-500">*</span>
+          </label>
+          <textarea id="resetReason" [(ngModel)]="resetReason" name="resetReason" rows="2"
+            placeholder="Ej. Se reemplazó el medidor por daño / robo / cambio de ubicación..."
+            class="w-full rounded-xl border-2 border-slate-200 bg-transparent py-4 px-5 font-medium outline-none transition-all placeholder:text-slate-400 focus:border-primary focus:ring-4 focus:ring-primary/10 disabled:cursor-default disabled:bg-slate-50 dark:border-slate-700 dark:bg-boxdark dark:text-white"></textarea>
+        </div>
+      </div>
+
       <!-- Observaciones -->
       <div class="mb-8">
         <label class="mb-3 block text-sm font-bold text-slate-700 dark:text-white">

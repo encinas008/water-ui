@@ -137,6 +137,7 @@ export interface WaterMeterReadingOutputDto {
   readerUserName: string;
   observation?: string;  // Backend usa 'observation' no 'notes'
   imageUrl?: string;
+  resetCounter?: boolean;  // Indica si la lectura reinició el contador desde 0 (ej. cambio de medidor)
 
   createdAt: string;
   updatedAt: string;
@@ -149,6 +150,7 @@ export interface WaterMeterReadingInputDto {
   currentReading: number;  // BigDecimal en backend
   observation?: string;  // Backend usa 'observation'
   imageId?: string;  // UUID opcional
+  resetCounter?: boolean;  // Reinicia el conteo: la lectura anterior se toma como 0
 }
 
 // ============================================

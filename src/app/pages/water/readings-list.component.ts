@@ -166,10 +166,20 @@ export class ReadingsListComponent implements OnInit {
       ? reading.observation
       : '<em>Sin observaciones registradas.</em>';
 
+    const resetBanner = reading.resetCounter
+      ? `<div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-3 text-xs font-bold mb-2 flex items-center gap-2">
+           <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+           </svg>
+           Esta lectura REINICIÓ el contador desde 0 (ej. medidor reemplazado)
+         </div>`
+      : '';
+
     Swal.fire({
       title: 'Detalles de la Lectura',
       html: `
         <div class="text-left space-y-3 p-2">
+          ${resetBanner}
           <div class="flex justify-between border-b border-slate-100 pb-2">
             <span class="font-bold text-slate-500 text-sm">Socio:</span>
             <span class="text-slate-800 font-medium">${reading.partnerName} (${reading.partnerNumber})</span>
