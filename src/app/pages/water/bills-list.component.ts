@@ -330,6 +330,22 @@ export class BillsListComponent implements OnInit {
     }, 0);
   }
 
+  isMoraConcept(conceptName: string): boolean {
+    return /mora|corte/i.test(conceptName || '');
+  }
+
+  isMultaConcept(conceptName: string): boolean {
+    return /multa/i.test(conceptName || '') && !this.isMoraConcept(conceptName);
+  }
+
+  hasMoraConcept(bill: WaterBillOutputDto | null | undefined): boolean {
+    return (bill?.concepts || []).some((c) => this.isMoraConcept(c.conceptName));
+  }
+
+  hasMultaConcept(bill: WaterBillOutputDto | null | undefined): boolean {
+    return (bill?.concepts || []).some((c) => this.isMultaConcept(c.conceptName));
+  }
+
   registerPayment(bill: WaterBillOutputDto): void {
     this.router.navigate(['/water-payments/add'], { queryParams: { billId: bill.id } });
   }

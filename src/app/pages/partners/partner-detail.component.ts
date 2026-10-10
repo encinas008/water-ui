@@ -24,6 +24,7 @@ import { PartnerOutputDto } from '../../shared/models/water-system.models';
 export class PartnerDetailComponent implements OnInit {
   partner: PartnerOutputDto | null = null;
   payments: any[] = [];
+  expandedPaymentId: string | null = null;
   isLoading: boolean = true;
   errorMessage: string = '';
 
@@ -191,6 +192,53 @@ export class PartnerDetailComponent implements OnInit {
     }
   }
 
+  togglePaymentDetail(paymentId: string): void {
+    this.expandedPaymentId = this.expandedPaymentId === paymentId ? null : paymentId;
+  }
+
+  hasSaldo(payment: any): boolean {
+    return Number(payment?.billRemainingBalance ?? 0) > 0;
+  }
+
+  isMoraConcept(conceptName: string): boolean {
+    return /mora|corte/i.test(conceptName || '');
+  }
+
+  isMultaConcept(conceptName: string): boolean {
+    return /multa/i.test(conceptName || '') && !this.isMoraConcept(conceptName);
+  }
+
+  hasMoraConcept(payment: any): boolean {
+    return ((payment?.billConcepts as any[]) || []).some((c) =>
+      this.isMoraConcept(c?.conceptName)
+    );
+  }
+
+  getMoraTotal(payment: any): number {
+    return ((payment?.billConcepts as any[]) || [])
+      .filter((c) => this.isMoraConcept(c?.conceptName))
+      .reduce((sum, c) => sum + Number(c?.amount || 0), 0);
+  }
+
+  hasMultaConcept(payment: any): boolean {
+    return ((payment?.billConcepts as any[]) || []).some((c) =>
+      this.isMultaConcept(c?.conceptName)
+    );
+  }
+
+  getMultaTotal(payment: any): number {
+    return ((payment?.billConcepts as any[]) || [])
+      .filter((c) => this.isMultaConcept(c?.conceptName))
+      .reduce((sum, c) => sum + Number(c?.amount || 0), 0);
+  }
+
+  getConceptsTotal(payment: any): number {
+    return ((payment?.billConcepts as any[]) || []).reduce(
+      (sum, c) => sum + Number(c?.amount || 0),
+      0
+    );
+  }
+
   formatDate(date: string | undefined): string {
     if (!date) return 'N/A';
 
@@ -207,5 +255,17 @@ export class PartnerDetailComponent implements OnInit {
     ];
 
     return `${day} de ${months[month - 1]} ${year}`;
+  }
+
+  formatBillingPeriod(billingMonth: number | undefined, billingYear: number | undefined): string {
+    if (!billingMonth || !billingYear) return 'N/A';
+
+    const months = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    const monthName = months[billingMonth - 1];
+    return monthName ? `${monthName} ${billingYear}` : 'N/A';
   }
 }

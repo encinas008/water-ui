@@ -242,38 +242,171 @@
               class="text-xs font-bold uppercase text-slate-500 bg-slate-50/50 dark:bg-slate-800 dark:text-slate-400">
               <tr>
                 <th scope="col" class="px-7 py-4">Fecha</th>
+                <th scope="col" class="px-7 py-4">Mes/Año Factura</th>
                 <th scope="col" class="px-7 py-4">Concepto / Tipo</th>
                 <th scope="col" class="px-7 py-4">Monto</th>
+                <th scope="col" class="px-7 py-4">Saldo</th>
                 <th scope="col" class="px-7 py-4 text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let payment of payments"
-                class="bg-white border-b border-slate-50 dark:bg-boxdark dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                <td class="px-7 py-4 font-medium">{{ formatDate(payment.paymentDate) }}</td>
-                <td class="px-7 py-4">
-                  <div class="font-bold text-slate-800 dark:text-white">{{ payment.paymentTypeName }}</div>
-                  <div class="text-xs font-medium text-slate-400 mt-0.5">{{ payment.observation || payment.receiptNumber
-                    }}</div>
-                </td>
-                <td class="px-7 py-4 font-bold text-emerald-600">
-                  BOB {{ payment.amount | number:'1.2-2' }}
-                </td>
-                <td class="px-7 py-4 text-right">
-                  <app-button variant="outline" size="sm" (btnClick)="onPrintReceipt(payment.id)"
-                    [className]="'rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 py-1.5 px-3'">
-                    <span class="flex items-center gap-2">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
-                        </path>
-                      </svg>
-                      Reimprimir
+              <ng-container *ngFor="let payment of payments">
+                <tr
+                  class="bg-white border-b border-slate-50 dark:bg-boxdark dark:border-slate-800 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <td class="px-7 py-4 font-medium">{{ formatDate(payment.paymentDate) }}</td>
+                  <td class="px-7 py-4 font-medium text-slate-700 dark:text-slate-300">
+                    {{ formatBillingPeriod(payment.billingMonth, payment.billingYear) }}
+                  </td>
+                  <td class="px-7 py-4">
+                    <div class="font-bold text-slate-800 dark:text-white">{{ payment.paymentTypeName }}</div>
+                    <div class="text-xs font-medium text-slate-400 mt-0.5">{{ payment.observation || payment.receiptNumber
+                      }}</div>
+                  </td>
+                  <td class="px-7 py-4 font-bold text-emerald-600">
+                    BOB {{ payment.amount | number:'1.2-2' }}
+                  </td>
+                  <td class="px-7 py-4">
+                    <span class="font-bold"
+                      [ngClass]="hasSaldo(payment) ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'">
+                      BOB {{ (payment.billRemainingBalance || 0) | number:'1.2-2' }}
                     </span>
-                  </app-button>
-                </td>
-              </tr>
+                    <div *ngIf="hasSaldo(payment)" class="text-[11px] font-medium text-red-500/80 mt-0.5">Pendiente</div>
+                  </td>
+                  <td class="px-7 py-4 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <app-button variant="outline" size="sm" (btnClick)="togglePaymentDetail(payment.id)"
+                        [className]="'rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 py-1.5 px-3'">
+                        <span class="flex items-center gap-2">
+                          <svg class="w-4 h-4 transition-transform"
+                            [ngClass]="expandedPaymentId === payment.id ? 'rotate-180' : ''" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 9l-7 7-7-7"></path>
+                          </svg>
+                          {{ expandedPaymentId === payment.id ? 'Ocultar' : 'Ver detalle' }}
+                        </span>
+                      </app-button>
+                      <app-button variant="outline" size="sm" (btnClick)="onPrintReceipt(payment.id)"
+                        [className]="'rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 py-1.5 px-3'">
+                        <span class="flex items-center gap-2">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z">
+                            </path>
+                          </svg>
+                          Reimprimir
+                        </span>
+                      </app-button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Detalle del pago -->
+                <tr *ngIf="expandedPaymentId === payment.id"
+                  class="bg-slate-50/70 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800">
+                  <td colspan="6" class="px-7 py-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <!-- Resumen de la factura -->
+                      <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-boxdark p-4">
+                        <h4 class="text-xs font-bold uppercase text-slate-500 mb-3">Factura</h4>
+                        <div class="space-y-1 text-sm">
+                          <div class="flex justify-between"><span class="text-slate-500">N°</span><span
+                              class="font-semibold text-slate-700 dark:text-slate-200">{{ payment.billNumber || 'N/A' }}</span></div>
+                          <div class="flex justify-between"><span class="text-slate-500">Total</span><span
+                              class="font-semibold text-slate-700 dark:text-slate-200">BOB {{ (payment.billTotalAmount || 0) | number:'1.2-2' }}</span></div>
+                          <div class="flex justify-between"><span class="text-slate-500">Pagado</span><span
+                              class="font-semibold text-emerald-600">BOB {{ (payment.billPaidAmount || 0) | number:'1.2-2' }}</span></div>
+                          <div class="flex justify-between border-t border-slate-100 dark:border-slate-700 pt-1 mt-1">
+                            <span class="text-slate-500">Saldo</span>
+                            <span class="font-bold"
+                              [ngClass]="hasSaldo(payment) ? 'text-red-600' : 'text-slate-700 dark:text-slate-200'">BOB {{ (payment.billRemainingBalance || 0) | number:'1.2-2' }}</span>
+                          </div>
+                        </div>
+
+                        <!-- Conceptos que cubre la factura (incluye moras) -->
+                        <div *ngIf="(payment.billConcepts?.length || 0) > 0"
+                          class="mt-3 border-t border-slate-100 dark:border-slate-700 pt-2">
+                          <div class="flex flex-wrap items-center justify-between gap-1 mb-1">
+                            <div class="text-[11px] font-bold uppercase text-slate-500">Conceptos de la factura</div>
+                            <div class="flex items-center gap-1">
+                              <span *ngIf="hasMoraConcept(payment)"
+                                class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+                                Mora
+                              </span>
+                              <span *ngIf="hasMultaConcept(payment)"
+                                class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300">
+                                Multa
+                              </span>
+                            </div>
+                          </div>
+                          <ul class="space-y-1 text-sm">
+                            <li *ngFor="let concept of payment.billConcepts" class="flex justify-between gap-2 rounded-md px-1.5 py-1"
+                              [ngClass]="isMoraConcept(concept.conceptName) ? 'bg-amber-50 dark:bg-amber-500/10' : (isMultaConcept(concept.conceptName) ? 'bg-rose-50 dark:bg-rose-500/10' : '')">
+                              <span class="truncate flex items-center gap-1.5"
+                                [ngClass]="isMoraConcept(concept.conceptName) ? 'text-amber-700 dark:text-amber-300' : (isMultaConcept(concept.conceptName) ? 'text-rose-700 dark:text-rose-300' : 'text-slate-500')"
+                                [title]="concept.conceptName">
+                                <span *ngIf="isMoraConcept(concept.conceptName)"
+                                  class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                                <span *ngIf="isMultaConcept(concept.conceptName)"
+                                  class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
+                                {{ concept.conceptName }}
+                              </span>
+                              <span class="font-semibold whitespace-nowrap"
+                                [ngClass]="isMoraConcept(concept.conceptName) ? 'text-amber-700 dark:text-amber-300' : (isMultaConcept(concept.conceptName) ? 'text-rose-700 dark:text-rose-300' : 'text-slate-700 dark:text-slate-200')">
+                                BOB {{ concept.amount | number:'1.2-2' }}
+                              </span>
+                            </li>
+                          </ul>
+                          <div class="flex justify-between gap-2 border-t border-slate-100 dark:border-slate-700 pt-1 mt-1 text-sm">
+                            <span class="text-slate-500">Suma de conceptos</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200">BOB {{ getConceptsTotal(payment) | number:'1.2-2' }}</span>
+                          </div>
+                          <div *ngIf="hasMoraConcept(payment)" class="flex justify-between gap-2 text-sm">
+                            <span class="text-amber-700 dark:text-amber-300 font-medium">Total mora</span>
+                            <span class="font-bold text-amber-700 dark:text-amber-300">BOB {{ getMoraTotal(payment) | number:'1.2-2' }}</span>
+                          </div>
+                          <div *ngIf="hasMultaConcept(payment)" class="flex justify-between gap-2 text-sm">
+                            <span class="text-rose-700 dark:text-rose-300 font-medium">Total multas</span>
+                            <span class="font-bold text-rose-700 dark:text-rose-300">BOB {{ getMultaTotal(payment) | number:'1.2-2' }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Resumen del pago -->
+                      <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-boxdark p-4">
+                        <h4 class="text-xs font-bold uppercase text-slate-500 mb-3">Pago</h4>
+                        <div class="space-y-1 text-sm">
+                          <div class="flex justify-between"><span class="text-slate-500">Recibo</span><span
+                              class="font-semibold text-slate-700 dark:text-slate-200">{{ payment.receiptNumber || 'N/A' }}</span></div>
+                          <div class="flex justify-between"><span class="text-slate-500">Monto</span><span
+                              class="font-bold text-emerald-600">BOB {{ payment.amount | number:'1.2-2' }}</span></div>
+                          <div *ngIf="payment.observation" class="flex justify-between gap-2">
+                            <span class="text-slate-500">Observación</span>
+                            <span class="font-medium text-slate-600 dark:text-slate-300 text-right">{{ payment.observation }}</span>
+                          </div>
+                        </div>
+
+                        <!-- Multas incluidas: solo se muestra si el pago tiene multas registradas -->
+                        <div *ngIf="(payment.paymentDetail?.jobFines?.length || 0) + (payment.paymentDetail?.meetingFines?.length || 0) > 0"
+                          class="mt-3 border-t border-slate-100 dark:border-slate-700 pt-2">
+                          <div class="text-[11px] font-bold uppercase text-rose-600 dark:text-rose-300 mb-1">Multas incluidas</div>
+                          <ul class="space-y-1 text-sm">
+                            <li *ngFor="let fine of payment.paymentDetail?.jobFines" class="flex justify-between gap-2">
+                              <span class="text-rose-700 dark:text-rose-300 truncate" [title]="fine.name">{{ fine.name }}</span>
+                              <span class="font-semibold text-rose-700 dark:text-rose-300 whitespace-nowrap">BOB {{ fine.fineAmount | number:'1.2-2' }}</span>
+                            </li>
+                            <li *ngFor="let fine of payment.paymentDetail?.meetingFines" class="flex justify-between gap-2">
+                              <span class="text-rose-700 dark:text-rose-300 truncate" [title]="fine.name">{{ fine.name }}</span>
+                              <span class="font-semibold text-rose-700 dark:text-rose-300 whitespace-nowrap">BOB {{ fine.fineAmount | number:'1.2-2' }}</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
             </tbody>
           </table>
         </div>

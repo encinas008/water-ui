@@ -493,10 +493,22 @@
 
           <!-- Conceptos -->
           <div *ngIf="billDetail.bill.concepts && billDetail.bill.concepts.length > 0">
-            <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-              <span class="w-1.5 h-6 bg-primary rounded-full"></span>
-              Conceptos de Consumo
-            </h3>
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+              <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <span class="w-1.5 h-6 bg-primary rounded-full"></span>
+                Conceptos de Consumo
+              </h3>
+              <div class="flex items-center gap-1">
+                <span *ngIf="hasMoraConcept(billDetail.bill)"
+                  class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+                  Mora
+                </span>
+                <span *ngIf="hasMultaConcept(billDetail.bill)"
+                  class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300">
+                  Multa
+                </span>
+              </div>
+            </div>
             <div
               class="bg-white dark:bg-boxdark rounded-2xl border border-slate-100 dark:border-strokedark overflow-hidden">
               <table class="w-full text-sm">
@@ -513,9 +525,20 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let concept of billDetail.bill.concepts"
-                    class="border-b border-slate-50 dark:border-strokedark last:border-0 hover:bg-slate-50/50 transition-colors">
-                    <td class="py-4 px-6 text-slate-700 dark:text-slate-300 font-medium">{{ concept.conceptName }}</td>
-                    <td class="py-4 px-6 text-right font-bold text-slate-800 dark:text-white">BOB {{ concept.amount |
+                    class="border-b border-slate-50 dark:border-strokedark last:border-0 transition-colors"
+                    [ngClass]="isMoraConcept(concept.conceptName) ? 'bg-amber-50/60 dark:bg-amber-500/10 hover:bg-amber-50' : (isMultaConcept(concept.conceptName) ? 'bg-rose-50/60 dark:bg-rose-500/10 hover:bg-rose-50' : 'hover:bg-slate-50/50')">
+                    <td class="py-4 px-6 font-medium"
+                      [ngClass]="isMoraConcept(concept.conceptName) ? 'text-amber-700 dark:text-amber-300' : (isMultaConcept(concept.conceptName) ? 'text-rose-700 dark:text-rose-300' : 'text-slate-700 dark:text-slate-300')">
+                      <span class="inline-flex items-center gap-2">
+                        <span *ngIf="isMoraConcept(concept.conceptName)"
+                          class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                        <span *ngIf="isMultaConcept(concept.conceptName)"
+                          class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
+                        {{ concept.conceptName }}
+                      </span>
+                    </td>
+                    <td class="py-4 px-6 text-right font-bold whitespace-nowrap"
+                      [ngClass]="isMoraConcept(concept.conceptName) ? 'text-amber-700 dark:text-amber-300' : (isMultaConcept(concept.conceptName) ? 'text-rose-700 dark:text-rose-300' : 'text-slate-800 dark:text-white')">BOB {{ concept.amount |
                       number:'1.2-2' }}</td>
                     <td *ngIf="isSuperAdmin && billDetail.bill.statusCode === 'PENDING'" class="py-1 px-4 text-right">
                       <button (click)="onDeleteConcept(billDetail.bill, concept.id)"

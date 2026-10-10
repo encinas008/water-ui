@@ -216,23 +216,23 @@
             <!-- Multas Pendientes -->
             <div
               *ngIf="!isLoadingPendingFines && pendingFines && (pendingFines.jobAbsences.length > 0 || pendingFines.meetingAbsences.length > 0)"
-              class="bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30 overflow-hidden">
+              class="bg-rose-50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-800/30 overflow-hidden">
               <div
-                class="px-5 py-3 bg-amber-100/50 dark:bg-amber-900/20 border-b border-amber-100 dark:border-amber-800/30 flex items-center gap-2">
-                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="px-5 py-3 bg-rose-100/50 dark:bg-rose-900/20 border-b border-rose-100 dark:border-rose-800/30 flex items-center gap-2">
+                <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <h4 class="font-bold text-amber-800 dark:text-amber-200 text-sm">Multas Pendientes</h4>
+                <h4 class="font-bold text-rose-800 dark:text-rose-200 text-sm">Multas Pendientes</h4>
               </div>
 
               <div class="p-5 space-y-4">
                 <!-- Trabajos -->
                 <div *ngIf="pendingFines.jobAbsences.length > 0">
-                  <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-2">Trabajos</p>
+                  <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-2">Trabajos</p>
                   <ul class="space-y-2">
                     <li *ngFor="let item of pendingFines.jobAbsences"
-                      class="flex justify-between text-sm text-amber-900/80 dark:text-amber-100/80">
+                      class="flex justify-between text-sm text-rose-900/80 dark:text-rose-100/80">
                       <span>{{ item.name }}</span>
                       <span class="font-bold">BOB {{ item.fine | number:'1.2-2' }}</span>
                     </li>
@@ -241,10 +241,10 @@
 
                 <!-- Reuniones -->
                 <div *ngIf="pendingFines.meetingAbsences.length > 0">
-                  <p class="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-2">Reuniones</p>
+                  <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-2">Reuniones</p>
                   <ul class="space-y-2">
                     <li *ngFor="let item of pendingFines.meetingAbsences"
-                      class="flex justify-between text-sm text-amber-900/80 dark:text-amber-100/80">
+                      class="flex justify-between text-sm text-rose-900/80 dark:text-rose-100/80">
                       <span>{{ item.name }}</span>
                       <span class="font-bold">BOB {{ item.fine | number:'1.2-2' }}</span>
                     </li>
@@ -252,7 +252,7 @@
                 </div>
 
                 <div
-                  class="pt-3 border-t border-amber-200/50 dark:border-amber-800/30 flex justify-between items-center text-amber-800 dark:text-amber-200">
+                  class="pt-3 border-t border-rose-200/50 dark:border-rose-800/30 flex justify-between items-center text-rose-800 dark:text-rose-200">
                   <span class="font-bold text-xs uppercase">Total Multas</span>
                   <span class="font-black">BOB {{ pendingFines.totalFines | number:'1.2-2' }}</span>
                 </div>
@@ -266,12 +266,31 @@
                 <ng-container
                   *ngIf="selectedBill?.concepts && selectedBill!.concepts!.length > 0; else simpleBillAmount">
                   <div class="border-b border-slate-200 dark:border-slate-600 pb-3 mb-3">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Detalle Factura</p>
+                    <div class="flex flex-wrap items-center justify-between gap-1 mb-2">
+                      <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Detalle Factura</p>
+                      <div class="flex items-center gap-1">
+                        <span *ngIf="hasMoraConcept(selectedBill)"
+                          class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+                          Mora
+                        </span>
+                        <span *ngIf="hasMultaConcept(selectedBill)"
+                          class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300">
+                          Multa
+                        </span>
+                      </div>
+                    </div>
                     <div *ngFor="let concept of selectedBill!.concepts"
-                      class="flex justify-between items-center text-sm py-1">
-                      <span class="text-slate-600 dark:text-slate-400">{{ concept.conceptName }}</span>
-                      <span class="font-bold text-slate-700 dark:text-slate-300">BOB {{ concept.amount | number:'1.2-2'
+                      class="flex justify-between items-center text-sm py-1 px-1.5 rounded-md"
+                      [ngClass]="isMoraConcept(concept.conceptName) ? 'bg-amber-50 dark:bg-amber-500/10' : (isMultaConcept(concept.conceptName) ? 'bg-rose-50 dark:bg-rose-500/10' : '')">
+                      <span class="truncate"
+                        [ngClass]="isMoraConcept(concept.conceptName) ? 'text-amber-700 dark:text-amber-300' : (isMultaConcept(concept.conceptName) ? 'text-rose-700 dark:text-rose-300' : 'text-slate-600 dark:text-slate-400')">{{ concept.conceptName }}</span>
+                      <span class="font-bold whitespace-nowrap"
+                        [ngClass]="isMoraConcept(concept.conceptName) ? 'text-amber-700 dark:text-amber-300' : (isMultaConcept(concept.conceptName) ? 'text-rose-700 dark:text-rose-300' : 'text-slate-700 dark:text-slate-300')">BOB {{ concept.amount | number:'1.2-2'
                         }}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm py-1 px-1.5 mt-1 border-t border-slate-100 dark:border-slate-700" *ngIf="hasMoraConcept(selectedBill) || hasMultaConcept(selectedBill)">
+                      <span class="text-slate-400 text-xs uppercase font-bold tracking-wider">Mora + Multas</span>
+                      <span class="font-bold text-slate-700 dark:text-slate-300">BOB {{ (getMoraTotal(selectedBill) + getMultaTotal(selectedBill)) | number:'1.2-2' }}</span>
                     </div>
                   </div>
                   <div class="flex justify-between items-center text-slate-500 mb-2">
@@ -289,7 +308,7 @@
                   </div>
                 </ng-template>
 
-                <div class="flex justify-between items-center text-amber-600"
+                <div class="flex justify-between items-center text-rose-600 dark:text-rose-300"
                   *ngIf="pendingFines && pendingFines.totalFines > 0">
                   <span class="font-medium">Total Multas</span>
                   <span class="font-bold">+ BOB {{ pendingFines.totalFines | number:'1.2-2' }}</span>

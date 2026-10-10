@@ -296,6 +296,8 @@ export interface WaterPaymentOutputDto {
   receiptNumber: string;
   waterBillId: string;
   billNumber: string;
+  billingMonth?: number;
+  billingYear?: number;
   partnerId: string;
   partnerName: string;
   partnerNumber?: number;
@@ -312,6 +314,12 @@ export interface WaterPaymentOutputDto {
   processedBy?: string;
   cashierName?: string;
   paymentDetail?: PaymentDetailDto; // Detalle del pago incluyendo multas
+
+  billTotalAmount?: number;      // Total facturado de la factura asociada
+  billPaidAmount?: number;       // Total pagado de la factura
+  billRemainingBalance?: number; // Saldo de la factura (0 si no debe)
+  billStatusCode?: string;       // Estado de la factura (PAID, PENDING, ...)
+  billConcepts?: BillConceptItemDto[]; // Conceptos que cubre la factura (mora, tarifa, aportes, ...)
 
   createdAt: string;
   updatedAt?: string;

@@ -23,5 +23,10 @@ FROM nginx:latest
 # Copy the build output to replace the default nginx contents.
 COPY --from=build /usr/local/app/dist/water-ui/browser /usr/share/nginx/html
 
+# Runtime config: genera config.json desde la variable de entorno API_URL al arrancar
+COPY docker/config.json.template /usr/share/nginx/html/config.json.template
+COPY docker/40-runtime-config.sh /docker-entrypoint.d/40-runtime-config.sh
+RUN chmod +x /docker-entrypoint.d/40-runtime-config.sh
+
 # Expose port 80
 EXPOSE 80

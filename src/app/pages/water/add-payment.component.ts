@@ -480,4 +480,32 @@ export class AddPaymentComponent implements OnInit {
       toast.error('Error al generar la vista de impresión');
     });
   }
+
+  isMoraConcept(conceptName: string): boolean {
+    return /mora|corte/i.test(conceptName || '');
+  }
+
+  isMultaConcept(conceptName: string): boolean {
+    return /multa/i.test(conceptName || '') && !this.isMoraConcept(conceptName);
+  }
+
+  hasMoraConcept(bill: WaterBillOutputDto | null | undefined): boolean {
+    return (bill?.concepts || []).some((c) => this.isMoraConcept(c.conceptName));
+  }
+
+  getMoraTotal(bill: WaterBillOutputDto | null | undefined): number {
+    return (bill?.concepts || [])
+      .filter((c) => this.isMoraConcept(c.conceptName))
+      .reduce((sum, c) => sum + Number(c.amount || 0), 0);
+  }
+
+  hasMultaConcept(bill: WaterBillOutputDto | null | undefined): boolean {
+    return (bill?.concepts || []).some((c) => this.isMultaConcept(c.conceptName));
+  }
+
+  getMultaTotal(bill: WaterBillOutputDto | null | undefined): number {
+    return (bill?.concepts || [])
+      .filter((c) => this.isMultaConcept(c.conceptName))
+      .reduce((sum, c) => sum + Number(c.amount || 0), 0);
+  }
 }
